@@ -16,4 +16,5 @@ class parser {
         void change_attribute_name(const std::string& expression_name, const std::string& old_atr_name);
         void set_condition(bool new_condition) {condition_ = new_condition;}
         [[nodiscard]] const std::map<std::string, std::vector<std::string>>& get_map() const noexcept;
+        void combine_expressions(const std::string& expression_1, const std::string& expression_2, const std::string& new_expression);
 };
