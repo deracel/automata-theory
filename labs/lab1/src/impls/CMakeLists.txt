@@ -17,4 +17,5 @@ target_include_directories(impls PUBLIC
 
 target_link_libraries(impls PRIVATE
         interfaces
+        parser
 )

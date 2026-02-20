@@ -9,12 +9,19 @@
 int main() {
     auto rel = std::make_unique<regex_version>();
     auto* interface = dynamic_cast<i_recognizer*>(rel.get());
-    std::string input;
-    std::getline(std::cin, input);
-    auto res = interface->terminal_parser(input);
-    std::cout << res.first << std::endl;
-    std::ranges::for_each(res.second, [&](auto&& result) {
-        std::cout << result << std::endl;
-    });
+    while (1) {
+        std::string input;
+        std::getline(std::cin, input);
+        interface->terminal_parser(input);
+        const auto& expressions= interface->get_parser_info();
+        for (auto iter = expressions.begin(); iter != expressions.end(); ++iter) {
+            std::cout << "\t" << iter->first << ": ";
+            std::ranges::for_each(iter->second, [](const auto& attr) {
+                std::cout << attr << " ";
+            });
+            std::cout << std::endl;
+        }
+
+    }
     return 0;
 }
