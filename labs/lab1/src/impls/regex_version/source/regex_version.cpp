@@ -10,6 +10,7 @@ bool create_new_expression(const std::string& str, parser& parser_) {
                                         "(" + name_attr_pattern + ")"
                                         "(\\s+)"
                                         "(\\(\\s*" + "(" + name_attr_pattern + "\\s*)+" + "\\))"
+                                        "$"
                                         );
 
 
@@ -31,8 +32,10 @@ bool create_new_expression(const std::string& str, parser& parser_) {
             final_attributes.push_back(token);
         }
         parser_.add_expression(name, final_attributes);
+        parser_.set_condition(true);
         return true;
     }
+    parser_.set_condition(false);
     return false;
 }
 
@@ -52,8 +55,10 @@ bool combine_expressions(const std::string& str, parser& parser_) {
         std::string expression_1 = matches[5];
         std::string expression_2 = matches[7];
         parser_.combine_expressions(expression_1, expression_2, new_expression);
+        parser_.set_condition(true);
         return true;
     }
+    parser_.set_condition(false);
     return false;
 }
 
@@ -71,6 +76,5 @@ const std::map<std::string, std::vector<std::string>>& regex_version::get_parser
 
 void regex_version::file_parser(const std::string&) {
 }
-
 
 

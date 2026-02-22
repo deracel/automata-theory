@@ -2,3 +2,5 @@ prep/build
 .idea*
 prep/.idea*
 labs/lab1/build
+labs/lab1/tests/build
+

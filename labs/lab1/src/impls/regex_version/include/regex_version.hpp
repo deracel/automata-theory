@@ -11,4 +11,5 @@ class regex_version : public i_recognizer {
     void terminal_parser(const std::string&) override;
     void file_parser(const std::string&) override;
     [[nodiscard]] const std::map<std::string, std::vector<std::string>>& get_parser_info() const noexcept override;
+    [[nodiscard]] bool get_parser_state() const noexcept override {return parser_.get_condition();}
 };
