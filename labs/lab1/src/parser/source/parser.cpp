@@ -1,32 +1,29 @@
 #include "parser.hpp"
 
 #include <algorithm>
-#include <set>
 #include <unordered_map>
 
 std::vector<std::string> parser::get_attribute(const std::string& expression_name) const noexcept {
+    std::vector<std::string> res = {};
     auto iter = expression_to_attribute_.find(expression_name);
     if (iter != expression_to_attribute_.end())
-        return iter->second;
-    return {};
+       res = iter->second;
+    return res;
 }
 
 std::vector<std::string> parser::get_expression(const std::string& attribute_name) const noexcept {
+    std::vector<std::string> res = {};
     auto iter = attribute_to_expression_.find(attribute_name);
     if (iter != attribute_to_expression_.end())
-        return iter->second;
-    return {};
+        res = iter->second;
+    return res;
 }
 
 
-void parser::add_expression(const std::string& expression_name, std::vector<std::string>& attributes) {
+bool parser::add_expression(const std::string& expression_name, std::vector<std::string>& attributes) {
     if (expression_to_attribute_.contains(expression_name)) {
         condition_ = false;
-        return;
-    }
-    if (attributes.empty()) {
-        condition_ = false;
-        return;
+        return false;
     }
     std::ranges::for_each(attributes, [&](const std::string& attr){
         auto vec = get_expression(attr);
@@ -41,14 +38,18 @@ void parser::add_expression(const std::string& expression_name, std::vector<std:
         }
     });
     expression_to_attribute_.insert({expression_name, attributes});
+    condition_ = true;
+    return true;
 }
 
 
-void parser::combine_expressions(const std::string& expression_1, const std::string& expression_2, const std::string& new_expression) {
+bool parser::combine_expressions(const std::string& expression_1, const std::string& expression_2, const std::string& new_expression) {
     if (!expression_to_attribute_.contains(expression_1) ||
-        !expression_to_attribute_.contains(expression_2) || expression_1 == expression_2) {
+        !expression_to_attribute_.contains(expression_2) ||
+        expression_1 == expression_2                     ||
+        expression_to_attribute_.contains(new_expression)) {
         condition_ = false;
-        return;
+        return false;
     }
     auto attributes_1 = get_attribute(expression_1);
     auto attributes_2 = get_attribute(expression_2);
@@ -74,19 +75,8 @@ void parser::combine_expressions(const std::string& expression_1, const std::str
 
     summary_vector.insert(summary_vector.end(), attributes_1.begin(), attributes_1.end());
     summary_vector.insert(summary_vector.end(), attributes_2.begin(), attributes_2.end());
-    condition_ = true;
-    add_expression(new_expression, summary_vector);
-}
-
-void parser::change_attribute_name(const std::string& expression_name, const std::string& old_atr_name) {
-    auto it = expression_to_attribute_.find(expression_name);
-    if (it == expression_to_attribute_.end())
-        return;
-    auto& attributes = it->second;
-    for (auto& attr : attributes) {
-        if (attr == old_atr_name)
-            attr =  old_atr_name + "." + expression_name;
-    }
+    bool res = add_expression(new_expression, summary_vector);
+    return res;
 }
 
 const std::map<std::string, std::vector<std::string>>& parser::get_map() const noexcept {

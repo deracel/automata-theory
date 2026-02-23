@@ -7,6 +7,8 @@
 class regex_version : public i_recognizer {
     private:
         parser parser_;
+        bool create_new_expression(const std::string& str);
+        bool combine_expressions(const std::string& str);
     public:
     void terminal_parser(const std::string&) override;
     void file_parser(const std::string&) override;

@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_subdirectory(src/interfaces)
 add_subdirectory(src/impls)
 add_subdirectory(src/parser)
+add_subdirectory(src/dialogue)
 
 add_executable(app main.cpp)
 
@@ -17,4 +18,5 @@ target_link_libraries(app PRIVATE
         parser
         impls
         interfaces
+        dialogue
 )
