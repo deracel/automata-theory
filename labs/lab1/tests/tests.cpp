@@ -192,6 +192,7 @@ INSTANTIATE_TEST_SUITE_P(
         "create ewf (    )",
         "create wefr (ewf()",
         "create wef (wef))",
+        "create wer ((()))",
         "create wef (wqdq-)",
         "create gre (wefwf=)",
         "create erwf (wfwferw+)",
