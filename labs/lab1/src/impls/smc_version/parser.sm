@@ -149,9 +149,13 @@ Expect_space_aft_name
         {
             Transition Expect_attribute;
         }
+        else if (c == 'a')
+        {
+            Transition Expect_as;
+        }
         else
         {
-            Action set_error("Expected spaces or '('");
+            Action set_error("Expected spaces or '(' or 'as'");
         }
     }
 }
