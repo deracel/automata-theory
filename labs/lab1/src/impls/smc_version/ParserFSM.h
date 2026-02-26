@@ -11,11 +11,26 @@
 
 #define SMC_USES_IOSTREAMS
 
-#include <statemap.h>
+#include "statemap.h"
 
 namespace smc_version
 {
     // Forward declarations.
+    class ParserFSM;
+    class ParserFSM_Skip_start_spaces;
+    class ParserFSM_Expect_create;
+    class ParserFSM_Expect_1_space_aft_create;
+    class ParserFSM_Skip_remaining_spaces_aft_create;
+    class ParserFSM_Expect_expression_name;
+    class ParserFSM_Expect_space_aft_name;
+    class ParserFSM_Expect_attribute;
+    class ParserFSM_In_attribute;
+    class ParserFSM_After_attribute;
+    class ParserFSM_Expect_end;
+    class ParserFSM_Failure;
+    class ParserFSM_Success;
+    class ParserFSM_Expect_as;
+    class ParserFSM_Default;
     class ParserContextState;
     class ParserFSM;
     class ParserContext;
@@ -32,10 +47,187 @@ namespace smc_version
         virtual void Entry(ParserFSM&) {};
         virtual void Exit(ParserFSM&) {};
 
+        virtual void next_char(ParserFSM& context, char c);
+        virtual void reset(ParserFSM& context);
 
     protected:
 
         virtual void Default(ParserFSM& context);
+    };
+
+    class ParserFSM
+    {
+    public:
+
+        static ParserFSM_Skip_start_spaces Skip_start_spaces;
+        static ParserFSM_Expect_create Expect_create;
+        static ParserFSM_Expect_1_space_aft_create Expect_1_space_aft_create;
+        static ParserFSM_Skip_remaining_spaces_aft_create Skip_remaining_spaces_aft_create;
+        static ParserFSM_Expect_expression_name Expect_expression_name;
+        static ParserFSM_Expect_space_aft_name Expect_space_aft_name;
+        static ParserFSM_Expect_attribute Expect_attribute;
+        static ParserFSM_In_attribute In_attribute;
+        static ParserFSM_After_attribute After_attribute;
+        static ParserFSM_Expect_end Expect_end;
+        static ParserFSM_Failure Failure;
+        static ParserFSM_Success Success;
+        static ParserFSM_Expect_as Expect_as;
+    };
+
+    class ParserFSM_Default :
+        public ParserContextState
+    {
+    public:
+
+        ParserFSM_Default(const char * const name, const int stateId)
+        : ParserContextState(name, stateId)
+        {};
+
+    };
+
+    class ParserFSM_Skip_start_spaces :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Skip_start_spaces(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+    };
+
+    class ParserFSM_Expect_create :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Expect_create(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+    };
+
+    class ParserFSM_Expect_1_space_aft_create :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Expect_1_space_aft_create(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+    };
+
+    class ParserFSM_Skip_remaining_spaces_aft_create :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Skip_remaining_spaces_aft_create(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+    };
+
+    class ParserFSM_Expect_expression_name :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Expect_expression_name(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+    };
+
+    class ParserFSM_Expect_space_aft_name :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Expect_space_aft_name(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+    };
+
+    class ParserFSM_Expect_attribute :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Expect_attribute(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+    };
+
+    class ParserFSM_In_attribute :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_In_attribute(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+    };
+
+    class ParserFSM_After_attribute :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_After_attribute(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+    };
+
+    class ParserFSM_Expect_end :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Expect_end(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+    };
+
+    class ParserFSM_Failure :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Failure(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+        virtual void reset(ParserFSM& context);
+    };
+
+    class ParserFSM_Success :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Success(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
+        virtual void reset(ParserFSM& context);
+    };
+
+    class ParserFSM_Expect_as :
+        public ParserFSM_Default
+    {
+    public:
+        ParserFSM_Expect_as(const char * const name, const int stateId)
+        : ParserFSM_Default(name, stateId)
+        {};
+
+        virtual void next_char(ParserFSM& context, char c);
     };
 
     class ParserFSM :
@@ -72,6 +264,16 @@ namespace smc_version
             }
 
             return dynamic_cast<ParserContextState&>(*_state);
+        };
+
+        inline void next_char(char c)
+        {
+            getState().next_char(*this, c);
+        };
+
+        inline void reset()
+        {
+            getState().reset(*this);
         };
 
     private:

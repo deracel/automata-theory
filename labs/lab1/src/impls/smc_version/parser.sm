@@ -4,7 +4,7 @@
 
 %class ParserContext // мой класс, надо реализовать методы
 %package smc_version
-%header smc_version.h
+%header ParserFSM.h
 %fsmclass ParserFSM // главный класс автомата
 %start ParserFSM::Skip_start_spaces
 
@@ -316,3 +316,38 @@ Failure
             reset_error();
         }
 }
+
+Success
+{
+
+    next_char(c: char)
+    [ctxt.is_end_of_line(c)]
+        Skip_start_spaces
+        {
+            // Готовы к новой строке
+        }
+
+    next_char(c: char)
+    [else]
+        Failure
+        {
+            set_error(ERR_UNEXPECTED_AFTER_SUCCESS);
+        }
+
+    reset()
+        Skip_start_spaces
+        {
+            reset_state();
+        }
+}
+
+
+Expect_as
+{
+    // Накопление "as"
+    next_char(c: char)
+    [ctxt.is_accumulating_as() and ctxt.as_is_accumulated()]
+        Failure
+        {}
+}
+%%
