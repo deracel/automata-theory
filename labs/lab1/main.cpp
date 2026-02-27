@@ -1,15 +1,16 @@
-#include <algorithm>
-#include <iostream>
+
 #include <memory>
-#include <print>
+
 
 #include "dialogue.hpp"
 #include "regex_version.hpp"
-#include "i_recognizer.hpp"
+
+#include "service.hpp"
 
 int main() {
     auto rel = std::make_unique<regex_version>();
-    auto dia = std::make_unique<dialogue>(std::move(rel));
+    auto serv = std::make_unique<service>(*rel);
+    auto dia = std::make_unique<dialogue>(*serv);
     dia->main_dialogue();
     return 0;
 }

@@ -4,26 +4,28 @@
 #include <memory>
 
 #include "regex_version.hpp"
+#include "service.hpp"
 
 class parser_test : public ::testing::Test {
     public:
-        static std::unique_ptr<regex_version> regex_parser_;
+        static std::unique_ptr<service> service_;
 };
 class parser_valid_test : public parser_test, public ::testing::WithParamInterface<std::string>{};
 class parser_invalid_test : public parser_test, public ::testing::WithParamInterface<std::string>{};
 
-std::unique_ptr<regex_version> parser_test::regex_parser_ = std::make_unique<regex_version>();
+std::unique_ptr<regex_version> regex_parser_ = std::make_unique<regex_version>();
+std::unique_ptr<service> parser_test::service_ = std::make_unique<service>(*regex_parser_);
 
 TEST_P(parser_valid_test, valid_strings) {
     std::string valid_input = GetParam();
-    regex_parser_->terminal_parser(valid_input);
-    EXPECT_TRUE(regex_parser_->get_parser_state());
+    service_->get_line(valid_input);
+    EXPECT_TRUE(service_->get_lexer_state());
 }
 
 TEST_P(parser_invalid_test, invalid_strings) {
     std::string invalid_input = GetParam();
-    regex_parser_->terminal_parser(invalid_input);
-    EXPECT_FALSE(regex_parser_->get_parser_state());
+    service_->get_line(invalid_input);
+    EXPECT_FALSE(service_->get_lexer_state());
 }
 
 void check_attributes_correction(std::vector<std::string>& array_1, std::vector<std::string>& array_2) {
@@ -34,47 +36,47 @@ void check_attributes_correction(std::vector<std::string>& array_1, std::vector<
 }
 
 TEST_F(parser_test, combination_test) {
-    regex_parser_->terminal_parser("create exp1 (a1, a2, a3, a4)");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp2 (b1, b2, b3, b4)");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp3 (a, b, c, d)");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp4 (a, b, c, d)");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp5 (a, ert)");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp6 (abc, a)");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp7 (abs)");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp8 (abc)");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
+    service_->get_line("create exp1 (a1, a2, a3, a4)");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp2 (b1, b2, b3, b4)");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp3 (a, b, c, d)");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp4 (a, b, c, d)");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp5 (a, ert)");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp6 (abc, a)");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp7 (abs)");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp8 (abc)");
+    EXPECT_TRUE(service_->get_lexer_state());
 
 
-    regex_parser_->terminal_parser("create exp1_2 as exp1 join exp2");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp3_4 as exp3 join exp4");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp5_6 as exp5 join exp6");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp7_8 as exp7 join exp8");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp1_2_copy as exp1 join exp2");
-    EXPECT_TRUE(regex_parser_->get_parser_state());
-    regex_parser_->terminal_parser("create exp3_4 as exp3 join exp4");
-    EXPECT_FALSE(regex_parser_->get_parser_state());
+    service_->get_line("create exp1_2 as exp1 join exp2");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp3_4 as exp3 join exp4");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp5_6 as exp5 join exp6");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp7_8 as exp7 join exp8");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp1_2_copy as exp1 join exp2");
+    EXPECT_TRUE(service_->get_lexer_state());
+    service_->get_line("create exp3_4 as exp3 join exp4");
+    EXPECT_FALSE(service_->get_lexer_state());
 
     std::vector<std::string> exp_attributes_1_2 = {"a1", "a2", "a3", "a4", "b1", "b2", "b3", "b4"};
     std::vector<std::string> exp_attributes_3_4 = {"a.exp3", "b.exp3", "c.exp3", "d.exp3", "a.exp4", "b.exp4", "c.exp4", "d.exp4"};
     std::vector<std::string> exp_attributes_5_6 = {"a.exp5", "ert", "abc", "a.exp6"};
     std::vector<std::string> exp_attributes_7_8 = {"abs", "abc"};
 
-    std::vector<std::string> real_attributes_1_2 = regex_parser_->get_parser_info().find("exp1_2")->second;
-    std::vector<std::string> real_attributes_3_4 = regex_parser_->get_parser_info().find("exp3_4")->second;
-    std::vector<std::string> real_attributes_5_6 = regex_parser_->get_parser_info().find("exp5_6")->second;
-    std::vector<std::string> real_attributes_7_8 = regex_parser_->get_parser_info().find("exp7_8")->second;
-    std::vector<std::string> real_attributes_1_2_copy = regex_parser_->get_parser_info().find("exp1_2_copy")->second;
+    std::vector<std::string> real_attributes_1_2 = service_->get_lexer_info().find("exp1_2")->second;
+    std::vector<std::string> real_attributes_3_4 = service_->get_lexer_info().find("exp3_4")->second;
+    std::vector<std::string> real_attributes_5_6 = service_->get_lexer_info().find("exp5_6")->second;
+    std::vector<std::string> real_attributes_7_8 = service_->get_lexer_info().find("exp7_8")->second;
+    std::vector<std::string> real_attributes_1_2_copy = service_->get_lexer_info().find("exp1_2_copy")->second;
 
 
     check_attributes_correction(real_attributes_1_2, exp_attributes_1_2);
@@ -103,8 +105,8 @@ TEST_F(parser_test, wrong_combinations) {
         "create exp123 as exp1 join exp1"
     };
     for (auto& line : wrong_lines) {
-        regex_parser_->terminal_parser(line);
-        EXPECT_FALSE(regex_parser_->get_parser_state());
+        service_->get_line(line);
+        EXPECT_FALSE(service_->get_lexer_state());
     }
 
 }
@@ -220,11 +222,22 @@ INSTANTIATE_TEST_SUITE_P(
     )
 );
 
-
+void filename_check(const std::string& filename, service& serv) {
+    std::ifstream file(filename);
+    if (!file.is_open())
+        throw std::runtime_error("File not found: " + filename);
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty())
+            continue;
+        serv.get_line(line);
+    }
+}
 TEST_F(parser_test, file_parsing) {
-    auto file_parser = std::make_unique<regex_version>();
-    EXPECT_THROW(file_parser->file_parser("fwfew"), std::runtime_error);
-    file_parser->file_parser("../init_file.txt");
+    auto another_regex = std::make_unique<regex_version>();
+    auto file_service = std::make_unique<service>(*another_regex);
+    EXPECT_THROW(filename_check("ewfewf", *file_service), std::runtime_error);
+    EXPECT_NO_THROW(filename_check("../init_file.txt", *file_service));
     std::vector<std::pair<std::string, std::vector<std::string>>> correct_expressions = {
         {"deracel", {"wfed", "d", "werf", "g"}},
         {"abs123", {"a", "a1", "a2", "a3", "b4b"}},
@@ -251,10 +264,10 @@ TEST_F(parser_test, file_parsing) {
         {"exp1_2_copy", {"a1", "a2", "a3", "a4", "b1", "b2", "b3", "b4"}},
         {"exp4_3", {"a.exp4", "b.exp4", "c.exp4", "d.exp4", "a.exp3", "b.exp3", "c.exp3", "d.exp3"}}
     };
-    EXPECT_EQ(file_parser->get_parser_info().size(), correct_expressions.size());
+    EXPECT_EQ(file_service->get_lexer_info().size(), correct_expressions.size());
     for (size_t i = 0; i < correct_expressions.size(); i++) {
-        auto iter = file_parser->get_parser_info().find(correct_expressions[i].first);
-        EXPECT_NE(iter, file_parser->get_parser_info().end());
+        auto iter = file_service->get_lexer_info().find(correct_expressions[i].first);
+        EXPECT_NE(iter, file_service->get_lexer_info().end());
         auto attributes = iter->second;
         check_attributes_correction(correct_expressions[i].second, attributes);
     }

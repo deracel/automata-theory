@@ -1,14 +1,14 @@
 #pragma once
 #include <iostream>
-#include <memory>
 
-#include "i_recognizer.hpp"
+#include "i_lexer.hpp"
+#include "service.hpp"
 
 class dialogue {
     private:
-        std::unique_ptr<i_recognizer> recognizer_;
+        service& service_;
     public:
-        dialogue(std::unique_ptr<i_recognizer> recognizer);
+        explicit dialogue(service& service_) : service_(service_) {};
         void terminal_input();
         void file_input();
         void main_dialogue();

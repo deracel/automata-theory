@@ -1,9 +1,11 @@
-#include "parser.hpp"
+#include "service.hpp"
 
 #include <algorithm>
 #include <unordered_map>
 
-std::vector<std::string> parser::get_attribute(const std::string& expression_name) const noexcept {
+#include "i_lexer.hpp"
+
+std::vector<std::string> service::get_attribute(const std::string& expression_name) const noexcept {
     std::vector<std::string> res = {};
     auto iter = expression_to_attribute_.find(expression_name);
     if (iter != expression_to_attribute_.end())
@@ -11,7 +13,7 @@ std::vector<std::string> parser::get_attribute(const std::string& expression_nam
     return res;
 }
 
-std::vector<std::string> parser::get_expression(const std::string& attribute_name) const noexcept {
+std::vector<std::string> service::get_expression(const std::string& attribute_name) const noexcept {
     std::vector<std::string> res = {};
     auto iter = attribute_to_expression_.find(attribute_name);
     if (iter != attribute_to_expression_.end())
@@ -20,9 +22,9 @@ std::vector<std::string> parser::get_expression(const std::string& attribute_nam
 }
 
 
-bool parser::add_expression(const std::string& expression_name, std::vector<std::string>& attributes) {
+bool service::add_expression(const std::string& expression_name, std::vector<std::string>& attributes) {
     if (expression_to_attribute_.contains(expression_name)) {
-        condition_ = false;
+        state_ = false;
         return false;
     }
     std::ranges::for_each(attributes, [&](const std::string& attr){
@@ -38,17 +40,17 @@ bool parser::add_expression(const std::string& expression_name, std::vector<std:
         }
     });
     expression_to_attribute_.insert({expression_name, attributes});
-    condition_ = true;
+    state_ = true;
     return true;
 }
 
 
-bool parser::combine_expressions(const std::string& expression_1, const std::string& expression_2, const std::string& new_expression) {
+bool service::combine_expressions(const std::string& expression_1, const std::string& expression_2, const std::string& new_expression) {
     if (!expression_to_attribute_.contains(expression_1) ||
         !expression_to_attribute_.contains(expression_2) ||
         expression_1 == expression_2                     ||
         expression_to_attribute_.contains(new_expression)) {
-        condition_ = false;
+        state_ = false;
         return false;
     }
     auto attributes_1 = get_attribute(expression_1);
@@ -79,7 +81,13 @@ bool parser::combine_expressions(const std::string& expression_1, const std::str
     return res;
 }
 
-const std::map<std::string, std::vector<std::string>>& parser::get_map() const noexcept {
-    return expression_to_attribute_;
-}
 
+void service::get_line(const std::string& line) {
+    auto result = lexer_.lexline(line);
+    if (result.first == NEW_EXP)
+        state_ = add_expression(result.second.first, result.second.second);
+    else if (result.first == COMBINE_EXP)
+        state_ = combine_expressions(result.second.second[0], result.second.second[1], result.second.first);
+    else
+        state_ = false;
+}

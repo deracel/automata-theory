@@ -5,7 +5,7 @@ target_sources(interfaces INTERFACE
         BASE_DIRS "include"
         FILES
 
-        "include/i_recognizer.hpp"
+        "include/i_lexer.hpp"
 )
 
 target_include_directories(interfaces INTERFACE

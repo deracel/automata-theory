@@ -17,5 +17,5 @@ target_include_directories(dialogue PUBLIC
 
 target_link_libraries(dialogue PRIVATE
         interfaces
-        parser
+        service
 )

@@ -69,12 +69,12 @@ include (GoogleTest)
 
 add_subdirectory(../src/interfaces ${CMAKE_BINARY_DIR}/interfaces)
 add_subdirectory(../src/impls ${CMAKE_BINARY_DIR}/impls)
-add_subdirectory(../src/parser ${CMAKE_BINARY_DIR}/parser)
+add_subdirectory(../src/service ${CMAKE_BINARY_DIR}/service)
 
 add_executable(tests tests.cpp)
 
 target_link_libraries(tests PRIVATE
-        parser
+        service
         impls
         interfaces
         GTest::gtest_main
