@@ -81,4 +81,12 @@ target_link_libraries(tests PRIVATE
 
 )
 
+
+target_include_directories(tests PRIVATE
+        ../src/impls/lex_version/include
+        ../src/interfaces/include
+        ../src/impls/regex_version/include
+        ../src/impls/smc_version
+)
+
 gtest_discover_tests(tests)

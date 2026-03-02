@@ -3,4 +3,4 @@ prep/build
 prep/.idea*
 labs/lab1/build
 labs/lab1/tests/build
-
+labs/lab1/timing/build

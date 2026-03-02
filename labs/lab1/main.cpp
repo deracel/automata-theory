@@ -1,12 +1,8 @@
-
 #include <memory>
-
-
 #include "dialogue.hpp"
-
-
 #include "service.hpp"
-#include "src/impls/smc_version/lexer_context.h"
+#include "lex_version.hpp"
+#include "lexer_context.h"
 
 int main() {
     auto rel = std::make_unique<lexer_context>();

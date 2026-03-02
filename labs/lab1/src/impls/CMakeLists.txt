@@ -1,9 +1,31 @@
 option(USE_SMC "Use SMC implementation" OFF)
+option(USE_LEX "Use Lex implementation" OFF)
+option(USE_REGEX "Use Regex implementation" OFF)
 
+# Проверяем, что выбрана только одна реализация
+set(IMPL_COUNT 0)
 if(USE_SMC)
+    math(EXPR IMPL_COUNT "${IMPL_COUNT}+1")
+endif()
+if(USE_LEX)
+    math(EXPR IMPL_COUNT "${IMPL_COUNT}+1")
+endif()
+if(USE_REGEX)
+    math(EXPR IMPL_COUNT "${IMPL_COUNT}+1")
+endif()
+
+if(IMPL_COUNT EQUAL 0)
+    message(STATUS "No implementation selected, defaulting to REGEX")
+    set(USE_REGEX ON)
+elseif(IMPL_COUNT GREATER 1)
+    message(FATAL_ERROR "Multiple implementations selected! Choose only one: USE_SMC, USE_LEX, or USE_REGEX")
+endif()
+
+# ============= SMC VERSION =============
+if(USE_SMC)
+    message(STATUS "Building SMC implementation")
 
     add_library(impls STATIC)
-
 
     target_sources(impls
             PRIVATE
@@ -22,8 +44,64 @@ if(USE_SMC)
             "${CMAKE_CURRENT_BINARY_DIR}/smc_version"
     )
 
-else()
-    # Regex version (как и было)
+    if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/smc_version/statemap.h)
+        message(WARNING "statemap.h not found in smc_version directory")
+    endif()
+endif()
+
+# ============= LEX VERSION =============
+if(USE_LEX)
+    message(STATUS "Building LEX implementation")
+
+    # Находим Flex
+    find_program(FLEX_EXECUTABLE flex REQUIRED)
+
+    # Пути к файлам
+    set(LEX_FILE ${CMAKE_CURRENT_SOURCE_DIR}/lex_version/flex/lex_file.lex)
+    set(GENERATED_CPP ${CMAKE_CURRENT_SOURCE_DIR}/lex_version/source/generated.cpp)
+
+    # Генерация кода из Flex
+    add_custom_command(
+            OUTPUT ${GENERATED_CPP}
+            COMMAND ${FLEX_EXECUTABLE} -o ${GENERATED_CPP} ${LEX_FILE}
+            DEPENDS ${LEX_FILE}
+            COMMENT "Generating lexer C++ source from ${LEX_FILE}"
+    )
+
+    add_library(impls STATIC)
+
+    # ИСПРАВЛЕНО: правильные пути к файлам
+    target_sources(impls
+            PRIVATE
+            ${GENERATED_CPP}
+            "${CMAKE_CURRENT_SOURCE_DIR}/lex_version/source/generated.cpp"  # ПОЛНЫЙ ПУТЬ
+
+            PUBLIC
+            FILE_SET HEADERS
+            BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/lex_version"  # Базовая директория
+            FILES
+            "lex_version/include/lex_version.hpp"
+    )
+
+    target_include_directories(impls PUBLIC
+            "${CMAKE_CURRENT_SOURCE_DIR}/lex_version"
+    )
+
+    set_source_files_properties(${GENERATED_CPP} PROPERTIES GENERATED TRUE)
+
+    # Добавляем зависимость от генерации
+    add_dependencies(impls generate_lex_file)
+
+    add_custom_target(generate_lex_file
+            DEPENDS ${GENERATED_CPP}
+            COMMENT "Generating lexer source files"
+    )
+endif()
+
+# ============= REGEX VERSION =============
+if(USE_REGEX)
+    message(STATUS "Building REGEX implementation")
+
     add_library(impls STATIC)
 
     target_sources(impls
@@ -42,12 +120,8 @@ else()
     )
 endif()
 
-
+# Общие линковки для всех версий
 target_link_libraries(impls PRIVATE
         interfaces
         service
 )
-
-if(USE_SMC AND NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/smc_version/statemap.h)
-    message(WARNING "statemap.h not found in smc_version directory")
-endif()

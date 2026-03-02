@@ -10,7 +10,7 @@
 
 
 #include "lexer_context.h"
-#include "parser_sm.h"
+#include "/home/deracel/automata_theory/labs/lab1/src/impls/smc_version/parser_sm.h"
 
 using namespace statemap;
 
@@ -141,9 +141,22 @@ void LexerFSM_Expect_create::next_char(parserContext& context, char c)
             throw;
         }
         context.getState().Entry(context);
-    }    else
+    }
+    else
     {
-         LexerFSM_Default::next_char(context, c);
+        context.getState().Exit(context);
+        context.clearState();
+        try
+        {
+            ctxt.set_state(STATE::NO);
+            context.setState(LexerFSM::Failure);
+        }
+        catch (...)
+        {
+            context.setState(LexerFSM::Failure);
+            throw;
+        }
+        context.getState().Entry(context);
     }
 
 }
@@ -846,9 +859,22 @@ void LexerFSM_Expect_join::next_char(parserContext& context, char c)
             throw;
         }
         context.getState().Entry(context);
-    }    else
+    }
+    else
     {
-         LexerFSM_Default::next_char(context, c);
+        context.getState().Exit(context);
+        context.clearState();
+        try
+        {
+            ctxt.set_state(STATE::NO);
+            context.setState(LexerFSM::Failure);
+        }
+        catch (...)
+        {
+            context.setState(LexerFSM::Failure);
+            throw;
+        }
+        context.getState().Entry(context);
     }
 
 }

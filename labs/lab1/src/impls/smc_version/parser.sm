@@ -58,6 +58,12 @@ Expect_create // ожидаем create
             accumulate_create(c);
         }
 
+    next_char(c: char)
+        Failure
+        {
+            set_state(STATE::NO);
+        }
+
 }
 
 
@@ -401,6 +407,12 @@ Expect_join
         Expect_join
         {
             accumulate_join(c);
+        }
+
+    next_char(c: char)
+        Failure
+        {
+            set_state(STATE::NO);
         }
 }
 

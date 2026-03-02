@@ -17,6 +17,13 @@ add_subdirectory(src/dialogue)
 
 add_executable(app main.cpp)
 
+target_include_directories(app PRIVATE
+        src/impls/lex_version/include
+        src/interfaces/include
+        src/impls/regex_version/include
+        src/impls/smc_version
+)
+
 target_link_libraries(app PRIVATE
         service
         impls

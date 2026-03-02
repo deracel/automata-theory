@@ -3,7 +3,9 @@
 #include <gtest/gtest.h>
 #include <memory>
 
-#include "../impls/smc_version/lexer_context.h"
+#include "lexer_context.h"
+#include "lex_version.hpp"
+#include "regex_version.hpp"
 #include "service.hpp"
 
 class parser_test : public ::testing::Test {
@@ -13,12 +15,14 @@ class parser_test : public ::testing::Test {
 class parser_valid_test : public parser_test, public ::testing::WithParamInterface<std::string>{};
 class parser_invalid_test : public parser_test, public ::testing::WithParamInterface<std::string>{};
 
-std::unique_ptr<lexer_context> regex_parser_ = std::make_unique<lexer_context>();
-std::unique_ptr<service> parser_test::service_ = std::make_unique<service>(*regex_parser_);
+typedef lex_version impl;
+
+std::unique_ptr<impl> lexer = std::make_unique<impl>();
+std::unique_ptr<service> parser_test::service_ = std::make_unique<service>(*lexer);
+std::unique_ptr<service> file_service = std::make_unique<service>(*lexer);
 
 TEST_P(parser_valid_test, valid_strings) {
     std::string valid_input = GetParam();
-    //std::cout << valid_input << std::endl;
     service_->get_line(valid_input);
     EXPECT_TRUE(service_->get_lexer_state());
 }
@@ -126,7 +130,9 @@ INSTANTIATE_TEST_SUITE_P(
         "create                       totot                   (a,            e,               t,          q)",
         "create __ (__, ___, _____)",
         "      create     a     (r,    tr)",
-        "create abc(a)"
+        "create abc(a)",
+        "create . (__, .)",
+        "   create       .. (__,    __)  "
     )
 );
 
@@ -219,7 +225,14 @@ INSTANTIATE_TEST_SUITE_P(
         "create exp6 (abc, a)",
         "create exp7 (abs)",
         "create exp8 (abc)"
-        "create exp9 ()"
+        "create exp9 ()",
+        "createexp123 (a, b)",
+        "    createexp123(a, b)",
+        "createa as abc join hallo",
+        "create aas abc join  hallo",
+        "create a asabc join hallo",
+        "create a as abcjoin hallo",
+        "create a as abc joinhallo"
     )
 );
 
@@ -236,8 +249,6 @@ void filename_check(const std::string& filename, service& serv) {
 }
 
 TEST_F(parser_test, file_parsing) {
-    auto another_regex = std::make_unique<lexer_context>();
-    auto file_service = std::make_unique<service>(*another_regex);
     EXPECT_THROW(filename_check("ewfewf", *file_service), std::runtime_error);
     EXPECT_NO_THROW(filename_check("../init_file.txt", *file_service));
     std::vector<std::pair<std::string, std::vector<std::string>>> correct_expressions = {
