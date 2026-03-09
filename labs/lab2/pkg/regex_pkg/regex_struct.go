@@ -3,6 +3,7 @@ package regex_pkg
 import (
 	"fmt"
 	"strings"
+	"unicode"
 )
 
 type NodeType int
@@ -44,200 +45,42 @@ func BuildSyntaxTree (regex string) (*SyntaxTree, error) {
 		PosCount: 0,
 	}
 	stack := make([]interface{}, 0)
+	groupsCount := make(map[string]int, 0)
 	for i := 0; i < len(regex); i++ {
 		ch := regex[i]
-
 		switch {
-
 		case ch == '(':
-			fmt.Printf("открывающая (\n")
-			if i+1 < len(regex) && regex[i+1] == '<' {
-				// Ищем закрывающую '>' для имени группы
-				endNamePos := -1
-				var name string
-				for j := i + 2; j < len(regex); j++ {
-					if regex[j] == '<' {
-						if j >= 1 && j+1 < len(regex) && regex[j-1] == '%' && regex[j+1] == '%' {
-							// Это экранированный '>', пропускаем его
-							regex = regex[:j-1] + string('_') + regex[j:]
-							regex = regex[:j+1] + string('_') + regex[j+2:]
-							name = name[:len(name)-1]
-							name += string(regex[j])
-
-							j += 1 // пропускаем символы '%' и '>'
-							continue
-						}
-					}
-					if regex[j] == '>' {
-						if j >= 1 && j+1 < len(regex) && regex[j-1] == '%' && regex[j+1] == '%' {
-							// Это экранированный '>', пропускаем его
-							regex = regex[:j-1] + string('_') + regex[j:]
-							regex = regex[:j+1] + string('_') + regex[j+2:]
-							name = name[:len(name)-1]
-							name += string(regex[j])
-
-							j += 1 // пропускаем символы '%' и '>'
-							continue
-						}
-						// Нашли НЕэкранированную '>'
-						endNamePos = j
-						break
-					}
-					name += string(regex[j])
-				}
-				fmt.Printf("%s\n", name)
-				if endNamePos == -1 {
-					return nil, fmt.Errorf("unclosed group name")
-				}
-
-				// Извлекаем имя группы (между '<' и '>')
-
-				fmt.Printf("Имя группы: '%s'\n", name)
-
-				// Кладем маркер группы в стек
-				stack = append(stack, fmt.Sprintf("<%s>", name))
-
-				// Перемещаем i на позицию '>'
-				i = endNamePos
-			} else {
-				stack = append(stack, '(')
+			i = processOpBrace(&regex, i, &stack, &groupsCount)
+			if i == -1 {
+				return nil, fmt.Errorf("unclosed group name")
 			}
-
-
-
 		case ch == ')':
-			fmt.Printf("закрывающая )\n")
-			nodes := make([]interface{}, 0)
-			var groupName string
-			for len(stack) > 0 {
-				top := stack[len(stack)-1]
-				stack = stack[:len(stack)-1]
-				if str, ok := top.(string); ok && strings.HasPrefix(str, "<") && strings.HasSuffix(str, ">") {
-					// обработка маркера группы
-					groupName = strings.TrimPrefix(str, "<")
-					groupName = strings.TrimSuffix(groupName, ">")
-					break
-				}
-				if top == '(' {
-					break
-				}
-				nodes = append([]interface{}{top}, nodes...)
-			}
-			node := processNodes(nodes, tree) // тут мы типо превращаем выражение в () в один узел
-			if groupName != "" {
-				node = &Node{
-					Type:  GroupNode,
-					Value: groupName,
-					Left:  node,
-				}
-			}
-			stack = append(stack, node)
-		case ch == '|':
-			stack = append(stack, '|')
-		case ch == '.' && i+2 < len(regex) && regex[i+1] == '.' && regex[i+2] == '.':
-			if len(stack) > 0 {
-				last := stack[len(stack)-1]
-				if node, ok := last.(*Node); ok {
-					starNode := &Node{
-						Type: KliniNode,
-						Left: node,
-					}
-					stack[len(stack)-1] = starNode
-				}
-			}
-			i += 2
-		case ch == '?':
-			if len(stack) > 0 {
-				last := stack[len(stack)-1]
-				if node, ok := last.(*Node); ok {
-					questNode := &Node{
-						Type: QuestionNode,
-						Left: node,
-					}
-					stack[len(stack)-1] = questNode
-				}
-			}
-		case ch == '{':
-			endBrace := strings.Index(regex[i:], "}")
-			if endBrace == -1 {
-				return nil, fmt.Errorf("unclosed figure brace")
-			}
-			var count int
-			_, err := fmt.Sscanf(regex[i+1:i+endBrace], "%d", &count)
+			err := processClBrace(&stack, tree, &groupsCount)
 			if err != nil {
 				return nil, err
 			}
-			if len(stack) > 0 {
-				last := stack[len(stack)-1]
-				if node, ok := last.(*Node); ok {
-					repeatNode := &Node{
-						Type:   RepeatNode,
-						Left:   node,
-						Repeat: count,
-					}
-					stack[len(stack)-1] = repeatNode
-				}
+		case ch == '|':
+			stack = append(stack, '|')
+		case ch == '.' && i+2 < len(regex) && regex[i+1] == '.' && regex[i+2] == '.':
+			i = processKlini(&stack, i)
+		case ch == '?':
+			processQuestion(&stack)
+		case ch == '{':
+			i = processOpFigBrace(&regex, i, &stack)
+			if i == -1 {
+				return nil, fmt.Errorf("invalid figure brace")
 			}
-			i += endBrace
 		case ch == '<' && i > 0 && regex[i-1] != '(':
-			// Ищем закрывающую '>' для имени группы
-			endNamePos := -1
-			var name string
-			for j := i + 1; j < len(regex); j++ {
-				if regex[j] == '<' {
-					if j >= 1 && j+1 < len(regex) && regex[j-1] == '%' && regex[j+1] == '%' {
-						// Это экранированный '>', пропускаем его
-						regex = regex[:j-1] + string('_') + regex[j:]
-						regex = regex[:j+1] + string('_') + regex[j+2:]
-						name = name[:len(name)-1]
-						name += string(regex[j])
-
-						j += 1 // пропускаем символы '%' и '>'
-						continue
-					}
-				}
-				if regex[j] == '>' {
-					if j >= 1 && j+1 < len(regex) && regex[j-1] == '%' && regex[j+1] == '%' {
-						// Это экранированный '>', пропускаем его
-						regex = regex[:j-1] + string('_') + regex[j:]
-						regex = regex[:j+1] + string('_') + regex[j+2:]
-						name = name[:len(name)-1]
-						name += string(regex[j])
-
-						j += 1 // пропускаем символы '%' и '>'
-						continue
-					}
-					// Нашли НЕэкранированную '>'
-					endNamePos = j
-					break
-				}
-				name += string(regex[j])
-			}
-			fmt.Printf("%s\n", name)
-			if endNamePos == -1 {
+			i = processOpTreeBrace(&regex, i, &stack)
+			if i == -1{
 				return nil, fmt.Errorf("unclosed group name")
 			}
-
-			refNode := &Node{
-				Type:  RefNode,
-				Value: name,
-			}
-			stack = append(stack, refNode)
-			i = endNamePos
-
 		default:
-			fmt.Printf("Я в дефолте:  %s\n", ch)
-			if ch == '%' && i+2 < len(regex) && i+2 < len(regex) && regex[i+2] == '%' {
-				leafNode := createLeafNode(string(regex[i+1]), tree)
-				stack = append(stack, leafNode)
-				i += 2
-			} else if !isMeta(ch) {
-				leafNode := createLeafNode(string(ch), tree)
-				stack = append(stack, leafNode)
-			}
+			i = processDefault(ch, i, &regex, tree, &stack)
 		}
 	}
 	if len(stack) != 1{
+
 		return nil, fmt.Errorf("unknown regex")
 	}
 	tree.Root = stack[0].(*Node)
@@ -276,7 +119,6 @@ func processNodes(nodes []interface{}, tree *SyntaxTree) *Node {
 		if nodes[i] == '|' {
 			left := processConcat(current, tree)
 			right := processNodes(nodes[i+1:], tree)
-
 			result = &Node{
 				Type:  UnionNode,
 				Left:  left,
@@ -369,4 +211,207 @@ func printNode(node *Node, level int) {
 	case RefNode:
 		fmt.Printf("%sRef(%s)\n", indent, node.Value)
 	}
+}
+
+
+func processOpBrace (regex *string, i int, stack *[]interface{}, existGroups *map[string]int) (int) {
+	if i+1 < len(*regex) && (*regex)[i+1] == '<' {
+		endNamePos := -1
+		var name string
+		for j := i + 2; j < len(*regex); j++ {
+			if (*regex)[j] == '<' || (*regex)[j] == '>'{
+				if j >= 1 && j+1 < len(*regex) && (*regex)[j-1] == '%' && (*regex)[j+1] == '%' {
+					j = changePers(regex, j, &name)
+					continue
+				}
+				if (*regex)[j] == '>' {
+					endNamePos = j
+					break
+				} else {
+					return -1
+				}
+			}
+
+			name += string((*regex)[j])
+		}
+		if endNamePos == -1 {
+			return -1
+		}
+		fmt.Printf("Имя группы: '%s'\n", name)
+		value, exists := (*existGroups)[name]
+		if exists {
+			(*existGroups)[name] = value+1
+		} else {
+			(*existGroups)[name] = 0
+		}
+		*stack = append(*stack, fmt.Sprintf("<%s>", name))
+		i = endNamePos
+		return endNamePos
+	} else {
+		*stack = append(*stack, '(')
+	}
+	return i
+}
+
+
+func changePers(regex *string, j int, name *string) (int) {
+	*regex = (*regex)[:j-1] + string('_') + (*regex)[j:]
+	*regex = (*regex)[:j+1] + string('_') + (*regex)[j+2:]
+	*name = (*name)[:len(*name)-1]
+	*name += string((*regex)[j])
+
+	j += 1
+	return j
+}
+
+func processClBrace (stack *[]interface{}, tree *SyntaxTree, existGroups *map[string]int) (error) {
+	nodes := make([]interface{}, 0)
+	var groupName string
+	for len(*stack) > 0 {
+		top := (*stack)[len(*stack)-1]
+		*stack = (*stack)[:len(*stack)-1]
+		if str, ok := top.(string); ok && strings.HasPrefix(str, "<") && strings.HasSuffix(str, ">") {
+			groupName = strings.TrimPrefix(str, "<")
+			groupName = strings.TrimSuffix(groupName, ">")
+			break
+		}
+		if top == '(' {
+			break
+		}
+		nodes = append([]interface{}{top}, nodes...)
+	}
+	count, exists := (*existGroups)[groupName]
+	fmt.Println(groupName)
+	if !exists || groupName != ""{
+		return fmt.Errorf("unknown name")
+	}
+	innerNode := processNodes(nodes, tree)
+
+	if count == 0 {
+		fmt.Println("declaring group")
+		groupNode := &Node{
+			Type:  GroupNode,
+			Value: groupName,
+			Left:  innerNode,
+		}
+		*stack = append(*stack, groupNode)
+	} else {
+		fmt.Println("referencing group")
+		refNode := &Node{
+			Type:  RefNode,
+			Value: groupName,
+		}
+		if innerNode != nil && innerNode.Type != LeafNode && innerNode.Value != "epsilon" {
+			concatNode := &Node{
+				Type:  ConcatNode,
+				Left:  refNode,
+				Right: innerNode,
+			}
+			*stack = append(*stack, concatNode)
+		} else {
+			*stack = append(*stack, refNode)
+		}
+	}
+	return nil
+}
+
+func processKlini(stack *[]interface{}, i int) (int){
+	if len(*stack) > 0 {
+		last := (*stack)[len(*stack)-1]
+		if node, ok := last.(*Node); ok {
+			starNode := &Node{
+				Type: KliniNode,
+				Left: node,
+			}
+			(*stack)[len(*stack)-1] = starNode
+		}
+	}
+	i += 2
+	return i
+}
+
+func processQuestion(stack *[]interface{}) {
+	if len(*stack) > 0 {
+		last := (*stack)[len(*stack)-1]
+		if node, ok := last.(*Node); ok {
+			questNode := &Node{
+				Type: QuestionNode,
+				Left: node,
+			}
+			(*stack)[len(*stack)-1] = questNode
+		}
+	}
+}
+
+func processOpFigBrace(regex *string, i int, stack *[]interface{}) (int){
+	endBrace := strings.Index((*regex)[i:], "}")
+	if endBrace == -1 {
+		return -1
+	}
+	var count int
+	for k := i+1; k < i+endBrace; k++ {
+		if !unicode.IsNumber(rune((*regex)[k])){
+			return -1
+		}
+	}
+	_, err := fmt.Sscanf((*regex)[i+1:i+endBrace], "%d", &count)
+	if err != nil {
+		return -1
+	}
+	if len(*stack) > 0 {
+		last := (*stack)[len(*stack)-1]
+		if node, ok := last.(*Node); ok {
+			repeatNode := &Node{
+				Type:   RepeatNode,
+				Left:   node,
+				Repeat: count,
+			}
+			(*stack)[len(*stack)-1] = repeatNode
+		}
+	}
+	i += endBrace
+	return i
+}
+
+func processOpTreeBrace(regex *string, i int, stack *[]interface{}) (int){
+	endNamePos := -1
+	var name string
+	for j := i + 1; j < len(*regex); j++ {
+		if (*regex)[j] == '<' || (*regex)[j] == '>'{
+			if j >= 1 && j+1 < len(*regex) && (*regex)[j-1] == '%' && (*regex)[j+1] == '%' {
+				j = changePers(regex, j, &name)
+				continue
+			}
+			if (*regex)[j] == '>' {
+				endNamePos = j
+				break
+			}
+		}
+		name += string((*regex)[j])
+	}
+	fmt.Printf("%s\n", name)
+	if endNamePos == -1 {
+		return -1
+	}
+
+	refNode := &Node{
+		Type:  RefNode,
+		Value: name,
+	}
+	*stack = append(*stack, refNode)
+	i = endNamePos
+	return i
+}
+
+
+func processDefault(ch byte, i int, regex *string, tree *SyntaxTree, stack *[]interface{}) (int) {
+	if ch == '%' && i+2 < len(*regex) && i+2 < len(*regex) && (*regex)[i+2] == '%' {
+		leafNode := createLeafNode(string((*regex)[i+1]), tree)
+		*stack = append(*stack, leafNode)
+		i += 2
+	} else if !isMeta(ch) {
+		leafNode := createLeafNode(string(ch), tree)
+		*stack = append(*stack, leafNode)
+	}
+	return i
 }
