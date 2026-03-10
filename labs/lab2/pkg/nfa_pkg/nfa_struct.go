@@ -1,0 +1,604 @@
+package nfa
+
+import (
+	"fmt"
+	reg "lab2/pkg/regex_pkg"
+	"os"
+	"os/exec"
+	"runtime"
+	"strings"
+)
+type NfaState struct {
+	ID int
+	Transitions map[byte][]*NfaState
+	Epsilons []*NfaState
+	IsAcceptable bool
+	GroupInfo map[string]bool
+}
+
+type GroupInfo struct {
+	Name string
+	StartPos int // позиция в синтаксическом дереве
+	EndPos int
+	IsRef bool
+	RefName string
+}
+type Nfa struct {
+	StartState *NfaState
+	AcceptState *NfaState
+	States []*NfaState
+	StateCount int
+	Groups map[string]*GroupInfo //Инфо о группах захвата
+}
+
+func newNfaState(id int) *NfaState {
+	return &NfaState{
+		ID: id,
+		Transitions: make(map[byte][]*NfaState),
+		Epsilons: make([]*NfaState, 0),
+		GroupInfo: make(map[string]bool),
+		IsAcceptable: false,
+	}
+}
+
+func newNfa() *Nfa{
+	return &Nfa{
+		States: make([]*NfaState, 0),
+		StateCount: 0,
+		Groups: make(map[string]*GroupInfo),
+	}
+}
+
+
+func (n* Nfa) addState() *NfaState {
+	n.StateCount++
+	state := newNfaState(n.StateCount)
+	n.States = append(n.States, state)
+	return state
+}
+
+
+func BuildNfaFromTree (tree *reg.SyntaxTree) *Nfa {
+	nfa := newNfa()
+
+	collectGroups(tree.Root, &nfa.Groups) // сбор инфы о группах захвата
+
+	start, accept := buildNfaFromNode(tree.Root, nfa)
+	nfa.StartState = start
+	nfa.AcceptState = accept
+	return nfa
+}
+
+func collectGroups(node *reg.Node, groups *map[string]*GroupInfo) {
+	if node == nil{ return }
+	switch node.Type{
+		case reg.GroupNode:
+			(*groups)[node.Value] = &GroupInfo{
+				Name: node.Value,
+				StartPos: node.Position,
+			}
+	case reg.RefNode:
+		if info, exists := (*groups)[node.Value]; exists{
+			info.IsRef = true
+			info.RefName = node.Value
+		}
+	}
+	collectGroups(node.Left, groups)
+	collectGroups(node.Right, groups)
+}
+
+
+func buildNfaFromNode(node *reg.Node, nfa *Nfa) (*NfaState, *NfaState){
+	if node == nil { return buildEpsilonNfa(nfa) }
+
+	switch node.Type {
+	case reg.LeafNode:
+		return buildLeafNfa(node, nfa)
+	case reg.ConcatNode:
+		return buildConcatNfa(node, nfa)
+	case reg.UnionNode:
+		return buildUnionNfa(node, nfa)
+	case reg.KliniNode:
+		return buildKliniNfa(node, nfa)
+	case reg.QuestionNode:
+		return buildQuestionNfa(node, nfa)
+	case reg.RepeatNode:
+		return buildRepeatNfa(node, nfa)
+	case reg.GroupNode:
+		return buildGroupNfa(node, nfa)
+	case reg.RefNode: return buildRefNfa(node, nfa)
+	default: // по умолчанию строим эпсилон
+		return buildEpsilonNfa(nfa)
+
+
+	}
+}
+
+func buildEpsilonNfa (nfa *Nfa) (*NfaState, *NfaState){
+	start := nfa.addState()
+	accept := nfa.addState()
+	start.Epsilons = append(start.Epsilons, accept) // почему мы так делаем?
+	accept.IsAcceptable = true
+	return start, accept
+}
+
+func buildLeafNfa(node *reg.Node, nfa *Nfa) (*NfaState, *NfaState){
+	start := nfa.addState()
+	accept := nfa.addState()
+	if node.Value == "epsilon"{
+		start.Epsilons = append(start.Epsilons, accept)
+	} else {
+		ch := node.Value[0]
+		start.Transitions[ch] = append(start.Transitions[ch], accept)
+	}
+	accept.IsAcceptable = true
+	return start, accept
+}
+
+func buildConcatNfa (node *reg.Node, nfa *Nfa) (*NfaState, *NfaState){
+	leftStart, leftAccept := buildNfaFromNode(node.Left, nfa)
+	rightStart, rightAccept := buildNfaFromNode(node.Right, nfa)
+
+	leftAccept.Epsilons = append(leftAccept.Epsilons, rightStart)
+	leftAccept.IsAcceptable = false
+	return leftStart, rightAccept
+}
+
+func buildUnionNfa(node* reg.Node, nfa *Nfa) (*NfaState, *NfaState){
+	newStart := nfa.addState()
+	newAccept := nfa.addState()
+
+	leftStart, leftAccept := buildNfaFromNode(node.Left, nfa)
+	rightStart, rightAccept := buildNfaFromNode(node.Right, nfa)
+
+	newStart.Epsilons = append(newStart.Epsilons, leftStart, rightStart)
+
+	leftAccept.IsAcceptable = false
+	rightAccept.IsAcceptable = false
+
+
+	newAccept.IsAcceptable = true
+	leftAccept.Epsilons = append(leftAccept.Epsilons, newAccept)
+	rightAccept.Epsilons = append(rightAccept.Epsilons, newAccept)
+	return newStart, newAccept
+}
+
+func buildKliniNfa(node *reg.Node, nfa *Nfa) (*NfaState, *NfaState){
+	newStart := nfa.addState()
+	newAccept := nfa.addState()
+	newAccept.IsAcceptable = true
+
+	nodeStart, nodeAccept := buildNfaFromNode(node.Left, nfa)
+	nodeAccept.IsAcceptable = false
+
+	newStart.Epsilons = append(newStart.Epsilons, newAccept, nodeStart)
+
+	nodeAccept.Epsilons = append(nodeAccept.Epsilons, nodeStart, newAccept)
+	return newStart, newAccept
+}
+
+func buildQuestionNfa (node *reg.Node, nfa *Nfa) (*NfaState, *NfaState){ // eps|r
+	newStart := nfa.addState()
+	newAccept := nfa.addState()
+	newAccept.IsAcceptable = true
+
+	nodeStart, nodeAccept := buildNfaFromNode(node.Left, nfa)
+	nodeAccept.IsAcceptable = false
+
+	newStart.Epsilons = append(newStart.Epsilons, newAccept, nodeStart)
+	nodeAccept.Epsilons = append(nodeAccept.Epsilons, newAccept)
+	return newStart, newAccept
+}
+
+func buildRepeatNfa(node *reg.Node, nfa *Nfa) (*NfaState, *NfaState) {
+	if node.Repeat == 0 {
+		return buildEpsilonNfa(nfa)
+	}
+	if node.Repeat == 1 {
+		return buildNfaFromNode(node.Left, nfa)
+	}
+
+	// ВАЖНО: Строим шаблон во временном НКА
+	templateNfa := newNfa()
+	templateStart, templateAccept := buildNfaFromNode(node.Left, templateNfa)
+
+	// Собираем все состояния шаблона
+	templateStates := make(map[*NfaState]bool)
+	collectStates(templateStart, templateStates)
+
+	// Первая копия - импортируем в основной НКА
+	firstStart, firstAccept := importTemplate(templateStart, templateAccept, nfa, templateStates)
+	firstAccept.IsAcceptable = false
+
+	prevAccept := firstAccept
+
+	// Остальные копии
+	for i := 1; i < node.Repeat; i++ {
+		copyStart, copyAccept := importTemplate(templateStart, templateAccept, nfa, templateStates)
+
+		prevAccept.Epsilons = append(prevAccept.Epsilons, copyStart)
+		prevAccept = copyAccept
+
+		if i < node.Repeat-1 {
+			prevAccept.IsAcceptable = false
+		}
+	}
+
+	prevAccept.IsAcceptable = true
+	return firstStart, prevAccept
+}
+
+// collectStates собирает все состояния в подграфе
+func collectStates(start *NfaState, states map[*NfaState]bool) {
+	queue := []*NfaState{start}
+	visited := make(map[*NfaState]bool)
+
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+
+		if visited[current] {
+			continue
+		}
+		visited[current] = true
+		states[current] = true
+
+		for _, targets := range current.Transitions {
+			for _, target := range targets {
+				if !visited[target] {
+					queue = append(queue, target)
+				}
+			}
+		}
+		for _, target := range current.Epsilons {
+			if !visited[target] {
+				queue = append(queue, target)
+			}
+		}
+	}
+}
+
+// importTemplate импортирует шаблон в основной НКА
+func importTemplate(templateStart, templateAccept *NfaState, targetNfa *Nfa,
+	templateStates map[*NfaState]bool) (*NfaState, *NfaState) {
+
+	stateMap := make(map[*NfaState]*NfaState)
+
+	// Создаем новые состояния ТОЛЬКО для шаблонных состояний
+	for oldState := range templateStates {
+		newState := targetNfa.addState()
+		stateMap[oldState] = newState
+	}
+
+	// Копируем переходы только между шаблонными состояниями
+	for oldState, newState := range stateMap {
+		for ch, targets := range oldState.Transitions {
+			for _, target := range targets {
+				if newTarget, ok := stateMap[target]; ok {
+					newState.Transitions[ch] = append(newState.Transitions[ch], newTarget)
+				}
+			}
+		}
+		for _, target := range oldState.Epsilons {
+			if newTarget, ok := stateMap[target]; ok {
+				newState.Epsilons = append(newState.Epsilons, newTarget)
+			}
+		}
+		newState.IsAcceptable = oldState.IsAcceptable
+	}
+
+	return stateMap[templateStart], stateMap[templateAccept]
+}
+
+
+
+/*
+func buildRepeatNfa (node *reg.Node, nfa *Nfa) (*NfaState, *NfaState){
+	if node.Repeat == 0 {
+		return buildEpsilonNfa (nfa)
+	}
+	if node.Repeat == 1 {
+		return buildNfaFromNode(node.Left, nfa)
+	}
+	originalStart, originalAccept := buildNfaFromNode(node.Left, nfa)
+	firstStart := originalStart
+	prevAccept := originalAccept
+	prevAccept.IsAcceptable = false
+
+
+	for i := 1; i < node.Repeat; i++ {
+		copyStart, copyAccept := cloneNfa(originalStart, originalAccept, nfa)
+
+		prevAccept.Epsilons = append(prevAccept.Epsilons, copyStart)
+		prevAccept = copyAccept
+
+		if i < node.Repeat-1 {
+			prevAccept.IsAcceptable = false
+		}
+	}
+
+	prevAccept.IsAcceptable = true
+	return firstStart, prevAccept
+}
+
+
+func cloneNfa(nodeStart, nodeAccept *NfaState, nfa *Nfa) (*NfaState, *NfaState){
+	stateMap := make(map[*NfaState]*NfaState)
+
+	queue := []*NfaState{nodeStart}
+	visited := make(map[*NfaState]bool)
+
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+
+		if visited[current] {
+			continue
+		}
+		visited[current] = true
+
+		newState := nfa.addState()
+		stateMap[current] = newState
+
+		for _, targets := range current.Transitions {
+			for _, target := range targets {
+				if !visited[target] {
+					queue = append(queue, target)
+				}
+			}
+		}
+		for _, target := range current.Epsilons {
+			if !visited[target] {
+				queue = append(queue, target)
+			}
+		}
+	}
+
+	// Копируем переходы
+	for oldState, newState := range stateMap {
+		for ch, targets := range oldState.Transitions {
+			for _, target := range targets {
+				if newTarget, ok := stateMap[target]; ok {
+					newState.Transitions[ch] = append(newState.Transitions[ch], newTarget)
+				}
+			}
+		}
+		for _, target := range oldState.Epsilons {
+			if newTarget, ok := stateMap[target]; ok {
+				newState.Epsilons = append(newState.Epsilons, newTarget)
+			}
+		}
+		newState.IsAcceptable = oldState.IsAcceptable
+	}
+
+	return stateMap[nodeStart], stateMap[nodeAccept]
+}
+*/
+
+/* ИЗАНЧАЛЬЫЙ CLON
+func cloneNfa(nodeStart, nodeAccept *NfaState, nfa *Nfa) (*NfaState, *NfaState){
+	fmt.Printf("CLONING: from %d to %d\n", nodeStart.ID, nodeAccept.ID)
+
+	stateMap := make(map[*NfaState]*NfaState)
+	queue := []*NfaState{nodeStart}
+	visited := make(map[*NfaState]bool)
+
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+		if visited[current]{ continue }
+		visited[current] = true
+
+		newState := nfa.addState()
+		stateMap[current] = newState
+		fmt.Printf("  Created clone %d of original %d\n", newState.ID, current.ID)
+
+		for _, targets := range current.Transitions {
+			for _, target := range targets {
+				if !visited[target] {
+					queue = append(queue, target)
+				}
+			}
+		}
+		for _, target := range current.Epsilons {
+			if !visited[target] {
+				queue = append(queue, target)
+			}
+		}
+	}
+
+	// копируем все переходы между новыми состояниями
+	for oldState, newState := range stateMap {
+		for ch, targets := range oldState.Transitions {
+			for _, target := range targets {
+				newState.Transitions[ch] = append(newState.Transitions[ch], stateMap[target])
+				fmt.Printf("  Copied transition %d --%c--> %d\n", newState.ID, ch, stateMap[target].ID)
+			}
+		}
+		for _, target := range oldState.Epsilons {
+			newState.Epsilons = append(newState.Epsilons, stateMap[target])
+			fmt.Printf("  Copied ε-transition %d --> %d\n", newState.ID, stateMap[target].ID)
+		}
+		newState.IsAcceptable = oldState.IsAcceptable
+	}
+
+	fmt.Printf("CLONING RESULT: new start=%d, new accept=%d\n",
+		stateMap[nodeStart].ID, stateMap[nodeAccept].ID)
+	return stateMap[nodeStart], stateMap[nodeAccept]
+}
+*/
+func buildGroupNfa (node *reg.Node, nfa *Nfa) (*NfaState, *NfaState){
+	nodeStart, nodeAccept := buildNfaFromNode(node.Left, nfa)
+
+	nodeStart.GroupInfo[node.Value] = true // помечаем что это состояние начало группы
+	markGroupStates(nodeStart, nodeStart, node.Value)
+	return nodeStart, nodeAccept
+}
+
+
+func markGroupStates(state, startState *NfaState, groupName string) {
+	if state == nil { return }
+
+	if state != startState {
+		state.GroupInfo[groupName] = false
+	}
+
+	for _, target := range state.Epsilons {
+		markGroupStates(target, startState, groupName)
+	}
+	for _, targets := range state.Transitions {
+		for _, target := range targets {
+			markGroupStates(target, startState, groupName)
+		}
+	}
+}
+
+func buildRefNfa (node *reg.Node, nfa *Nfa) (*NfaState, *NfaState){
+	start := nfa.addState()
+	accept := nfa.addState()
+
+	start.GroupInfo["ref:"+node.Value] = true
+
+	start.Epsilons = append(start.Epsilons, accept) // тут мы делаем сразу e-переход к accept, но,
+	accept.IsAcceptable = true						// когда мы будем встречать ссылку на группу, то
+	return start, accept							// мы будем сначала ссылаться на существующую группу, проходиться по ней и потом, если проход успешен, то делать e-переход start -> accept
+}
+
+
+
+func (n *Nfa) Print() {
+	fmt.Println("=== NFA ===")
+	fmt.Printf("Start state: %d\n", n.StartState.ID)
+	fmt.Printf("Accept state: %d\n", n.AcceptState.ID)
+	fmt.Println("States:")
+
+	for _, state := range n.States {
+		fmt.Printf("  State %d:", state.ID)
+		if state.IsAcceptable {
+			fmt.Print(" (accepting)")
+		}
+		fmt.Println()
+
+		if len(state.Epsilons) > 0 {
+			fmt.Printf("    ε ->")
+			for _, eps := range state.Epsilons {
+				fmt.Printf(" %d", eps.ID)
+			}
+			fmt.Println()
+		}
+
+		for ch, targets := range state.Transitions {
+			fmt.Printf("    '%c' ->", ch)
+			for _, target := range targets {
+				fmt.Printf(" %d", target.ID)
+			}
+			fmt.Println()
+		}
+
+		if len(state.GroupInfo) > 0 {
+			fmt.Printf("    groups: %v\n", state.GroupInfo)
+		}
+	}
+}
+
+func (n *Nfa) GraphViz() string {
+	var builder strings.Builder
+
+	builder.WriteString("digraph NFA {\n")
+	builder.WriteString("  rankdir=LR;\n")  // Left to Right orientation
+	builder.WriteString("  node [shape = circle];\n")
+
+	// Отмечаем начальное состояние
+	builder.WriteString(fmt.Sprintf("  start [shape = point, label = \"\"];\n"))
+	builder.WriteString(fmt.Sprintf("  start -> %d;\n", n.StartState.ID))
+
+	// Отмечаем допускающие состояния (двойной круг)
+	for _, state := range n.States {
+		if state.IsAcceptable {
+			builder.WriteString(fmt.Sprintf("  %d [shape = doublecircle];\n", state.ID))
+		}
+	}
+
+	// Рисуем все переходы
+	for _, state := range n.States {
+		// ε-переходы
+		for _, eps := range state.Epsilons {
+			builder.WriteString(fmt.Sprintf("  %d -> %d [label = \"ε\"];\n", state.ID, eps.ID))
+		}
+
+		// переходы по символам
+		for ch, targets := range state.Transitions {
+			for _, target := range targets {
+				// Экранируем специальные символы
+				label := string(ch)
+				if ch == '"' {
+					label = "\\\""
+				} else if ch == '\\' {
+					label = "\\\\"
+				}
+				builder.WriteString(fmt.Sprintf("  %d -> %d [label = \"%s\"];\n",
+					state.ID, target.ID, label))
+			}
+		}
+
+		// Добавляем информацию о группах захвата
+		if len(state.GroupInfo) > 0 {
+			groupLabels := make([]string, 0)
+			for groupName, isStart := range state.GroupInfo {
+				if isStart {
+					groupLabels = append(groupLabels, fmt.Sprintf("start:%s", groupName))
+				} else {
+					groupLabels = append(groupLabels, groupName)
+				}
+			}
+			builder.WriteString(fmt.Sprintf("  %d [xlabel=\"%s\"];\n",
+				state.ID, strings.Join(groupLabels, ", ")))
+		}
+	}
+
+	builder.WriteString("}\n")
+	return builder.String()
+}
+
+func (n *Nfa) openFile(filename string) error {
+	var cmd *exec.Cmd
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("cmd", "/c", "start", filename)
+	case "darwin": // macOS
+		cmd = exec.Command("open", filename)
+	default: // Linux и другие Unix-like
+		cmd = exec.Command("xdg-open", filename)
+	}
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("ошибка открытия файла: %v", err)
+	}
+
+	return nil
+}
+
+
+func (n *Nfa) SaveAndOpenGraphViz(filename string) error {
+	// Сохраняем DOT файл
+	content := n.GraphViz()
+	err := os.WriteFile(filename, []byte(content), 0644)
+	if err != nil {
+		return fmt.Errorf("ошибка сохранения файла: %v", err)
+	}
+
+	// Создаем PNG файл
+	pngFilename := strings.TrimSuffix(filename, ".dot") + ".png"
+
+	// Вызываем dot для генерации PNG
+	cmd := exec.Command("dot", "-Tpng", filename, "-o", pngFilename)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("ошибка генерации PNG (установлен ли graphviz?): %v", err)
+	}
+
+	fmt.Printf("Граф сохранен в %s и %s\n", filename, pngFilename)
+
+	// Открываем PNG в стандартном просмотрщике
+	return n.openFile(pngFilename)
+}

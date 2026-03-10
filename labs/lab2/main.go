@@ -6,6 +6,7 @@ import (
 	reg "lab2/pkg/regex_pkg"
 	"os"
 	"strings"
+	nfa "lab2/pkg/nfa_pkg"
 )
 
 func main() {
@@ -19,5 +20,9 @@ func main() {
 		return
 	}
 	Tree.Print()
+	fmt.Println("\n\n")
+	Nfa := nfa.BuildNfaFromTree(Tree)
+	Nfa.Print()
+	Nfa.SaveAndOpenGraphViz("graphs/graph.dot")
 	return
 }

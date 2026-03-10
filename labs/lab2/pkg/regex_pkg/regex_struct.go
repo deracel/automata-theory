@@ -276,12 +276,14 @@ func changePers(regex *string, j int, name *string) (int) {
 func processClBrace (stack *[]interface{}, tree *SyntaxTree, existGroups *map[string]int) (error) {
 	nodes := make([]interface{}, 0)
 	var groupName string
+	groupFound := false
 	for len(*stack) > 0 {
 		top := (*stack)[len(*stack)-1]
 		*stack = (*stack)[:len(*stack)-1]
 		if str, ok := top.(string); ok && strings.HasPrefix(str, "<") && strings.HasSuffix(str, ">") {
 			groupName = strings.TrimPrefix(str, "<")
 			groupName = strings.TrimSuffix(groupName, ">")
+			groupFound = true
 			break
 		}
 		if top == '(' {
@@ -289,19 +291,26 @@ func processClBrace (stack *[]interface{}, tree *SyntaxTree, existGroups *map[st
 		}
 		nodes = append([]interface{}{top}, nodes...)
 	}
+	innerNode := processNodes(nodes, tree)
+	if !groupFound{
+		*stack = append(*stack, innerNode)
+		return nil
+	}
+
 	count, exists := (*existGroups)[groupName]
 	fmt.Println(groupName)
-	innerNode := processNodes(nodes, tree)
-	if !exists || (exists && groupName == ""){
+	if !exists || (groupName == "") {
 		fmt.Printf("Stack size: %d\n", len(*stack))
+		fmt.Printf("GroupFound: %b\n", groupFound)
 		if len(*stack) == 0{
 			*stack = append(*stack, innerNode)
 			return nil
+		} else {
+			return fmt.Errorf("unknown name")
 		}
-		return fmt.Errorf("unknown name")
 	}
 
-	if count == 0 {
+	if count == 0{
 		fmt.Println("declaring group")
 		groupNode := &Node{
 			Type:  GroupNode,
@@ -322,7 +331,7 @@ func processClBrace (stack *[]interface{}, tree *SyntaxTree, existGroups *map[st
 				Right: innerNode,
 			}
 			*stack = append(*stack, concatNode)
-		} else {
+		} else if groupName != ""{
 			*stack = append(*stack, refNode)
 		}
 	}
