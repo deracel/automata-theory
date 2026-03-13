@@ -372,28 +372,24 @@ func (n *Nfa) GraphViz() string {
 	builder.WriteString("  rankdir=LR;\n")  // Left to Right orientation
 	builder.WriteString("  node [shape = circle];\n")
 
-	// Отмечаем начальное состояние
 	builder.WriteString(fmt.Sprintf("  start [shape = point, label = \"\"];\n"))
 	builder.WriteString(fmt.Sprintf("  start -> %d;\n", n.StartState.ID))
 
-	// Отмечаем допускающие состояния (двойной круг)
 	for _, state := range n.States {
 		if state.IsAcceptable {
 			builder.WriteString(fmt.Sprintf("  %d [shape = doublecircle];\n", state.ID))
 		}
 	}
 
-	// Рисуем все переходы
+
 	for _, state := range n.States {
-		// ε-переходы
 		for _, eps := range state.Epsilons {
 			builder.WriteString(fmt.Sprintf("  %d -> %d [label = \"ε\"];\n", state.ID, eps.ID))
 		}
 
-		// переходы по символам
 		for ch, targets := range state.Transitions {
 			for _, target := range targets {
-				// Экранируем специальные символы
+
 				label := string(ch)
 				if ch == '"' {
 					label = "\\\""
@@ -405,7 +401,6 @@ func (n *Nfa) GraphViz() string {
 			}
 		}
 
-		// Добавляем информацию о группах захвата
 		if len(state.GroupInfo) > 0 {
 			groupLabels := make([]string, 0)
 			for groupName, isStart := range state.GroupInfo {
@@ -445,17 +440,14 @@ func (n *Nfa) openFile(filename string) error {
 
 
 func (n *Nfa) SaveAndOpenGraphViz(filename string) error {
-	// Сохраняем DOT файл
 	content := n.GraphViz()
 	err := os.WriteFile(filename, []byte(content), 0644)
 	if err != nil {
 		return fmt.Errorf("ошибка сохранения файла: %v", err)
 	}
 
-	// Создаем PNG файл
 	pngFilename := strings.TrimSuffix(filename, ".dot") + ".png"
 
-	// Вызываем dot для генерации PNG
 	cmd := exec.Command("dot", "-Tpng", filename, "-o", pngFilename)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("ошибка генерации PNG (установлен ли graphviz?): %v", err)
@@ -463,6 +455,7 @@ func (n *Nfa) SaveAndOpenGraphViz(filename string) error {
 
 	fmt.Printf("Граф сохранен в %s и %s\n", filename, pngFilename)
 
-	// Открываем PNG в стандартном просмотрщике
 	return n.openFile(pngFilename)
 }
+
+

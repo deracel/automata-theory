@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
+	dfa "lab2/pkg/dfa_pkg"
+	nfa "lab2/pkg/nfa_pkg"
 	reg "lab2/pkg/regex_pkg"
 	"os"
 	"strings"
-	nfa "lab2/pkg/nfa_pkg"
 )
 
 func main() {
@@ -19,10 +20,13 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	Tree.Print()
+	//Tree.Print()
 	fmt.Println("\n\n")
 	Nfa := nfa.BuildNfaFromTree(Tree)
-	Nfa.Print()
-	Nfa.SaveAndOpenGraphViz("graphs/graph.dot")
+	//Nfa.Print()
+	Nfa.SaveAndOpenGraphViz("graphs/nfa_graph.dot")
+	Dfa := dfa.BuildDfaFromNfa(Nfa)
+	Dfa.PrintDebug(Nfa)
+	Dfa.SaveAndOpenGraphViz("graphs/dfa_graph.dot")
 	return
 }
