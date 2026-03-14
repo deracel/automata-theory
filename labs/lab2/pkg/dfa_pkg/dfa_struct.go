@@ -486,41 +486,6 @@ func findGroup(curState *DfaState, pset *Partition) *Group{
 	return nil
 }
 
-/*
-func splitGroup(group *Group, d *Dfa, pset *Partition) []*Group {
-	signMap := make(map[string][]*DfaState)
-
-	for _, state := range group.States {
-		sig := make(map[byte]int)
-		for _, symbol := range d.Alphabet {
-			nextState := state.Transitions[symbol]
-			if nextState != nil {
-				foundedGroup := findGroup(nextState, pset)
-				if (foundedGroup != nil) {
-					sig[symbol] = foundedGroup.Id
-				} else {
-					sig[symbol] = -1
-				}
-			} else {
-				sig[symbol] = -1
-			}
-		}
-		key := signKey(sig, d.Alphabet)
-		signMap[key] = append(signMap[key], state)
-	}
-	subgroups := make([]*Group, 0, len(signMap))
-	for _, states := range signMap {
-		stateMap := make(map[int]*DfaState)
-		for _, state := range states {
-			stateMap[state.ID] = state
-		}
-		subgroups = append(subgroups, &Group{
-			States: stateMap,
-		})
-	}
-	return subgroups
-}
-*/
 
 func splitGroup(group *Group, d *Dfa, pset *Partition) []*Group {
 	fmt.Printf("    Разбиение группы\n")
@@ -595,66 +560,6 @@ func signKey(sig map[byte]int, alphabet []byte) string {
 	return builder.String()
 }
 
-/*
-func buildMinimizedDFA(oldDfa *Dfa, partition *Partition) *Dfa {
-	newDfa := &Dfa{
-		Alphabet:     oldDfa.Alphabet,
-		States:       make([]*DfaState, 0),
-		AcceptStates: make([]*DfaState, 0),
-		StateCount:   0,
-	}
-
-	groupToState := make(map[int]*DfaState)
-
-	// добавили все состояния в автомат
-	for _, group := range partition.Groups {
-		newState := newDfaState(newDfa.StateCount, nil)
-		newDfa.StateCount++
-		newDfa.States = append(newDfa.States, newState)
-		groupToState[group.Id] = newState
-
-		for _, state := range group.States {
-			if state.IsAcceptable {
-				newState.IsAcceptable = true
-				newDfa.AcceptStates = append(newDfa.AcceptStates, newState)
-				break
-			}
-		}
-
-		for _, state := range group.States {
-			if state == oldDfa.StartState {
-				newDfa.StartState = newState
-				break
-			}
-		}
-	}
-
-	// переходы
-	for _, group := range partition.Groups {
-		var representative *DfaState
-		for _, state := range group.States {
-			representative = state
-			break
-		}
-
-		newState := groupToState[group.Id]
-
-		for _, symbol := range newDfa.Alphabet {
-			nextState := representative.Transitions[symbol]
-			if nextState != nil {
-				targetGroup := findGroup(nextState, partition)
-				if targetGroup != nil {
-					newState.Transitions[symbol] = groupToState[targetGroup.Id]
-				}
-			}
-		}
-	}
-
-	return newDfa
-}
-*/
-
-
 func buildMinimizedDFA(oldDfa *Dfa, partition *Partition) *Dfa {
 	fmt.Println("\n=== ПОСТРОЕНИЕ МИНИМАЛЬНОГО ДКА ===")
 
@@ -668,7 +573,6 @@ func buildMinimizedDFA(oldDfa *Dfa, partition *Partition) *Dfa {
 
 	groupToState := make(map[int]*DfaState)
 
-	// Сортируем группы для детерминированного порядка
 	groupIDs := make([]int, 0, len(partition.Groups))
 	for id := range partition.Groups {
 		groupIDs = append(groupIDs, id)
@@ -684,7 +588,7 @@ func buildMinimizedDFA(oldDfa *Dfa, partition *Partition) *Dfa {
 		}
 		sort.Ints(ids)
 
-		// Проверяем, есть ли в группе принимающие состояния
+
 		hasAcceptable := false
 		for _, state := range group.States {
 			if state.IsAcceptable {
@@ -695,7 +599,6 @@ func buildMinimizedDFA(oldDfa *Dfa, partition *Partition) *Dfa {
 		fmt.Printf("  Группа %d: %v (принимающая: %v)\n", groupID, ids, hasAcceptable)
 	}
 
-	// Создаем новые состояния
 	for _, groupID := range groupIDs {
 		group := partition.Groups[groupID]
 
@@ -704,7 +607,6 @@ func buildMinimizedDFA(oldDfa *Dfa, partition *Partition) *Dfa {
 		newDfa.States = append(newDfa.States, newState)
 		groupToState[groupID] = newState
 
-		// Проверяем, является ли группа принимающей
 		for _, state := range group.States {
 			if state.IsAcceptable {
 				newState.IsAcceptable = true
@@ -715,7 +617,6 @@ func buildMinimizedDFA(oldDfa *Dfa, partition *Partition) *Dfa {
 			}
 		}
 
-		// Проверяем, является ли группа начальной
 		for _, state := range group.States {
 			if state == oldDfa.StartState {
 				newDfa.StartState = newState
@@ -725,7 +626,6 @@ func buildMinimizedDFA(oldDfa *Dfa, partition *Partition) *Dfa {
 			}
 		}
 
-		// Проверяем, является ли группа состоянием ошибки
 		for _, state := range group.States {
 			if state == oldDfa.ErrorState {
 				newDfa.ErrorState = newState
@@ -736,7 +636,6 @@ func buildMinimizedDFA(oldDfa *Dfa, partition *Partition) *Dfa {
 		}
 	}
 
-	// Добавляем переходы
 	for _, groupID := range groupIDs {
 		group := partition.Groups[groupID]
 		newState := groupToState[groupID]
@@ -796,7 +695,7 @@ func (d *Dfa) DebugPrint() {
 	fmt.Println()
 	fmt.Println(strings.Repeat("-", 10+len(d.Alphabet)*8))
 
-	// Сортируем состояния для красивого вывода
+
 	states := make([]*DfaState, 0, len(d.States))
 	for _, state := range d.States {
 		states = append(states, state)
@@ -804,7 +703,6 @@ func (d *Dfa) DebugPrint() {
 	sort.Slice(states, func(i, j int) bool { return states[i].ID < states[j].ID })
 
 	for _, state := range states {
-		// Маркеры для особых состояний
 		marker := "  "
 		if state == d.ErrorState {
 			marker = "ERR"
@@ -828,12 +726,11 @@ func (d *Dfa) DebugPrint() {
 	}
 }
 
-// DebugPartition выводит информацию о текущем разбиении при минимизации
+
 func (p *Partition) DebugPrint(step int) {
 	fmt.Printf("\n=== Шаг %d: Разбиение ===\n", step)
 	fmt.Printf("Всего групп: %d\n", p.GroupsCount)
 
-	// Сортируем группы по ID
 	groups := make([]*Group, 0, len(p.Groups))
 	for _, group := range p.Groups {
 		groups = append(groups, group)
@@ -841,24 +738,23 @@ func (p *Partition) DebugPrint(step int) {
 	sort.Slice(groups, func(i, j int) bool { return groups[i].Id < groups[j].Id })
 
 	for _, group := range groups {
-		// Собираем ID состояний в группе
+
 		stateIDs := make([]int, 0, len(group.States))
 		for id := range group.States {
 			stateIDs = append(stateIDs, id)
 		}
 		sort.Ints(stateIDs)
 
-		// Форматируем вывод
+
 		statesStr := fmt.Sprintf("%v", stateIDs)
 		fmt.Printf("  Группа %2d: %s\n", group.Id, statesStr)
 	}
 }
 
-// DebugMinimizationProcess показывает весь процесс минимизации
+
 func (d *Dfa) DebugMinimizationProcess() {
 	fmt.Println("\n=== ПРОЦЕСС МИНИМИЗАЦИИ ДКА ===")
 
-	// Шаг 1: Начальное разбиение
 	fmt.Println("\n--- Шаг 1: Начальное разбиение ---")
 	acceptIDs := make([]int, 0, len(d.AcceptStates))
 	for _, state := range d.AcceptStates {
