@@ -17,13 +17,11 @@
 #include <fstream>
 #include <numeric>
 
-class SQLGenerator {
+class SQL_generator {
 private:
     std::mt19937 rng;
     std::string allowed_chars;
     std::string first_chars;
-
-    // Генерирует идентификатор фиксированной длины
     std::string generateIdentifierFixed(int length) {
         if (length <= 0) return "";
 
@@ -41,26 +39,22 @@ private:
         return result;
     }
 
-    // Генерирует идентификатор случайной длины в диапазоне
     std::string generateIdentifier(int minLen = 1, int maxLen = 15) {
         std::uniform_int_distribution<int> lenDist(minLen, maxLen);
         int length = lenDist(rng);
         return generateIdentifierFixed(length);
     }
 
-    // Генерирует атрибут (просто идентификатор)
     std::string generateAttribute() {
         return generateIdentifier(1, 10);
     }
 
-    // Генерирует список атрибутов с разделителями
     std::string generateAttributeList(int count) {
         std::vector<std::string> attrs;
         for (int i = 0; i < count; i++) {
             attrs.push_back(generateAttribute());
         }
 
-        // Объединяем с запятыми и пробелами
         std::string result;
         for (size_t i = 0; i < attrs.size(); i++) {
             if (i > 0) result += ", ";
@@ -69,7 +63,6 @@ private:
         return result;
     }
 
-    // Вычисляет длину шаблона с подстановками
     int calculatePatternLength(const std::string& pattern,
                                const std::vector<std::string>& placeholders) {
         int total = 0;
@@ -78,7 +71,6 @@ private:
 
         while (pos < pattern.length()) {
             if (pattern[pos] == '{' && pattern[pos+1] == '}') {
-                // Нашли placeholder {}
                 if (placeholderIdx < placeholders.size()) {
                     total += placeholders[placeholderIdx].length();
                     placeholderIdx++;
@@ -92,7 +84,6 @@ private:
         return total;
     }
 
-    // Заполняет шаблон значениями
     std::string fillPattern(const std::string& pattern,
                             const std::vector<std::string>& placeholders) {
         std::string result;
@@ -115,13 +106,12 @@ private:
     }
 
 public:
-    SQLGenerator() : rng(std::random_device{}()) {
+    SQL_generator() : rng(std::random_device{}()) {
         allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.";
         first_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_.";
     }
 
     std::string generateString(int targetLength) {
-        // Два основных шаблона
         const std::string pattern1 = "create {} ( {} )";
         const std::string pattern2 = "create {} as {} join {}";
 
@@ -132,23 +122,20 @@ public:
             bool usePattern1 = (typeDist(rng) == 0);
 
             if (usePattern1) {
-                // Пробуем разные длины идентификаторов
                 int relNameLen = std::uniform_int_distribution<int>(3, 20)(rng);
                 int attrCount = std::uniform_int_distribution<int>(2, 50)(rng);
 
                 std::string relName = generateIdentifierFixed(relNameLen);
-
-                // Генерируем атрибуты
                 std::vector<std::string> attrs;
                 int totalAttrsLength = 0;
 
-                // Примерно распределяем длину под атрибуты
-                // Формула: общая длина = длина relName + длина всех атрибутов + (attrCount-1)*2 (запятые) + 13 (служебные символы)
+
+
                 int availableForAttrs = targetLength - relNameLen - 13 - (attrCount - 1) * 2;
 
                 if (availableForAttrs <= 0) continue;
 
-                // Генерируем атрибуты так, чтобы их суммарная длина была примерно availableForAttrs
+
                 int remainingLength = availableForAttrs;
                 for (int i = 0; i < attrCount; i++) {
                     int maxAttrLen = std::min(20, remainingLength - (attrCount - i - 1));
@@ -161,24 +148,23 @@ public:
 
                 if (attrs.size() < 2) continue;
 
-                // Формируем список атрибутов
                 std::string attrList;
                 for (size_t i = 0; i < attrs.size(); i++) {
                     if (i > 0) attrList += ", ";
                     attrList += attrs[i];
                 }
 
-                // Финальная строка
+
                 std::string result = "create " + relName + " ( " + attrList + " )";
 
                 if (result.length() == targetLength) {
                     return result;
                 }
-                // Если немного короче, добавляем пробелы внутри (но не в конец)
+
                 else if (result.length() < targetLength) {
                     int diff = targetLength - result.length();
 
-                    // Вставляем пробелы в случайные места
+
                     std::vector<size_t> insertPositions;
                     for (size_t i = 0; i < result.length(); i++) {
                         if (result[i] == ' ') {
@@ -193,7 +179,6 @@ public:
                             size_t pos = insertPositions[inserted % insertPositions.size()];
                             modified.insert(pos, " ");
                             inserted++;
-                            // Корректируем последующие позиции
                             for (auto& p : insertPositions) {
                                 if (p > pos) p++;
                             }
@@ -204,7 +189,6 @@ public:
                     }
                 }
             } else {
-                // Паттерн 2: create {} as {} join {}
                 int len1 = std::uniform_int_distribution<int>(3, 30)(rng);
                 int len2 = std::uniform_int_distribution<int>(3, 30)(rng);
                 int len3 = std::uniform_int_distribution<int>(3, 30)(rng);
@@ -213,8 +197,8 @@ public:
                 std::string name2 = generateIdentifierFixed(len2);
                 std::string name3 = generateIdentifierFixed(len3);
 
-                // Базовая строка без идентификаторов: "create  as  join "
-                int baseLength = 15; // "create  as  join " без учета идентификаторов
+
+                int baseLength = 15;
                 int totalLength = baseLength + len1 + len2 + len3;
 
                 if (totalLength == targetLength) {
@@ -223,16 +207,14 @@ public:
                 else if (totalLength < targetLength) {
                     int diff = targetLength - totalLength;
 
-                    // Распределяем дополнительные пробелы между словами
-                    std::vector<std::string> parts = {"create", name1, "as", name2, "join", name3};
-                    std::vector<int> spaces(parts.size() - 1, 1); // минимум 1 пробел между частями
 
-                    // Распределяем оставшиеся пробелы
+                    std::vector<std::string> parts = {"create", name1, "as", name2, "join", name3};
+                    std::vector<int> spaces(parts.size() - 1, 1);
+
                     for (int i = 0; i < diff; i++) {
                         spaces[i % spaces.size()]++;
                     }
 
-                    // Собираем результат
                     std::string result;
                     for (size_t i = 0; i < parts.size(); i++) {
                         result += parts[i];
@@ -248,14 +230,10 @@ public:
             }
         }
 
-        // Если не получилось после всех попыток, генерируем простую строку с пробелами
-        // но стараемся распределить пробелы равномерно
         return generateBalancedString(targetLength);
     }
 
-    // Запасной метод - генерирует сбалансированную строку
     std::string generateBalancedString(int targetLength) {
-        // Берем простой шаблон и равномерно распределяем пробелы
         std::string relName = generateIdentifierFixed(8);
         std::string attr1 = generateIdentifierFixed(5);
         std::string attr2 = generateIdentifierFixed(5);
@@ -267,7 +245,6 @@ public:
         if (baseLen <= targetLength) {
             int diff = targetLength - baseLen;
 
-            // Находим все пробелы
             std::vector<size_t> spacePos;
             for (size_t i = 0; i < base.length(); i++) {
                 if (base[i] == ' ') spacePos.push_back(i);
@@ -278,7 +255,6 @@ public:
                 int spacesPerPosition = diff / spacePos.size();
                 int extraSpaces = diff % spacePos.size();
 
-                // Добавляем пробелы в обратном порядке, чтобы не сбивать индексы
                 for (int i = spacePos.size() - 1; i >= 0; i--) {
                     int spacesToAdd = spacesPerPosition + (i < extraSpaces ? 1 : 0);
                     if (spacesToAdd > 0) {
@@ -292,7 +268,6 @@ public:
             }
         }
 
-        // Если все сломалось, возвращаем что-то базовое
         return "create test_table ( id, name, age )" +
                std::string(targetLength - 33, ' ');
     }
@@ -316,25 +291,16 @@ public:
 
 
 int main() {
-    SQLGenerator generator;
+    SQL_generator generator;
 
-    // Пример генерации одной строки длиной 1000 символов
+
     std::string result = generator.generateString(1000);
-    //std::cout << "Example string (1000 chars):\n" << result << "\n\n";
+
 
     auto v_regex = std::make_unique<regex_version>();
     auto v_smc = std::make_unique<lexer_context>();
     auto v_lex = std::make_unique<lex_version>();
 
-    // Генерация для всех указанных длин
-    /*
-    auto all_strings = generator.generateAllLengths();
-    for (auto& string : all_strings) {
-        std::ofstream file("../files/" + std::to_string(string.size()) + ".txt");
-        file << string;
-        file.close();
-    }
-    */
     std::ofstream file_out_reg("../time_results/regex.txt");
     for (int i = 0; i < 12; i++) {
         std::vector<std::string> strings = {100, ""};

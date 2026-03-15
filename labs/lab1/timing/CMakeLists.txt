@@ -36,6 +36,7 @@ target_include_directories(optimized_code PRIVATE
         ../src/interfaces/include
         ../src/impls/regex_version/include
         ../src/impls/smc_version
+        "/usr/local/include/smc/C++"
 )
 target_compile_options(optimized_code PRIVATE -O2)
 

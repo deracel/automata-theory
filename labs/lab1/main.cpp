@@ -3,6 +3,7 @@
 #include "service.hpp"
 #include "lex_version.hpp"
 #include "lexer_context.h"
+#include "regex_version.hpp"
 
 int main() {
     auto rel = std::make_unique<lex_version>();

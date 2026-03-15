@@ -15,6 +15,7 @@
 
 // Forward declarations.
 class LexerFSM;
+class LexerFSM_Initial;
 class LexerFSM_Skip_start_spaces;
 class LexerFSM_Expect_create;
 class LexerFSM_Expect_expression_name;
@@ -59,6 +60,7 @@ class LexerFSM
 {
 public:
 
+    static LexerFSM_Initial Initial;
     static LexerFSM_Skip_start_spaces Skip_start_spaces;
     static LexerFSM_Expect_create Expect_create;
     static LexerFSM_Expect_expression_name Expect_expression_name;
@@ -85,6 +87,17 @@ public:
     : lexer_contextState(name, stateId)
     {};
 
+};
+
+class LexerFSM_Initial :
+    public LexerFSM_Default
+{
+public:
+    LexerFSM_Initial(const char * const name, const int stateId)
+    : LexerFSM_Default(name, stateId)
+    {};
+
+    virtual void next_char(parserContext& context, char c);
 };
 
 class LexerFSM_Skip_start_spaces :
@@ -259,7 +272,7 @@ class parserContext :
 public:
 
     explicit parserContext(lexer_context& owner)
-    : FSMContext(LexerFSM::Skip_start_spaces),
+    : FSMContext(LexerFSM::Initial),
       _owner(owner)
     {};
 

@@ -71,6 +71,12 @@ TEST_F(parser_test, combination_test) {
     EXPECT_TRUE(service_->get_lexer_state());
     service_->get_line("create exp3_4 as exp3 join exp4");
     EXPECT_FALSE(service_->get_lexer_state());
+    service_->get_line("cReate exp3_47 as exp3 join exp4");
+    EXPECT_FALSE(service_->get_lexer_state());
+    service_->get_line("create exp3_47 aS exp3 join exp4");
+    EXPECT_FALSE(service_->get_lexer_state());
+    service_->get_line("create exp3_47 as exp3 joiN exp4");
+    EXPECT_FALSE(service_->get_lexer_state());
 
     std::vector<std::string> exp_attributes_1_2 = {"a1", "a2", "a3", "a4", "b1", "b2", "b3", "b4"};
     std::vector<std::string> exp_attributes_3_4 = {"a.exp3", "b.exp3", "c.exp3", "d.exp3", "a.exp4", "b.exp4", "c.exp4", "d.exp4"};

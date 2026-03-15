@@ -7,29 +7,31 @@
 
 
 // SMC parser for relation expressions
+    #include <string>
 
 
 #include "lexer_context.h"
-#include "/home/deracel/automata_theory/labs/lab1/src/impls/smc_version/parser_sm.h"
+#include "parser_sm.h"
 
 using namespace statemap;
 
 // Static class declarations.
-LexerFSM_Skip_start_spaces LexerFSM::Skip_start_spaces("LexerFSM::Skip_start_spaces", 0);
-LexerFSM_Expect_create LexerFSM::Expect_create("LexerFSM::Expect_create", 1);
-LexerFSM_Expect_expression_name LexerFSM::Expect_expression_name("LexerFSM::Expect_expression_name", 2);
-LexerFSM_Expect_open_skobka LexerFSM::Expect_open_skobka("LexerFSM::Expect_open_skobka", 3);
-LexerFSM_Expect_attribute LexerFSM::Expect_attribute("LexerFSM::Expect_attribute", 4);
-LexerFSM_In_attribute LexerFSM::In_attribute("LexerFSM::In_attribute", 5);
-LexerFSM_After_attribute LexerFSM::After_attribute("LexerFSM::After_attribute", 6);
-LexerFSM_Expect_end LexerFSM::Expect_end("LexerFSM::Expect_end", 7);
-LexerFSM_Failure LexerFSM::Failure("LexerFSM::Failure", 8);
-LexerFSM_Success LexerFSM::Success("LexerFSM::Success", 9);
-LexerFSM_Expect_as LexerFSM::Expect_as("LexerFSM::Expect_as", 10);
-LexerFSM_Expect_space_aft_as LexerFSM::Expect_space_aft_as("LexerFSM::Expect_space_aft_as", 11);
-LexerFSM_Expect_exp_1 LexerFSM::Expect_exp_1("LexerFSM::Expect_exp_1", 12);
-LexerFSM_Expect_join LexerFSM::Expect_join("LexerFSM::Expect_join", 13);
-LexerFSM_Expect_exp_2 LexerFSM::Expect_exp_2("LexerFSM::Expect_exp_2", 14);
+LexerFSM_Initial LexerFSM::Initial("LexerFSM::Initial", 0);
+LexerFSM_Skip_start_spaces LexerFSM::Skip_start_spaces("LexerFSM::Skip_start_spaces", 1);
+LexerFSM_Expect_create LexerFSM::Expect_create("LexerFSM::Expect_create", 2);
+LexerFSM_Expect_expression_name LexerFSM::Expect_expression_name("LexerFSM::Expect_expression_name", 3);
+LexerFSM_Expect_open_skobka LexerFSM::Expect_open_skobka("LexerFSM::Expect_open_skobka", 4);
+LexerFSM_Expect_attribute LexerFSM::Expect_attribute("LexerFSM::Expect_attribute", 5);
+LexerFSM_In_attribute LexerFSM::In_attribute("LexerFSM::In_attribute", 6);
+LexerFSM_After_attribute LexerFSM::After_attribute("LexerFSM::After_attribute", 7);
+LexerFSM_Expect_end LexerFSM::Expect_end("LexerFSM::Expect_end", 8);
+LexerFSM_Failure LexerFSM::Failure("LexerFSM::Failure", 9);
+LexerFSM_Success LexerFSM::Success("LexerFSM::Success", 10);
+LexerFSM_Expect_as LexerFSM::Expect_as("LexerFSM::Expect_as", 11);
+LexerFSM_Expect_space_aft_as LexerFSM::Expect_space_aft_as("LexerFSM::Expect_space_aft_as", 12);
+LexerFSM_Expect_exp_1 LexerFSM::Expect_exp_1("LexerFSM::Expect_exp_1", 13);
+LexerFSM_Expect_join LexerFSM::Expect_join("LexerFSM::Expect_join", 14);
+LexerFSM_Expect_exp_2 LexerFSM::Expect_exp_2("LexerFSM::Expect_exp_2", 15);
 
 void lexer_contextState::next_char(parserContext& context, char c)
 {
@@ -45,8 +47,29 @@ void lexer_contextState::Default(parserContext& context)
 {
     throw (
         TransitionUndefinedException(
-            context.getState().getName(),
+            (context.getState()).getName(),
             context.getTransition()));
+
+}
+
+void LexerFSM_Initial::next_char(parserContext& context, char c)
+{
+    lexer_context& ctxt = context.getOwner();
+
+    context.getState().Exit(context);
+    context.clearState();
+    try
+    {
+        ctxt.start_line();
+        context.setState(LexerFSM::Skip_start_spaces);
+    }
+    catch (...)
+    {
+        context.setState(LexerFSM::Skip_start_spaces);
+        throw;
+    }
+    context.getState().Entry(context);
+
 
 }
 
@@ -571,14 +594,15 @@ void LexerFSM_Failure::next_char(parserContext& context, char c)
     {
         ctxt.set_exit_state();
         ctxt.reset_for_new_line();
-        context.setState(LexerFSM::Skip_start_spaces);
+        context.setState(LexerFSM::Initial);
     }
     catch (...)
     {
-        context.setState(LexerFSM::Skip_start_spaces);
+        context.setState(LexerFSM::Initial);
         throw;
     }
     context.getState().Entry(context);
+
 
 }
 
@@ -590,7 +614,7 @@ void LexerFSM_Success::next_char(parserContext& context, char c)
     {
         context.getState().Exit(context);
         // No actions.
-        context.setState(LexerFSM::Skip_start_spaces);
+        context.setState(LexerFSM::Initial);
         context.getState().Entry(context);
     }
     else
@@ -621,14 +645,15 @@ void LexerFSM_Success::reset(parserContext& context)
     try
     {
         ctxt.reset_for_new_line();
-        context.setState(LexerFSM::Skip_start_spaces);
+        context.setState(LexerFSM::Initial);
     }
     catch (...)
     {
-        context.setState(LexerFSM::Skip_start_spaces);
+        context.setState(LexerFSM::Initial);
         throw;
     }
     context.getState().Entry(context);
+
 
 }
 

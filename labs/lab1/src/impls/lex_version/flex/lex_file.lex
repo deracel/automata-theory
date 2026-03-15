@@ -21,31 +21,31 @@ void set_token(const char* text) {
 
 
 <INITIAL>{
-    (?i:create)[ \t]+    {
+    "create"[ \t]+    {
         set_token(yytext);
         current_state_ = LexState::CREATE;
         BEGIN(St_CREATE);
         return 1;
     }
-    (?i:create)    {
+    "create"          {
             set_token(yytext);
             current_state_ = LexState::ERROR;
             BEGIN(INITIAL);
             return 0;
     }
 
-    [ \t]+         { /* ignore */ }
-    \n             { /* ignore */ }
+    [ \t]+         { }
+    \n             { }
     .              {
         set_token(yytext);
-        current_state_ = LexState::ERROR;
+        current_state_ = LexState::ERROR    ;
         BEGIN(INITIAL);
         return 0;
     }
 }
 
 <St_CREATE>{
-    [ \t]+         { /* ignore */ }
+    [ \t]+         { }
     [a-zA-Z._][a-zA-Z0-9._]* {
         set_token(yytext);
         current_state_ = LexState::NAME;
@@ -54,7 +54,6 @@ void set_token(const char* text) {
         return 1;
     }
     .              {
-
         set_token(yytext);
         current_state_ = LexState::ERROR;
         BEGIN(INITIAL);
@@ -63,7 +62,7 @@ void set_token(const char* text) {
 }
 
 <St_NAME>{
-    [ \t]+         { /* ignore */ }
+    [ \t]+         { }
     "("            {
         set_token(yytext);
         current_state_ = LexState::LPAREN;
@@ -71,14 +70,14 @@ void set_token(const char* text) {
         BEGIN(St_LPAREN);
         return 1;
     }
-    (?i:as)[ \t]        {
+    "as"[ \t]        {
         set_token(yytext);
         current_state_ = LexState::AS;
         predicted_state_ = STATE::COMBINE_EXP;
         BEGIN(St_AS);
         return 1;
     }
-    .              {
+    .                {
         set_token(yytext);
         current_state_ = LexState::ERROR;
         BEGIN(INITIAL);
@@ -87,7 +86,7 @@ void set_token(const char* text) {
 }
 
 <St_LPAREN>{
-    [ \t]+         { /* ignore */ }
+    [ \t]+         { }
     [a-zA-Z._][a-zA-Z0-9._]* {
         set_token(yytext);
         attributes.push_back(yytext);
@@ -104,7 +103,7 @@ void set_token(const char* text) {
 }
 
 <St_ATTR>{
-    [ \t]+         { /* ignore */ }
+    [ \t]+         { }
     ","            {
         set_token(yytext);
         current_state_ = LexState::COMMA;
@@ -126,7 +125,7 @@ void set_token(const char* text) {
 }
 
 <St_COMMA>{
-    [ \t]+         { /* ignore */ }
+    [ \t]+         { }
     [a-zA-Z._][a-zA-Z0-9._]* {
         set_token(yytext);
         attributes.push_back(yytext);
@@ -144,7 +143,7 @@ void set_token(const char* text) {
 
 
 <St_RPAREN>{
-        [ \t]+         {}
+        [ \t]+         { }
         \n             {
             set_token("COMPLETE");
             current_state_ = LexState::SUCCESS;
@@ -167,7 +166,7 @@ void set_token(const char* text) {
 
 
 <St_AS>{
-    [ \t]+         {}
+    [ \t]+         { }
     [a-zA-Z._][a-zA-Z0-9._]* {
         set_token(yytext);
         attributes.push_back(yytext);
@@ -185,7 +184,7 @@ void set_token(const char* text) {
 
 <St_JOIN>{
     [ \t]+         {}
-    (?i:join)[ \t]      {
+    "join"[ \t]      {
         set_token(yytext);
         current_state_ = LexState::ATTR;
         BEGIN(St_R_ATTR);
@@ -200,7 +199,7 @@ void set_token(const char* text) {
 }
 
 <St_R_ATTR>{
-    [ \t]+         {}
+    [ \t]+         { }
     [a-zA-Z._][a-zA-Z0-9._]* {
         set_token(yytext);
         attributes.push_back(yytext);

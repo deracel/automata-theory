@@ -8,6 +8,7 @@ enum class STATE {
     NEW_EXP,
     COMBINE_EXP
 };
+
 class i_lexer {
     private:
 

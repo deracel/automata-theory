@@ -1,6 +1,6 @@
-#line 2 "source/generated.cpp"
+#line 2 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/source/generated.cpp"
 
-#line 4 "source/generated.cpp"
+#line 4 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/source/generated.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -385,13 +385,13 @@ static const YY_CHAR yy_ec[256] =
         1,    2,    1,    1,    1,    1,    1,    1,    1,    4,
         5,    1,    1,    6,    1,    7,    1,    8,    8,    8,
         8,    8,    8,    8,    8,    8,    8,    1,    1,    1,
-        1,    1,    1,    1,    9,    7,   10,    7,   11,    7,
-        7,    7,   12,   13,    7,    7,    7,   14,   15,    7,
-        7,   16,   17,   18,    7,    7,    7,    7,    7,    7,
-        1,    1,    1,    1,    7,    1,   19,    7,   20,    7,
+        1,    1,    1,    1,    7,    7,    7,    7,    7,    7,
+        7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
+        7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
+        1,    1,    1,    1,    7,    1,    9,    7,   10,    7,
 
-       21,    7,    7,    7,   22,   23,    7,    7,    7,   24,
-       25,    7,    7,   26,   27,   28,    7,    7,    7,    7,
+       11,    7,    7,    7,   12,   13,    7,    7,    7,   14,
+       15,    7,    7,   16,   17,   18,    7,    7,    7,    7,
         7,    7,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -409,25 +409,24 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[29] =
+static const YY_CHAR yy_meta[19] =
     {   0,
         1,    1,    1,    1,    1,    1,    2,    2,    2,    2,
-        2,    2,    2,    2,    2,    2,    2,    2,    2,    2,
         2,    2,    2,    2,    2,    2,    2,    2
     } ;
 
 static const flex_int16_t yy_base[99] =
     {   0,
-        0,    2,   22,   30,   37,   55,   74,   82,    6,   40,
-       90,   98,   11,   42,  106,  114,    4,   47,  122,  130,
-      177,  178,  174,  178,   35,  178,  173,  178,    0,  178,
-      172,  178,   35,  178,  171,    0,  178,  170,   40,  178,
-      169,    0,  178,  147,  178,  178,  178,  146,    0,  178,
-      144,  178,  178,  143,    0,  142,    0,  141,    0,  140,
-      139,  119,    0,  111,   48,  103,    0,   95,   87,    0,
-       71,   70,    0,   62,  178,  115,  119,   67,  129,  178,
-       66,   65,  178,  150,  152,  154,  156,  158,  160,  162,
-      164,  166,  168,   64,   52,   35,   16,   13
+        0,    9,   19,   27,   34,   42,   51,   59,   66,   78,
+       91,   99,  106,  111,  117,  125,    2,    4,  133,  141,
+       98,  170,   88,  170,   73,  170,   86,  170,    0,  170,
+       85,  170,   69,  170,   83,    0,  170,   82,   68,  170,
+       80,    0,  170,   76,  170,  170,  170,   75,    0,  170,
+       74,  170,  170,   73,    0,   72,   62,   70,    0,   69,
+       68,   64,    0,   56,   38,   47,    0,   46,   45,    0,
+       40,   39,    0,   31,  170,   25,   16,   24,    7,  170,
+       15,   14,  170,  149,  151,  153,  155,  157,  159,  161,
+      163,  165,  167,   13,   12,   11,    7,    6
 
     } ;
 
@@ -446,58 +445,52 @@ static const flex_int16_t yy_def[99] =
 
     } ;
 
-static const flex_int16_t yy_nxt[207] =
+static const flex_int16_t yy_nxt[189] =
     {   0,
-       83,   23,   24,   23,   24,   51,   52,   38,   28,   25,
-       74,   25,   44,   28,   73,   45,   46,   70,   39,   25,
-       74,   25,   26,   27,   28,   26,   26,   26,   39,   26,
-       26,   27,   28,   26,   26,   26,   67,   26,   31,   28,
-       32,   38,   28,   44,   28,   33,   45,   46,   51,   52,
-       57,   61,   39,   63,   65,   33,   31,   28,   32,   76,
-       57,   61,   39,   33,   65,   59,   82,   82,   80,   76,
-       77,   72,   71,   33,   34,   35,   28,   34,   34,   34,
-       77,   34,   34,   35,   28,   34,   34,   34,   69,   34,
-       40,   41,   28,   40,   40,   40,   68,   40,   40,   41,
+       83,   23,   24,   51,   52,   51,   52,   73,   70,   25,
+       23,   24,   67,   63,   59,   82,   82,   81,   25,   26,
+       27,   28,   26,   26,   26,   80,   26,   26,   27,   28,
+       26,   26,   26,   79,   26,   31,   28,   32,   78,   77,
+       72,   71,   33,   31,   28,   32,   69,   68,   66,   76,
+       33,   34,   35,   28,   34,   34,   34,   64,   34,   34,
+       35,   28,   34,   34,   34,   62,   34,   38,   28,   75,
+       60,   58,   74,   56,   72,   71,   69,   68,   39,   38,
+       28,   66,   65,   64,   62,   61,   60,   58,   57,   56,
+       39,   40,   41,   28,   40,   40,   40,   83,   40,   40,
 
-       28,   40,   40,   40,   66,   40,   47,   48,   28,   47,
-       47,   47,   64,   47,   47,   48,   28,   47,   47,   47,
-       62,   47,   53,   54,   28,   53,   53,   53,   78,   53,
-       53,   54,   28,   53,   53,   53,   79,   53,   78,   81,
-       75,   60,   58,   56,   72,   71,   79,   69,   68,   81,
-       22,   22,   29,   29,   30,   30,   36,   36,   37,   37,
-       42,   42,   43,   43,   49,   49,   50,   50,   55,   55,
-       66,   64,   62,   60,   58,   56,   83,   21,   83,   83,
+       41,   28,   40,   40,   40,   83,   40,   44,   28,   83,
+       45,   46,   44,   28,   83,   45,   46,   47,   48,   28,
+       47,   47,   47,   83,   47,   47,   48,   28,   47,   47,
+       47,   83,   47,   53,   54,   28,   53,   53,   53,   83,
+       53,   53,   54,   28,   53,   53,   53,   83,   53,   22,
+       22,   29,   29,   30,   30,   36,   36,   37,   37,   42,
+       42,   43,   43,   49,   49,   50,   50,   55,   55,   21,
        83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-
-       83,   83,   83,   83,   83,   83
+       83,   83,   83,   83,   83,   83,   83,   83
     } ;
 
-static const flex_int16_t yy_chk[207] =
+static const flex_int16_t yy_chk[189] =
     {   0,
-        0,    1,    1,    2,    2,   17,   17,    9,    9,    1,
-       57,    2,   13,   13,   98,   13,   13,   97,    9,    1,
-       57,    2,    3,    3,    3,    3,    3,    3,    9,    3,
-        4,    4,    4,    4,    4,    4,   96,    4,    5,    5,
-        5,   10,   10,   14,   14,    5,   14,   14,   18,   18,
-       25,   33,   10,   95,   39,    5,    6,    6,    6,   65,
-       25,   33,   10,    6,   39,   94,   82,   81,   78,   65,
-       74,   72,   71,    6,    7,    7,    7,    7,    7,    7,
-       74,    7,    8,    8,    8,    8,    8,    8,   69,    8,
-       11,   11,   11,   11,   11,   11,   68,   11,   12,   12,
+        0,    1,    1,   17,   17,   18,   18,   98,   97,    1,
+        2,    2,   96,   95,   94,   82,   81,   79,    2,    3,
+        3,    3,    3,    3,    3,   78,    3,    4,    4,    4,
+        4,    4,    4,   77,    4,    5,    5,    5,   76,   74,
+       72,   71,    5,    6,    6,    6,   69,   68,   66,   65,
+        6,    7,    7,    7,    7,    7,    7,   64,    7,    8,
+        8,    8,    8,    8,    8,   62,    8,    9,    9,   61,
+       60,   58,   57,   56,   54,   51,   48,   44,    9,   10,
+       10,   41,   39,   38,   35,   33,   31,   27,   25,   23,
+       10,   11,   11,   11,   11,   11,   11,   21,   11,   12,
 
-       12,   12,   12,   12,   66,   12,   15,   15,   15,   15,
-       15,   15,   64,   15,   16,   16,   16,   16,   16,   16,
-       62,   16,   19,   19,   19,   19,   19,   19,   76,   19,
-       20,   20,   20,   20,   20,   20,   77,   20,   76,   79,
-       61,   60,   58,   56,   54,   51,   77,   48,   44,   79,
-       84,   84,   85,   85,   86,   86,   87,   87,   88,   88,
-       89,   89,   90,   90,   91,   91,   92,   92,   93,   93,
-       41,   38,   35,   31,   27,   23,   21,   83,   83,   83,
+       12,   12,   12,   12,   12,    0,   12,   13,   13,    0,
+       13,   13,   14,   14,    0,   14,   14,   15,   15,   15,
+       15,   15,   15,    0,   15,   16,   16,   16,   16,   16,
+       16,    0,   16,   19,   19,   19,   19,   19,   19,    0,
+       19,   20,   20,   20,   20,   20,   20,    0,   20,   84,
+       84,   85,   85,   86,   86,   87,   87,   88,   88,   89,
+       89,   90,   90,   91,   91,   92,   92,   93,   93,   83,
        83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-
-       83,   83,   83,   83,   83,   83
+       83,   83,   83,   83,   83,   83,   83,   83
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -514,8 +507,8 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "flex/lex_file.lex"
-#line 2 "flex/lex_file.lex"
+#line 1 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+#line 2 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -530,9 +523,9 @@ std::string exp_name_;
 void set_token(const char* text) {
     current_token = text;
 }
-#line 534 "source/generated.cpp"
+#line 527 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/source/generated.cpp"
 
-#line 536 "source/generated.cpp"
+#line 529 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/source/generated.cpp"
 
 #define INITIAL 0
 #define St_CREATE 1
@@ -758,11 +751,11 @@ YY_DECL
 		}
 
 	{
-#line 20 "flex/lex_file.lex"
+#line 20 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 
 
 
-#line 766 "source/generated.cpp"
+#line 759 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/source/generated.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -795,7 +788,7 @@ yy_match:
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 178 );
+		while ( yy_base[yy_current_state] != 170 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -821,7 +814,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 24 "flex/lex_file.lex"
+#line 24 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::CREATE;
@@ -831,7 +824,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 30 "flex/lex_file.lex"
+#line 30 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
             set_token(yytext);
             current_state_ = LexState::ERROR;
@@ -841,21 +834,21 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 37 "flex/lex_file.lex"
-{ /* ignore */ }
+#line 37 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+{ }
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 38 "flex/lex_file.lex"
-{ /* ignore */ }
+#line 38 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+{ }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 39 "flex/lex_file.lex"
+#line 39 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
-        current_state_ = LexState::ERROR;
+        current_state_ = LexState::ERROR    ;
         BEGIN(INITIAL);
         return 0;
     }
@@ -864,12 +857,12 @@ YY_RULE_SETUP
 
 case 6:
 YY_RULE_SETUP
-#line 48 "flex/lex_file.lex"
-{ /* ignore */ }
+#line 48 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+{ }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 49 "flex/lex_file.lex"
+#line 49 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::NAME;
@@ -880,9 +873,8 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 56 "flex/lex_file.lex"
+#line 56 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
-
         set_token(yytext);
         current_state_ = LexState::ERROR;
         BEGIN(INITIAL);
@@ -893,12 +885,12 @@ YY_RULE_SETUP
 
 case 9:
 YY_RULE_SETUP
-#line 66 "flex/lex_file.lex"
-{ /* ignore */ }
+#line 65 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+{ }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 67 "flex/lex_file.lex"
+#line 66 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::LPAREN;
@@ -909,7 +901,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 74 "flex/lex_file.lex"
+#line 73 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::AS;
@@ -920,7 +912,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 81 "flex/lex_file.lex"
+#line 80 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::ERROR;
@@ -932,12 +924,12 @@ YY_RULE_SETUP
 
 case 13:
 YY_RULE_SETUP
-#line 90 "flex/lex_file.lex"
-{ /* ignore */ }
+#line 89 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+{ }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 91 "flex/lex_file.lex"
+#line 90 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         attributes.push_back(yytext);
@@ -948,7 +940,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 98 "flex/lex_file.lex"
+#line 97 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::ERROR;
@@ -960,12 +952,12 @@ YY_RULE_SETUP
 
 case 16:
 YY_RULE_SETUP
-#line 107 "flex/lex_file.lex"
-{ /* ignore */ }
+#line 106 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+{ }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 108 "flex/lex_file.lex"
+#line 107 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::COMMA;
@@ -975,7 +967,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 114 "flex/lex_file.lex"
+#line 113 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::RPAREN;
@@ -985,7 +977,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 120 "flex/lex_file.lex"
+#line 119 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::ERROR;
@@ -997,12 +989,12 @@ YY_RULE_SETUP
 
 case 20:
 YY_RULE_SETUP
-#line 129 "flex/lex_file.lex"
-{ /* ignore */ }
+#line 128 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+{ }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 130 "flex/lex_file.lex"
+#line 129 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         attributes.push_back(yytext);
@@ -1013,7 +1005,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 137 "flex/lex_file.lex"
+#line 136 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::ERROR;
@@ -1025,13 +1017,13 @@ YY_RULE_SETUP
 
 case 23:
 YY_RULE_SETUP
-#line 147 "flex/lex_file.lex"
-{}
+#line 146 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+{ }
 	YY_BREAK
 case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
-#line 148 "flex/lex_file.lex"
+#line 147 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
             set_token("COMPLETE");
             current_state_ = LexState::SUCCESS;
@@ -1040,7 +1032,7 @@ YY_RULE_SETUP
         }
 	YY_BREAK
 case YY_STATE_EOF(St_RPAREN):
-#line 154 "flex/lex_file.lex"
+#line 153 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
             set_token("COMPLETE");
             current_state_ = LexState::SUCCESS;
@@ -1050,7 +1042,7 @@ case YY_STATE_EOF(St_RPAREN):
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 160 "flex/lex_file.lex"
+#line 159 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
             set_token(yytext);
             current_state_ = LexState::ERROR;
@@ -1062,12 +1054,12 @@ YY_RULE_SETUP
 
 case 26:
 YY_RULE_SETUP
-#line 170 "flex/lex_file.lex"
-{}
+#line 169 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+{ }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 171 "flex/lex_file.lex"
+#line 170 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         attributes.push_back(yytext);
@@ -1078,7 +1070,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 178 "flex/lex_file.lex"
+#line 177 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::ERROR;
@@ -1090,12 +1082,12 @@ YY_RULE_SETUP
 
 case 29:
 YY_RULE_SETUP
-#line 187 "flex/lex_file.lex"
+#line 186 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 188 "flex/lex_file.lex"
+#line 187 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::ATTR;
@@ -1105,7 +1097,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 194 "flex/lex_file.lex"
+#line 193 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::ERROR;
@@ -1117,12 +1109,12 @@ YY_RULE_SETUP
 
 case 32:
 YY_RULE_SETUP
-#line 203 "flex/lex_file.lex"
-{}
+#line 202 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
+{ }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 204 "flex/lex_file.lex"
+#line 203 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         attributes.push_back(yytext);
@@ -1133,7 +1125,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 211 "flex/lex_file.lex"
+#line 210 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 {
         set_token(yytext);
         current_state_ = LexState::ERROR;
@@ -1144,10 +1136,10 @@ YY_RULE_SETUP
 
 case 35:
 YY_RULE_SETUP
-#line 219 "flex/lex_file.lex"
+#line 218 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 ECHO;
 	YY_BREAK
-#line 1151 "source/generated.cpp"
+#line 1143 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/source/generated.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(St_CREATE):
 case YY_STATE_EOF(St_NAME):
@@ -2160,6 +2152,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 219 "flex/lex_file.lex"
+#line 218 "/home/deracel/automata_theory/labs/lab1/src/impls/lex_version/flex/lex_file.lex"
 
 

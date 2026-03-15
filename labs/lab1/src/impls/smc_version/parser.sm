@@ -1,17 +1,26 @@
 %{
 // SMC parser for relation expressions
+    #include <string>
 %}
 
 
-%start LexerFSM::Skip_start_spaces
+%start LexerFSM::Initial
 %class lexer_context // главный класс автомата
 %header lexer_context.h
 
-%{#include <string>%}
 
 
 %map LexerFSM
 %%
+Initial
+{
+    next_char(c: char)
+        Skip_start_spaces
+        {
+            start_line();
+        }
+
+}
 
 Skip_start_spaces
 {
@@ -272,7 +281,7 @@ Expect_end
 Failure
 {
     next_char(c: char)
-    Skip_start_spaces
+    Initial
     {
         set_exit_state();
         reset_for_new_line();
@@ -284,7 +293,7 @@ Success
 
     next_char(c: char)
     [ctxt.is_end_of_line(c)]
-        Skip_start_spaces
+        Initial
         {
             // Готовы к новой строке
         }
@@ -296,7 +305,7 @@ Success
         }
 
     reset()
-        Skip_start_spaces
+        Initial
         {
             reset_for_new_line();
         }

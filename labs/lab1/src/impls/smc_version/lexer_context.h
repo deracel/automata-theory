@@ -38,6 +38,9 @@ class lexer_context : public i_lexer {
     public:
         lexer_context() : name_started_(false), attribute_started_(false) {}
 
+        void start_line() {
+            reset_for_new_line();
+        }
 
         void start_create_accum(char c) {
             create_accumulating_ = true;
@@ -160,15 +163,22 @@ class lexer_context : public i_lexer {
         void set_exit_state() {exit_ = true;}
 
         std::pair<STATE, std::pair<std::string, std::vector<std::string>>> lexline(const std::string& line) override {
-            reset_for_new_line();
+            start_line();
 
             parserContext fsm(*this);
 
             fsm.enterStartState();
 
             auto c_line = line.c_str();
+            bool for_initial_state = true;
             for (size_t i = 0; i <= line.size(); i++) {
-                fsm.next_char(c_line[i]);
+                if (i == 0 && for_initial_state) {
+                    fsm.next_char('q');
+                    for_initial_state = false;
+                    i--;
+                }
+                else
+                    fsm.next_char(c_line[i]);
                 if (exit_) {
                     exit_ = false;
                     return {STATE::NO, {"", {}}};

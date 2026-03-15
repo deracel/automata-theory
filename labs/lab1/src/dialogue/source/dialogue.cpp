@@ -6,11 +6,8 @@
 
 
 
-
-
 std::string dialogue::input_selection() {
     std::string choice;
-
     while (true) {
         std::cout << "### Enter terminal, file, info or exit: ";
         std::cin >> choice;
@@ -18,8 +15,10 @@ std::string dialogue::input_selection() {
         if (std::cin.fail()) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            if (std::cin.eof())
+            if (std::cin.eof()) {
+                std::cout << std::endl;
                 return "exit";
+            }
             std::cout << "Unknown command\n\n";
             continue;
         }
@@ -59,6 +58,10 @@ void dialogue::terminal_input() {
         std::string user_input;
         std::cout << "Enter command: ";
         std::getline(std::cin, user_input);
+        if (std::cin.eof()) {
+            std::cout << std::endl;
+            throw 0;
+        }
         if (user_input == "info") {
             show_info();
             continue;
@@ -81,6 +84,10 @@ void dialogue::file_input() {
     std::string filename;
     std::cout << "Enter file name: ";
     std::getline(std::cin, filename);
+    if (std::cin.eof()) {
+        std::cout << std::endl;
+        throw 0;
+    }
     if (filename == "terminal") {
         terminal_input();
         return;

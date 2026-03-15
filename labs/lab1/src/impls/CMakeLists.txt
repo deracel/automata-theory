@@ -14,6 +14,11 @@ if(USE_REGEX)
     math(EXPR IMPL_COUNT "${IMPL_COUNT}+1")
 endif()
 
+add_library(impls STATIC)
+target_include_directories(impls PUBLIC
+        "/usr/local/include/smc/C++"
+)
+
 if(IMPL_COUNT EQUAL 0)
     message(STATUS "No implementation selected, defaulting to REGEX")
     set(USE_REGEX ON)
@@ -24,7 +29,7 @@ endif()
 if(USE_SMC)
     message(STATUS "Building SMC implementation")
 
-    add_library(impls STATIC)
+    #add_library(impls STATIC)
 
     target_sources(impls
             PRIVATE
@@ -40,10 +45,10 @@ if(USE_SMC)
     )
 
     target_include_directories(impls PUBLIC
-            "${CMAKE_CURRENT_BINARY_DIR}/smc_version"
+            "/usr/local/include/smc/C++"
     )
 
-    if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/smc_version/statemap.h)
+    if(NOT EXISTS /usr/local/include/smc/C++/statemap.h)
         message(WARNING "statemap.h not found in smc_version directory")
     endif()
 endif()
@@ -65,7 +70,7 @@ if(USE_LEX)
             COMMENT "Generating lexer C++ source from ${LEX_FILE}"
     )
 
-    add_library(impls STATIC)
+    #add_library(impls STATIC)
 
 
     target_sources(impls
@@ -98,7 +103,7 @@ endif()
 if(USE_REGEX)
     message(STATUS "Building REGEX implementation")
 
-    add_library(impls STATIC)
+    #add_library(impls STATIC)
 
     target_sources(impls
             PRIVATE
