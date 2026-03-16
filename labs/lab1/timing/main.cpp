@@ -302,6 +302,8 @@ int main() {
     auto v_lex = std::make_unique<lex_version>();
 
     std::ofstream file_out_reg("../time_results/regex.txt");
+    std::ofstream file_out_smc("../time_results/smc.txt");
+    std::ofstream file_out_lex("../time_results/lex.txt");
     for (int i = 0; i < 12; i++) {
         std::vector<std::string> strings = {100, ""};
         for (auto& str : strings) {
@@ -311,27 +313,59 @@ int main() {
                 str = generator.generateString(5000);
             else
                 str = generator.generateString((i-1)*10000);
+            str[0] = '.';
+            //str[str.length()/2] = '*';
         }
 
         std::pair<STATE, std::pair<std::string, std::vector<std::string>>> res;
+        //--------------------------------------------------------------------
         auto start = std::chrono::high_resolution_clock::now();
         for (auto& str : strings) {
             res = v_regex->lexline(str);
         }
         auto end = std::chrono::high_resolution_clock::now();
-
         auto duration = end - start;
         auto time = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
-        double avg_time = time / 100;
+        double avg_time_reg = time / 100;
+        if (res.first != STATE::NO)
+            std::cout << "SUCCESS" << std::endl;
+        else
+            std::cout << "FAILURE" << std::endl;
+        //--------------------------------------------------------------------
+        auto start_smc = std::chrono::high_resolution_clock::now();
+        for (auto& str : strings) {
+            res = v_smc->lexline(str);
+        }
+        auto end_smc = std::chrono::high_resolution_clock::now();
+        auto duration_smc = end_smc - start_smc;
+        time = std::chrono::duration_cast<std::chrono::microseconds>(duration_smc).count();
+        double avg_time_smc = time / 100;
         if (res.first != STATE::NO)
             std::cout << "SUCCESS" << std::endl;
 
-        file_out_reg << avg_time << std::endl;
-        strings.clear();
+        //--------------------------------------------------------------------
+        auto start_lex = std::chrono::high_resolution_clock::now();
+        for (auto& str : strings) {
+            res = v_lex->lexline(str);
+        }
+        auto end_lex = std::chrono::high_resolution_clock::now();
+        auto duration_lex = end_lex - start_lex;
+        time = std::chrono::duration_cast<std::chrono::microseconds>(duration_lex).count();
+        double avg_time_lex = time / 100;
+        if (res.first != STATE::NO)
+            std::cout << "SUCCESS" << std::endl;
+
+        //--------------------------------------------------------------------
+
+        file_out_reg << avg_time_reg << std::endl;
+        file_out_lex << avg_time_lex << std::endl;
+        file_out_smc << avg_time_smc << std::endl;
     }
     file_out_reg.close();
+    file_out_smc.close();
+    file_out_lex.close();
 
-
+    /*
     std::ofstream file_out_smc("../time_results/smc.txt");
     for (int i = 0; i < 12; i++) {
         std::pair<STATE, std::pair<std::string, std::vector<std::string>>> res;
@@ -393,5 +427,6 @@ int main() {
         strings.clear();
     }
     file_out_lex.close();
+    */
     return 0;
 }

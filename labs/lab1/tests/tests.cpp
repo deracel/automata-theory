@@ -15,7 +15,7 @@ class parser_test : public ::testing::Test {
 class parser_valid_test : public parser_test, public ::testing::WithParamInterface<std::string>{};
 class parser_invalid_test : public parser_test, public ::testing::WithParamInterface<std::string>{};
 
-typedef lex_version impl;
+typedef regex_version impl;
 
 std::unique_ptr<impl> lexer = std::make_unique<impl>();
 std::unique_ptr<service> parser_test::service_ = std::make_unique<service>(*lexer);

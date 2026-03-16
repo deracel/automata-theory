@@ -10,7 +10,7 @@ regex_version::lexline(const std::string& line) {
     std::string name_attr_pattern = "[a-zA-Z_.][a-zA-Z0-9_.]*";
 
     std::regex combined_regex(
-        "\\s*create\\s+"
+        "^\\s*create\\s+"
         "(" + name_attr_pattern + ")"
         "(?:"
             "\\s*\\(\\s*"
