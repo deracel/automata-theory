@@ -3,7 +3,6 @@ package dialogue
 import (
 	"bufio"
 	"fmt"
-	"lab2/pkg/debug_pkg"
 	dfa "lab2/pkg/dfa_pkg"
 	graph "lab2/pkg/graph_pkg"
 	nfa "lab2/pkg/nfa_pkg"
@@ -67,7 +66,7 @@ func Dialogue () {
 
 		minimizedDfa := dfa.Minimize(dfaAutomaton)
 		fmt.Println("minDFA is ready!\n")
-		debug_pkg.DebugMinimizationProcess(dfaAutomaton)
+
 
 		err = graph.SaveAndOpenGraphVizDfa(minimizedDfa, "graphs/mindfa_graph.dot")
 
