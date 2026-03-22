@@ -2,8 +2,6 @@ package dfa_test
 
 import (
 	dfa "lab2/pkg/dfa_pkg"
-	nfa2 "lab2/pkg/nfa_pkg"
-	"lab2/pkg/regex_pkg"
 	"testing"
 )
 
@@ -247,96 +245,6 @@ func TestSearchAll(t *testing.T) {
 	}
 }
 
-
-// ТЕСТЫ ДЛЯ ГРУПП ЗАХВАТА
-func TestGroups(t *testing.T) {
-	tests := []struct {
-		name     string
-		pattern  string
-		text     string
-		expected map[string]string
-	}{
-		{
-			name:    "single_group",
-			pattern: "hello (<world>ww...oo...rr...ll...dd...)",
-			text:    "hello wwwoooorllldddddd",
-			expected: map[string]string{
-				"world": "wwwoooorllldddddd",
-			},
-		},
-		{
-			name:    "multiple_groups",
-			pattern: "(<first>a...) (<second>19...8?)",
-			text:    "aaaaaaaaaaaaaaaaa 199999999999",
-			expected: map[string]string{
-				"first":  "aaaaaaaaaaaaaaaaa",
-				"second": "199999999999",
-			},
-		},
-		{
-			name:    "email_pattern",
-			pattern: "(<username>user|l{3}e{5}v{2})@(<domain>mephi).(<tld>com|ru)",
-			text:    "user@mephi.com",
-			expected: map[string]string{
-				"username": "user",
-				"domain":   "mephi",
-				"tld":      "com",
-			},
-		},
-		{
-			name:    "email_pattern_2",
-			pattern: "(<username>user|l{3}e{5}v{2})@(<domain>mephi).(<tld>com|ru)",
-			text:    "llleeeeevv@mephi.ru",
-			expected: map[string]string{
-				"username": "llleeeeevv",
-				"domain":   "mephi",
-				"tld":      "ru",
-			},
-		},
-		{
-			name:    "group_with_closure",
-			pattern: "(<digits>(0|1|2|3|4|5|6|7|8|9)...)",
-			text:    "12345123141354135135143213134523523452321341241352452352352452652",
-			expected: map[string]string{
-				"digits": "12345123141354135135143213134523523452321341241352452352352452652",
-			},
-		},
-		{
-			name:    "group_with_question",
-			pattern: "(<optional>a?)b",
-			text:    "b",
-			expected: map[string]string{
-				"optional": "",
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			Tree, err := regex_pkg.BuildSyntaxTree(test.pattern)
-			if err != nil{
-				t.Fatalf("Error building syntax tree: %v", err)
-			}
-			nfa := nfa2.BuildNfaFromTree(Tree)
-			if nfa == nil {
-				t.Fatalf("Error building NFA")
-			}
-
-			result := nfa.Search(test.text)
-
-			if result == nil {
-				t.Fatal("Expected match, received nil")
-			}
-
-			for name, expected := range test.expected {
-				actual := result.Group(name)
-				if actual != expected {
-					t.Errorf("Group %s: expected %s, received %s", name, expected, actual)
-				}
-			}
-		})
-	}
-}
 
 
 // ПРОВЕРКА ЭКРАНИРОВАННЫХ СИМВОЛОВ

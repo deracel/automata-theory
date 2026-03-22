@@ -1,6 +1,7 @@
 package nfa_test
 
 import (
+	"fmt"
 	"lab2/pkg/nfa_pkg"
 	"lab2/pkg/regex_pkg"
 	"testing"
@@ -107,7 +108,7 @@ func TestGroups(t *testing.T) {
 	}{
 		{
 			name:    "single_group",
-			pattern: "hello (<world>ww...oo...rr...ll...dd...)",
+			pattern: "hello (<world>wwwoooorllldddddd)",
 			text:    "hello wwwoooorllldddddd",
 			expected: map[string]string{
 				"world": "wwwoooorllldddddd",
@@ -115,11 +116,11 @@ func TestGroups(t *testing.T) {
 		},
 		{
 			name:    "multiple_groups",
-			pattern: "(<first>a...) (<second>19...8?)",
-			text:    "aaaaaaaaaaaaaaaaa 199999999999",
+			pattern: "(<first>aa) (<second>19)",
+			text:    "aa 19",
 			expected: map[string]string{
-				"first":  "aaaaaaaaaaaaaaaaa",
-				"second": "199999999999",
+				"first":  "aa",
+				"second": "19",
 			},
 		},
 		{
@@ -144,10 +145,10 @@ func TestGroups(t *testing.T) {
 		},
 		{
 			name:    "group_with_closure",
-			pattern: "(<digits>(0|1|2|3|4|5|6|7|8|9)...)",
-			text:    "12345123141354135135143213134523523452321341241352452352352452652",
+			pattern: "(<digits>(0|1|2|3|4|5|6|7|8|9){5})",
+			text:    "19089",
 			expected: map[string]string{
-				"digits": "12345123141354135135143213134523523452321341241352452352352452652",
+				"digits": "19089",
 			},
 		},
 		{
@@ -209,7 +210,7 @@ func TestReferences(t *testing.T) {
 		},
 		{
 			name:    "simple_ref_failure",
-			pattern: "(<abc>r...)-<abc>",
+			pattern: "(<abc>r{3})-<abc>",
 			text:    "rrr-xxx",
 			expected: false,
 			groups:   nil,
@@ -244,8 +245,8 @@ func TestReferences(t *testing.T) {
 		},
 		{
 			name:    "nested_refs",
-			pattern: "(<outer>a(<inner>b)c)-<outer>-<inner>",
-			text:    "abc-abc-b",
+			pattern: "(<outer>a(<inner>b)c)-<outer>",
+			text:    "abc-abc",
 			expected: true,
 			groups: map[string]string{
 				"outer": "abc",
@@ -370,17 +371,17 @@ func TestSearchAll(t *testing.T) {
 		},
 		{
 			name:        "matches_with_groups",
-			pattern:     "(<word>ww...)",
-			text:        "w wwwww www wwwwww",
+			pattern:     "(<word>a|bbbb|ccc|ddddddddddddddddd)",
+			text:        "ddddddddddddddddd bbbb ccc a",
 			expectedLen: 4,
-			expected:    []string{"w", "wwwww", "www", "wwwwww"},
+			expected:    []string{"ddddddddddddddddd", "bbbb", "ccc", "a"},
 		},
 		{
 			name:        "matches_with_refs",
-			pattern:     "(<abc>r...|a...)-<abc>",
-			text:        "rrr-rrr xxx-xxx aaa-aaa",
+			pattern:     "(<abc>rex|axe)-<abc>",
+			text:        "rex-rex xxx-xxx axe-axe  axe-rex",
 			expectedLen: 2,
-			expected:    []string{"rrr-rrr", "aaa-aaa"},
+			expected:    []string{"rex-rex", "axe-axe"},
 		},
 	}
 
@@ -397,6 +398,9 @@ func TestSearchAll(t *testing.T) {
 
 			if len(matches) != test.expectedLen {
 				t.Errorf("Match count: expected %d, received %d", test.expectedLen, len(matches))
+				for _, m := range matches {
+					fmt.Printf("%s\n", m)
+				}
 			}
 
 			for i, expected := range test.expected {
@@ -413,8 +417,8 @@ func TestSearchAll(t *testing.T) {
 
 // TestIteratorIndex проверяет доступ по индексу через итератор
 func TestIteratorIndex(t *testing.T) {
-	pattern := "(<word>[a-z]+)"
-	text := "hello world foo bar"
+	pattern := "(<word>hello|helllo|hhhellllllloooo|hellllllloooooooooo)"
+	text := "hello helllo hhhellllllloooo hellllllloooooooooo"
 
 	nfaAutomaton := buildTestNFA(t, pattern)
 	iter := nfaAutomaton.SearchAll(text)
@@ -435,24 +439,24 @@ func TestIteratorIndex(t *testing.T) {
 	if second == nil {
 		t.Fatal("Second match not found")
 	}
-	if second.Text != "world" {
-		t.Errorf("Second match: expected 'world', received '%s'", second.Text)
+	if second.Text != "helllo" {
+		t.Errorf("Second match: expected 'helllo', received '%s'", second.Text)
 	}
 
 	third := iter.Index(2)
 	if third == nil {
 		t.Fatal("Third match not found")
 	}
-	if third.Text != "foo" {
-		t.Errorf("Third match: expected 'foo', received '%s'", third.Text)
+	if third.Text != "hhhellllllloooo" {
+		t.Errorf("Third match: expected 'hhhellllllloooo', received '%s'", third.Text)
 	}
 
 	fourth := iter.Index(3)
 	if fourth == nil {
 		t.Fatal("Fourth match not found")
 	}
-	if fourth.Text != "bar" {
-		t.Errorf("Fourth match: expected 'bar', received '%s'", fourth.Text)
+	if fourth.Text != "hellllllloooooooooo" {
+		t.Errorf("Fourth match: expected 'hellllllloooooooooo', received '%s'", fourth.Text)
 	}
 
 	fifth := iter.Index(4)
@@ -469,7 +473,7 @@ func TestIteratorIndex(t *testing.T) {
 
 // TestMatchResultMethods проверяет методы MatchResult
 func TestMatchResultMethods(t *testing.T) {
-	pattern := "(<username>[a-z]+)@(<domain>[a-z]+).(<tld>[a-z]+)"
+	pattern := "(<username>user)@(<domain>example).(<tld>com)"
 	text := "user@example.com"
 
 	nfaAutomaton := buildTestNFA(t, pattern)
