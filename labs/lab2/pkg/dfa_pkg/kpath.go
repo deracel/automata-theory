@@ -1,32 +1,34 @@
-package kpath_pkg
+package dfa
 
 import (
 	"fmt"
-	dfa "lab2/pkg/dfa_pkg"
-	"sort"
 	"strings"
 )
 
+
 type RegexBuilder struct {
-	d *dfa.Dfa
-	states []*dfa.DfaState
-	stateIndex map[*dfa.DfaState]int
-	indexState map[int]*dfa.DfaState
+	d *Dfa
+	states []*DfaState
+	stateIndex map[*DfaState]int
+	indexState map[int]*DfaState
 	n int
 }
 
-func NewRegexBuilder(d *dfa.Dfa) *RegexBuilder {
-	states := make([]*dfa.DfaState, 0)
+func NewRegexBuilder(d *Dfa) *RegexBuilder {
+	states := make([]*DfaState, 0)
 	for _, state := range d.States {
 		if state != d.ErrorState{
 			states = append(states, state)
 		}
 	}
+	/*
 	sort.Slice(states, func(i, j int) bool {
 		return states[i].ID < states[j].ID
 	})
-	stateIndex := make(map[*dfa.DfaState]int)
-	indexState := make(map[int]*dfa.DfaState)
+
+	 */
+	stateIndex := make(map[*DfaState]int)
+	indexState := make(map[int]*DfaState)
 	count := 1
 	for _, state := range states {
 		stateIndex[state] = count
@@ -81,6 +83,7 @@ func (this *RegexBuilder) BuildRegex() (string, error) {
 
 			}
 		}
+		this.print(R, k)
 	}
 
 	startInd := this.stateIndex[this.d.StartState]
@@ -104,9 +107,11 @@ func (this *RegexBuilder) calculateBasis(i, j int) string {
 	}
 	for _, symbol := range this.d.Alphabet{
 		nextState := stateI.Transitions[symbol]
-		if nextState != nil && nextState != this.d.ErrorState && this.stateIndex[nextState] == j {
-			token := escapeSymbol(symbol)
-			result = this.makeUnion(result, token)
+		if nextState != nil && nextState != this.d.ErrorState{
+			if nextIndx, ok := this.stateIndex[nextState]; ok && nextIndx == j {
+				token := escapeSymbol(symbol)
+				result = this.makeUnion(result, token)
+			}
 		}
 	}
 	if result == ""{
@@ -115,6 +120,16 @@ func (this *RegexBuilder) calculateBasis(i, j int) string {
 	return result
 }
 
+func (this *RegexBuilder) print(R [][][]string, k int) {
+	fmt.Printf("=== k=%d ===\n", k)
+	for i := 1; i <= this.n; i++ {
+		for j := 1; j <= this.n; j++ {
+			if R[i][j][k] != "" && R[i][j][k] != "∅" {
+				fmt.Printf("R[%d][%d][%d] = %s\n", i, j, k, R[i][j][k])
+			}
+		}
+	}
+}
 
 func (this *RegexBuilder) makeUnion(str1 string, str2 string) string {
 	if str1 == "" || str1 == "∅"{
@@ -153,8 +168,12 @@ func (this *RegexBuilder) makeConcat(str1, str2 string) string {
 
 	str1 = this.addPars(str1)
 	str2 = this.addPars(str2)
-	return str1 + str2
+	return "(" + str1 + ")" + "(" + str2 + ")"
 }
+
+
+
+
 
 func (this *RegexBuilder) makeKlini(str string) string {
 	if str == "" || str == "∅" {
@@ -163,12 +182,14 @@ func (this *RegexBuilder) makeKlini(str string) string {
 	if str == "ε"{
 		return "ε"
 	}
+
 	if strings.HasPrefix(str, "(") && strings.HasSuffix(str, ")..."){
 		return str
 	}
 	str = this.addPars(str)
 	return str + "..."
 }
+
 
 func (this *RegexBuilder) addPars(str string) string {
 	if strings.HasPrefix(str, "(") && strings.HasSuffix(str, ")") {
@@ -252,7 +273,7 @@ func (rb *RegexBuilder) removeEpsilonFromConcat(expr string) string {
 }
 
 
-func BuildRegexFromDFA(d *dfa.Dfa) (string, error) {
+func BuildRegexFromDFA(d *Dfa) (string, error) {
 	builder := NewRegexBuilder(d)
 	return builder.BuildRegex()
 }

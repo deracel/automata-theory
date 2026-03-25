@@ -5,7 +5,6 @@ import (
 	"fmt"
 	dfa "lab2/pkg/dfa_pkg"
 	graph "lab2/pkg/graph_pkg"
-	kp "lab2/pkg/kpath_pkg"
 	nfa "lab2/pkg/nfa_pkg"
 	"os"
 	"strconv"
@@ -119,7 +118,7 @@ func Dialogue () {
 					fmt.Println("\t> Cant execute k-path on NFA")
 				}
 			}
-			reg, err := kp.BuildRegexFromDFA(automataDfa)
+			reg, err := dfa.BuildRegexFromDFA(automataDfa)
 			if err != nil {fmt.Println(err); return}
 			fmt.Printf("\tRegex: %s", reg)
 			fmt.Printf("\n")
