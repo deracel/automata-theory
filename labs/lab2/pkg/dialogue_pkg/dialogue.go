@@ -40,7 +40,7 @@ func Dialogue () {
 			if err != nil {fmt.Println(err); return}
 			break
 		case 2:
-			fmt.Println("In work:D\n")
+			fmt.Println("In work:D")
 			break
 		case 3:
 			if automataDfa == nil {

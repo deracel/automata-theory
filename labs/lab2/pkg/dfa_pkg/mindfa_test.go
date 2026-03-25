@@ -52,7 +52,7 @@ func TestSearch(t *testing.T){
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			minDfa, err := dfa.BuildDfa(test.pattern)
+			minDfa, _, err := dfa.BuildDfa(test.pattern)
 			if err != nil {
 				t.Errorf("Error building DFA: %s", err)
 			}
@@ -138,7 +138,7 @@ func TestSearchFrom(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			minDfa, err := dfa.BuildDfa(test.pattern)
+			minDfa, _, err := dfa.BuildDfa(test.pattern)
 			if err != nil {
 				t.Fatalf("Error building DFA: %v", err)
 			}
@@ -217,7 +217,7 @@ func TestSearchAll(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			minDfa, err := dfa.BuildDfa(test.pattern)
+			minDfa, _, err := dfa.BuildDfa(test.pattern)
 			if err != nil {
 				t.Fatalf("Error building DFA: %v", err)
 			}
@@ -289,7 +289,7 @@ func TestSearchWithSpecialChars(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			minDfa, err := dfa.BuildDfa(test.pattern)
+			minDfa, _, err := dfa.BuildDfa(test.pattern)
 			if err != nil {
 				t.Fatalf("Error building DFA: %v", err)
 			}
@@ -354,7 +354,7 @@ func TestOperatorPrecedence(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			minDfa, err := dfa.BuildDfa(test.pattern)
+			minDfa, _, err := dfa.BuildDfa(test.pattern)
 			if err != nil {
 				t.Fatalf("Error building DFA: %v", err)
 			}
@@ -409,7 +409,7 @@ func TestEdgeCases(t *testing.T) {
 			if test.pattern == "" {
 				return
 			}
-			minDfa, err := dfa.BuildDfa(test.pattern)
+			minDfa, _, err := dfa.BuildDfa(test.pattern)
 			if err != nil {
 				t.Fatalf("Error building DFA: %v", err)
 			}
@@ -482,7 +482,7 @@ func TestAccepts(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			minDfa, err := dfa.BuildDfa(test.pattern)
+			minDfa, _, err := dfa.BuildDfa(test.pattern)
 			if err != nil {
 				t.Fatalf("Error building DFA: %v", err)
 			}
@@ -570,7 +570,7 @@ func TestHardString(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			minDfa, err := dfa.BuildDfa(test.pattern)
+			minDfa, _, err := dfa.BuildDfa(test.pattern)
 			if err != nil {
 				t.Fatalf("Error building DFA: %v", err)
 			}
@@ -588,7 +588,7 @@ func TestIteratorIndex(t *testing.T) {
 	pattern := "hh...ee...lll...o...|world|foo|bar"
 	text := "hello world foo bar"
 
-	minDfa, err := dfa.BuildDfa(pattern)
+	minDfa, _, err := dfa.BuildDfa(pattern)
 	if err != nil {
 		t.Fatalf("Error building DFA: %v", err)
 	}
