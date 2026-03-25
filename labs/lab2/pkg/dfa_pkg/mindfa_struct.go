@@ -116,16 +116,6 @@ func Minimize(d *Dfa) *Dfa{
 
 
 
-func getStateIDsFromGroup(group *Group) []int {
-	ids := make([]int, 0, len(group.States))
-	for id := range group.States {
-		ids = append(ids, id)
-	}
-	sort.Ints(ids)
-	return ids
-}
-
-
 func getMinStateID(group *Group) int {
 	minID := int(^uint(0) >> 1)
 	for id := range group.States {
@@ -307,23 +297,21 @@ func (this *Dfa) CheckString(exp string) bool {
 
 
 
-func BuildDfa(expression string) (*Dfa, error){
+func BuildDfa(expression string) (*Dfa, *nfa.Nfa, error){
 	Tree, err := regex_pkg.BuildSyntaxTree(expression)
-	if err != nil {
-		return nil, err
-	}
+	if err != nil {return nil, nil, err}
 	Nfa := nfa.BuildNfaFromTree(Tree)
-	if Nfa == nil {
-		return nil, fmt.Errorf("Cant build Nfa\n")
+	if Nfa == nil  {
+		return nil, nil, fmt.Errorf("Cant build nfa\n")
 	}
 	df, err := BuildDfaFromNfa(Nfa)
 	if err != nil {
-		return nil, err
+		return nil, Nfa, nil
 	}
 	minDf := Minimize(df)
 	if minDf == nil {
-		return nil, fmt.Errorf("Cant minimize Dfa\n")
+		return nil, nil, fmt.Errorf("Cant minimize Dfa\n")
 	}
-	return minDf, nil
+	return minDf, nil, nil
 }
 

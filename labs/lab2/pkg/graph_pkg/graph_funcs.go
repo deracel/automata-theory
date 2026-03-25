@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strconv"
 	"strings"
 )
 
@@ -66,21 +65,21 @@ func GraphVizNfa(n *nfa.Nfa) string {
 
 
 
+
 func SaveAndOpenGraphVizNfa(n *nfa.Nfa, filename string) error {
 	content := GraphVizNfa(n)
 	err := os.WriteFile(filename, []byte(content), 0644)
 	if err != nil {
-		return fmt.Errorf("ошибка сохранения файла: %v", err)
+		return fmt.Errorf("error while saving file: %v", err)
 	}
 
 	pngFilename := strings.TrimSuffix(filename, ".dot") + ".png"
 
 	cmd := exec.Command("dot", "-Tpng", filename, "-o", pngFilename)
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("ошибка генерации PNG (установлен ли graphviz?): %v", err)
+		return fmt.Errorf("PNG generation error: %v", err)
 	}
 
-	fmt.Printf("Граф сохранен в %s и %s\n", filename, pngFilename)
 
 	return openFile(pngFilename)
 }
@@ -89,65 +88,6 @@ func SaveAndOpenGraphVizNfa(n *nfa.Nfa, filename string) error {
 
 
 
-
-
-/*
-func GraphVizDfa(d *dfa.Dfa) string {
-	var builder strings.Builder
-
-	builder.WriteString("digraph DFA {\n")
-	builder.WriteString("  rankdir=LR;\n")  // слева направо
-	builder.WriteString("  node [shape = circle];\n")
-
-	builder.WriteString(fmt.Sprintf("  start [shape = point, label = \"\"];\n"))
-	builder.WriteString(fmt.Sprintf("  start -> %d;\n", d.StartState.ID))
-
-
-	for _, state := range d.AcceptStates {
-		if state.Name == ""{
-			builder.WriteString(fmt.Sprintf("  %d [shape = doublecircle];\n", state.ID))
-		} else {
-			builder.WriteString(fmt.Sprintf("  %s [shape = doublecircle];\n", getNumber(state.Name)))
-		}
-	}
-
-	if d.ErrorState != nil {
-		builder.WriteString(fmt.Sprintf("  %d [shape = circle, style = dashed, label = \"{}\"];\n",
-			d.ErrorState.ID))
-	}
-
-	for _, state := range d.States {
-		for ch, target := range state.Transitions {
-			label := string(ch)
-			if ch == '"' {
-				label = "\\\""
-			} else if ch == '\\' {
-				label = "\\\\"
-			}
-
-			if target == d.ErrorState {
-				if state.Name == ""{
-					builder.WriteString(fmt.Sprintf("  %d -> %d [label = \"%s\"];\n",
-						state.ID, target.ID, label))
-				} else {
-					builder.WriteString(fmt.Sprintf("  %d -> %d [label = \"%s\"];\n", getNumber(state.Name), getNumber(target.Name), label))
-				}
-
-			} else {
-				if state.Name == "" {
-					builder.WriteString(fmt.Sprintf("  %d -> %d [label = \"%s\"];\n",
-						state.ID, target.ID, label))
-				} else {
-					builder.WriteString(fmt.Sprintf("  %d -> %d [label = \"%s\"];\n", getNumber(state.Name), getNumber(target.Name), label))
-				}
-			}
-		}
-	}
-
-	builder.WriteString("}\n")
-	return builder.String()
-}
-*/
 
 func GraphVizDfa(d *dfa.Dfa) string {
 	var builder strings.Builder
@@ -192,11 +132,6 @@ func GraphVizDfa(d *dfa.Dfa) string {
 	return builder.String()
 }
 
-func getNumber(name string) (int) {
-	cleaned := strings.ReplaceAll(name, "|", "0")
-	res, _ := strconv.Atoi(cleaned)
-	return res
-}
 
 func openFile(filename string) error {
 	var cmd *exec.Cmd
@@ -211,7 +146,7 @@ func openFile(filename string) error {
 	}
 
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("ошибка открытия файла: %v", err)
+		return fmt.Errorf("error opening file: %v", err)
 	}
 
 	go cmd.Wait()
@@ -223,18 +158,17 @@ func SaveAndOpenGraphVizDfa(d *dfa.Dfa, filename string) error {
 	content := GraphVizDfa(d)
 	err := os.WriteFile(filename, []byte(content), 0644)
 	if err != nil {
-		return fmt.Errorf("ошибка сохранения файла: %v", err)
+		return fmt.Errorf("error while saving file: %v", err)
 	}
-	fmt.Printf("DOT файл сохранен: %s\n", filename)
 
 	pngFilename := strings.TrimSuffix(filename, ".dot") + ".png"
 
 
 	cmd := exec.Command("dot", "-Tpng", filename, "-o", pngFilename)
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("ошибка генерации PNG (установлен ли graphviz?): %v", err)
+		return fmt.Errorf("PNG generation error: %v", err)
 	}
-	fmt.Printf("PNG файл создан: %s\n", pngFilename)
+
 
 	return openFile(pngFilename)
 }

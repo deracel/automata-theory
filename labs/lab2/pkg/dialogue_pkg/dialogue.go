@@ -6,6 +6,7 @@ import (
 	dfa "lab2/pkg/dfa_pkg"
 	graph "lab2/pkg/graph_pkg"
 	kp "lab2/pkg/kpath_pkg"
+	nfa "lab2/pkg/nfa_pkg"
 	"os"
 	"strconv"
 	"strings"
@@ -13,7 +14,8 @@ import (
 
 func Dialogue () {
 	reader := bufio.NewReader(os.Stdin)
-	var automata *dfa.Dfa
+	var automataDfa *dfa.Dfa
+	var automataNfa *nfa.Nfa
 	for {
 		printInfo()
 		fmt.Print("> ")
@@ -27,92 +29,125 @@ func Dialogue () {
 		if value == 9 {return}
 		switch value {
 		case 1:
-			automata, err = case1(*reader)
+			automataDfa, automataNfa, err = case1(*reader)
 			if err != nil {fmt.Println(err); return}
-			err = graph.SaveAndOpenGraphVizDfa(automata, "graphs/dfa.dot")
+			if automataDfa != nil{
+				err = graph.SaveAndOpenGraphVizDfa(automataDfa, "graphs/dfa.dot")
+			} else if automataNfa != nil{
+				fmt.Println("\t> Regex contains groups, NFA build")
+				err = graph.SaveAndOpenGraphVizNfa(automataNfa, "graphs/nfa_dot")
+			}
 			if err != nil {fmt.Println(err); return}
 			break
 		case 2:
 			fmt.Println("In work:D\n")
 			break
 		case 3:
-			if automata == nil {
-				automata, err = case1(*reader)
+			if automataDfa == nil {
+				automataDfa, automataNfa, err = case1(*reader)
 				if err != nil {fmt.Println(err); return}
+				if automataDfa == nil && automataNfa != nil {
+					fmt.Println("\t> Cant invert NFA")
+					break
+				}
 			}
-			invertedDfa := automata.Invert()
+			invertedDfa := automataDfa.Invert()
 			err = graph.SaveAndOpenGraphVizDfa(invertedDfa, "graphs/inverted.dot")
 			if err != nil {fmt.Println(err); return}
-			automata = invertedDfa
+			automataDfa = invertedDfa
 			break
 		case 4:
-			if automata == nil {
-				automata, err = case1(*reader)
+			if automataDfa == nil {
+				automataDfa,automataNfa, err = case1(*reader)
 				if err != nil {fmt.Println(err); return}
+				if automataDfa == nil && automataNfa != nil {
+					fmt.Println("\t> Cant reverse NFA")
+					break
+				}
 			}
-			reversedDfa := automata.Reverse()
+			reversedDfa := automataDfa.Reverse()
 			err = graph.SaveAndOpenGraphVizDfa(reversedDfa, "graphs/reversed.dot")
 			if err != nil {fmt.Println(err); return}
-			automata = reversedDfa
+			automataDfa = reversedDfa
 			break
 		case 5:
-			if automata == nil {
-				automata, err = case1(*reader)
+			if automataDfa == nil {
+				automataDfa, automataNfa, err = case1(*reader)
 				if err != nil {fmt.Println(err); return}
+				if automataDfa == nil && automataNfa != nil {
+					fmt.Println("\t> Cant execute composition on NFA")
+					break
+				}
 			}
-			automata2, err := case1(*reader)
+			automata2Dfa, automata2Nfa, err := case1(*reader)
 			if err != nil {fmt.Println(err); return}
-			result := dfa.Composition(automata, automata2)
+			if automata2Dfa == nil && automata2Nfa != nil {
+				fmt.Println("\t> Cant execute composition on NFA")
+				break
+			}
+			result := dfa.Composition(automataDfa, automata2Dfa)
 			if result == nil {return}
 			err = graph.SaveAndOpenGraphVizDfa(result, "graphs/composition.dot")
-			automata = result
+			automataDfa = result
 			break
 		case 6:
-			if automata == nil {
-				automata, err = case1(*reader)
+			if automataDfa == nil {
+				automataDfa, automataNfa, err = case1(*reader)
 				if err != nil {fmt.Println(err); return}
+				if automataDfa == nil && automataNfa != nil {
+					fmt.Println("\t> Cant execute difference on NFA")
+					break
+				}
 			}
-			automata2, err := case1(*reader)
+			automata2Dfa, automata2Nfa, err := case1(*reader)
 			if err != nil {fmt.Println(err); return}
-			result := dfa.Difference(automata, automata2)
+			if automata2Dfa == nil && automata2Nfa != nil {
+				fmt.Println("\t> Cant execute difference on NFA")
+				break
+			}
+			result := dfa.Difference(automataDfa, automata2Dfa)
 			if result == nil {return}
 			err = graph.SaveAndOpenGraphVizDfa(result, "graphs/difference.dot")
 			if err != nil {fmt.Println(err); return}
-			automata = result
+			automataDfa = result
 			break
 		case 7:
-			if automata == nil {
-				automata, err = case1(*reader)
+			if automataDfa == nil {
+				automataDfa, automataNfa, err = case1(*reader)
 				if err != nil {fmt.Println(err); return}
+				if automataDfa == nil && automataNfa != nil {
+					fmt.Println("\t> Cant execute k-path on NFA")
+				}
 			}
-			reg, err := kp.BuildRegexFromDFA(automata)
+			reg, err := kp.BuildRegexFromDFA(automataDfa)
 			if err != nil {fmt.Println(err); return}
 			fmt.Printf("\tRegex: %s", reg)
 			fmt.Printf("\n")
 			break
 		case 8:
-			automata = nil
+			automataDfa = nil
+			automataNfa = nil
 			break
 		default:
-			fmt.Println("Invalid value: ", value)
+			fmt.Println("\t> Invalid value: ", value)
 		}
 	}
 }
 
-func case1(reader bufio.Reader) (*dfa.Dfa, error) {
+func case1(reader bufio.Reader) (*dfa.Dfa, *nfa.Nfa, error) {
 	fmt.Printf("Enter regex: ")
 	str, err := reader.ReadString('\n')
 	str = strings.TrimSpace(str)
 	if err != nil {
 		fmt.Println(err);
-		return nil, err
+		return nil, nil, err
 	}
-	automata, err := dfa.BuildDfa(str)
+	automataDfa, automataNfa, err := dfa.BuildDfa(str)
 	if err != nil {
 		fmt.Println(err);
-		return nil, err
+		return nil, nil, err
 	}
-	return automata, nil
+	return automataDfa, automataNfa, nil
 }
 
 func printInfo() {
@@ -123,6 +158,6 @@ func printInfo() {
 	fmt.Println("5: Composition")
 	fmt.Println("6: Difference")
 	fmt.Println("7: K-path")
-	fmt.Println("8: Clear DFA")
+	fmt.Println("8: Clear")
 	fmt.Println("9: Exit")
 }
