@@ -8,14 +8,14 @@ type MatchResult struct {
 
 type MatchIterator struct {
 	dfa *Dfa
-	text string
+	incomingText string
 	pos int
 	current *MatchResult
 }
 
 
 func (iter *MatchIterator) Next() bool {
-	result := iter.dfa.SearchFrom(iter.text, iter.pos)
+	result := iter.dfa.SearchFrom(iter.incomingText, iter.pos)
 	if result == nil {
 		return false
 	}
@@ -35,7 +35,7 @@ func (iter *MatchIterator) Index(ind int) *MatchResult {
 	pos := 0
 	count := 0
 	for {
-		result := iter.dfa.SearchFrom(iter.text, pos)
+		result := iter.dfa.SearchFrom(iter.incomingText, pos)
 		if result == nil {
 			return nil
 		}

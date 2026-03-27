@@ -1,4 +1,4 @@
-package dfa_test
+package test
 
 import (
 	dfa "lab2/pkg/dfa_pkg"
