@@ -123,6 +123,7 @@ func (d *Dfa) addProductState(pair *ProductState) *DfaState{
 	}
 	d.StateCount++
 	d.States = append(d.States, newState)
+
 	return newState
 }
 

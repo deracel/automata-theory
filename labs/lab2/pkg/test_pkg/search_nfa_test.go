@@ -209,7 +209,7 @@ func TestGroups(t *testing.T) {
 			},
 		},
 		{
-			name:    "group_w_oper_5",
+			name:    "group_w_oper_6",
 			pattern: "(<test>a)?-(<test2>b)...",
 			text:    "-bbbbbbbbbbbb",
 			expected: map[string]string{

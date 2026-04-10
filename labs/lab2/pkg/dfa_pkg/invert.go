@@ -48,7 +48,7 @@ func (this *Dfa) Invert() *Dfa{
 	return inverted
 }
 
-// просто переворачивает регулярку: abc -> cba
+
 func (d *Dfa) Reverse() *Dfa{
 	reversedNfa := d.buildReversedNfa()
 	dfaReverse, err := BuildDfaFromNfa(reversedNfa)
@@ -82,11 +82,9 @@ func (d *Dfa) buildReversedNfa() *nfa.Nfa{
 
 	for _, oldAccept := range d.AcceptStates {
 		OneOfStarts := stateMap[oldAccept]
-		// ε-переход из нового начального в каждое из бывших принимающих
 		newStart.Epsilons = append(newStart.Epsilons, OneOfStarts)
 	}
 
-	// Новые принимающие состояния = старое начальное состояние
 	newAcceptState := stateMap[d.StartState]
 	newAcceptState.IsAcceptable = true
 
