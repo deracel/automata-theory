@@ -52,8 +52,8 @@
     #include <vector>
     #include <memory>
     #include "ast.hpp"
-    namespace yy{
-        class RobotLexer;
+    namespace yy {
+        class RobotLexer;   // ← ВАЖНО: вернуть эту строку!
     }
 
 #line 60 "robot.tab.hpp"
@@ -190,7 +190,7 @@
 # define YYDEBUG 1
 #endif
 
-#line 47 "robot.ypp"
+#line 54 "robot.ypp"
 namespace  yy  {
 #line 196 "robot.tab.hpp"
 
@@ -2994,337 +2994,19 @@ switch (yykind)
 
   };
 
-  inline
-   RobotParser ::symbol_kind_type
-   RobotParser ::yytranslate_ (int t) YY_NOEXCEPT
-  {
-    // YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to
-    // TOKEN-NUM as returned by yylex.
-    static
-    const signed char
-    translate_table[] =
-    {
-       0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,    87,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
-      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
-      65,    66,    67,    68,    69,    70,    71,    72,    73,    74,
-      75,    76,    77,    78,    79,    80,    81,    82,    83,    84,
-      85,    86
-    };
-    // Last valid token kind.
-    const int code_max = 341;
 
-    if (t <= 0)
-      return symbol_kind::S_YYEOF;
-    else if (t <= code_max)
-      return static_cast <symbol_kind_type> (translate_table[t]);
-    else
-      return symbol_kind::S_YYUNDEF;
-  }
-
-  // basic_symbol.
-  template <typename Base>
-   RobotParser ::basic_symbol<Base>::basic_symbol (const basic_symbol& that)
-    : Base (that)
-    , value ()
-    , location (that.location)
-  {
-    switch (this->kind ())
-    {
-      case symbol_kind::S_TOKEN_CELL_VALUE: // TOKEN_CELL_VALUE
-        value.copy< CellValue > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_cond_branch: // cond_branch
-        value.copy< ConditionBranch > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_func_def: // func_def
-        value.copy< FuncDecl > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_var_item: // var_item
-        value.copy< VarDecl > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_type_spec: // type_spec
-        value.copy< VarDecl::VarType > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_TOKEN_BOOL: // TOKEN_BOOL
-      case symbol_kind::S_TOKEN_BOOL_LIT: // TOKEN_BOOL_LIT
-      case symbol_kind::S_opt_const: // opt_const
-        value.copy< bool > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_primary_expr: // primary_expr
-      case symbol_kind::S_var_ref: // var_ref
-        value.copy< expr_ptr > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_TOKEN_INT_LIT: // TOKEN_INT_LIT
-        value.copy< int > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_TOKEN_MAIN: // TOKEN_MAIN
-      case symbol_kind::S_TOKEN_STRING: // TOKEN_STRING
-      case symbol_kind::S_TOKEN_IDENTIFIER: // TOKEN_IDENTIFIER
-        value.copy< std::string > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_cond_list: // cond_list
-        value.copy< std::vector<ConditionBranch> > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_var_list: // var_list
-        value.copy< std::vector<VarDecl> > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_opt_init_values: // opt_init_values
-      case symbol_kind::S_value_list: // value_list
-      case symbol_kind::S_var_ref_list: // var_ref_list
-      case symbol_kind::S_opt_expr_list: // opt_expr_list
-      case symbol_kind::S_expr_list: // expr_list
-      case symbol_kind::S_dim_ref_list: // dim_ref_list
-        value.copy< std::vector<expr_ptr> > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_opt_dimensions: // opt_dimensions
-      case symbol_kind::S_dims_list: // dims_list
-        value.copy< std::vector<int> > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_stmt_list: // stmt_list
-        value.copy< std::vector<stmt_ptr> > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_stmt: // stmt
-      case symbol_kind::S_expr_stmt: // expr_stmt
-      case symbol_kind::S_assign_stmt: // assign_stmt
-      case symbol_kind::S_while_stmt: // while_stmt
-      case symbol_kind::S_switch_stmt: // switch_stmt
-      case symbol_kind::S_move_stmt: // move_stmt
-      case symbol_kind::S_call_stmt: // call_stmt
-      case symbol_kind::S_getdrons_stmt: // getdrons_stmt
-        value.copy< stmt_ptr > (YY_MOVE (that.value));
-        break;
-
-      default:
-        break;
-    }
-
-  }
-
-
-
-
-  template <typename Base>
-   RobotParser ::symbol_kind_type
-   RobotParser ::basic_symbol<Base>::type_get () const YY_NOEXCEPT
-  {
-    return this->kind ();
-  }
-
-
-  template <typename Base>
-  bool
-   RobotParser ::basic_symbol<Base>::empty () const YY_NOEXCEPT
-  {
-    return this->kind () == symbol_kind::S_YYEMPTY;
-  }
-
-  template <typename Base>
-  void
-   RobotParser ::basic_symbol<Base>::move (basic_symbol& s)
-  {
-    super_type::move (s);
-    switch (this->kind ())
-    {
-      case symbol_kind::S_TOKEN_CELL_VALUE: // TOKEN_CELL_VALUE
-        value.move< CellValue > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_cond_branch: // cond_branch
-        value.move< ConditionBranch > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_func_def: // func_def
-        value.move< FuncDecl > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_var_item: // var_item
-        value.move< VarDecl > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_type_spec: // type_spec
-        value.move< VarDecl::VarType > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_TOKEN_BOOL: // TOKEN_BOOL
-      case symbol_kind::S_TOKEN_BOOL_LIT: // TOKEN_BOOL_LIT
-      case symbol_kind::S_opt_const: // opt_const
-        value.move< bool > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_primary_expr: // primary_expr
-      case symbol_kind::S_var_ref: // var_ref
-        value.move< expr_ptr > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_TOKEN_INT_LIT: // TOKEN_INT_LIT
-        value.move< int > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_TOKEN_MAIN: // TOKEN_MAIN
-      case symbol_kind::S_TOKEN_STRING: // TOKEN_STRING
-      case symbol_kind::S_TOKEN_IDENTIFIER: // TOKEN_IDENTIFIER
-        value.move< std::string > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_cond_list: // cond_list
-        value.move< std::vector<ConditionBranch> > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_var_list: // var_list
-        value.move< std::vector<VarDecl> > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_opt_init_values: // opt_init_values
-      case symbol_kind::S_value_list: // value_list
-      case symbol_kind::S_var_ref_list: // var_ref_list
-      case symbol_kind::S_opt_expr_list: // opt_expr_list
-      case symbol_kind::S_expr_list: // expr_list
-      case symbol_kind::S_dim_ref_list: // dim_ref_list
-        value.move< std::vector<expr_ptr> > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_opt_dimensions: // opt_dimensions
-      case symbol_kind::S_dims_list: // dims_list
-        value.move< std::vector<int> > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_stmt_list: // stmt_list
-        value.move< std::vector<stmt_ptr> > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_stmt: // stmt
-      case symbol_kind::S_expr_stmt: // expr_stmt
-      case symbol_kind::S_assign_stmt: // assign_stmt
-      case symbol_kind::S_while_stmt: // while_stmt
-      case symbol_kind::S_switch_stmt: // switch_stmt
-      case symbol_kind::S_move_stmt: // move_stmt
-      case symbol_kind::S_call_stmt: // call_stmt
-      case symbol_kind::S_getdrons_stmt: // getdrons_stmt
-        value.move< stmt_ptr > (YY_MOVE (s.value));
-        break;
-
-      default:
-        break;
-    }
-
-    location = YY_MOVE (s.location);
-  }
-
-  // by_kind.
-  inline
-   RobotParser ::by_kind::by_kind () YY_NOEXCEPT
-    : kind_ (symbol_kind::S_YYEMPTY)
-  {}
-
-#if 201103L <= YY_CPLUSPLUS
-  inline
-   RobotParser ::by_kind::by_kind (by_kind&& that) YY_NOEXCEPT
-    : kind_ (that.kind_)
-  {
-    that.clear ();
-  }
-#endif
-
-  inline
-   RobotParser ::by_kind::by_kind (const by_kind& that) YY_NOEXCEPT
-    : kind_ (that.kind_)
-  {}
-
-  inline
-   RobotParser ::by_kind::by_kind (token_kind_type t) YY_NOEXCEPT
-    : kind_ (yytranslate_ (t))
-  {}
-
-
-
-  inline
-  void
-   RobotParser ::by_kind::clear () YY_NOEXCEPT
-  {
-    kind_ = symbol_kind::S_YYEMPTY;
-  }
-
-  inline
-  void
-   RobotParser ::by_kind::move (by_kind& that)
-  {
-    kind_ = that.kind_;
-    that.clear ();
-  }
-
-  inline
-   RobotParser ::symbol_kind_type
-   RobotParser ::by_kind::kind () const YY_NOEXCEPT
-  {
-    return kind_;
-  }
-
-
-  inline
-   RobotParser ::symbol_kind_type
-   RobotParser ::by_kind::type_get () const YY_NOEXCEPT
-  {
-    return this->kind ();
-  }
-
-
-#line 47 "robot.ypp"
+#line 54 "robot.ypp"
 } //  yy 
-#line 3320 "robot.tab.hpp"
+#line 3001 "robot.tab.hpp"
 
 
 // "%code provides" blocks.
 #line 19 "robot.ypp"
 
     void yyerror(const std::string& msg);
+    extern yy::RobotLexer* THE_LEXER;
 
-#line 3328 "robot.tab.hpp"
+#line 3010 "robot.tab.hpp"
 
 
 #endif // !YY_YY_ROBOT_TAB_HPP_INCLUDED

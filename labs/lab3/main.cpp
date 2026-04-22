@@ -15,15 +15,18 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    yy::RobotLexer lexer(file);   // ← ОБРАТИТЕ ВНИМАНИЕ: yy::RobotLexer
-    yy::RobotParser parser(lexer);
+    yy::RobotLexer lexer(file);
+    yy::RobotParser parser(lexer);  // Конструктор с параметром теперь существует
+
+    // Устанавливаем глобальный указатель для доступа из парсера
+    THE_LEXER = &lexer;
 
     int result = parser.parse();
 
     if (result == 0) {
         std::cout << "Parsing successful!" << std::endl;
     } else {
-        std::cout << "Parsing failed!" << std::endl;
+        std::cerr << "Parsing failed with " << result << " errors." << std::endl;
     }
 
     return result;

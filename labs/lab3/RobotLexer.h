@@ -1,24 +1,36 @@
 #ifndef ROBOTLEXER_H
 #define ROBOTLEXER_H
 
+#if !defined(yyFlexLexerOnce)
+#include <FlexLexer.h>
+#endif
+
 #include <string>
 #include <iostream>
-#include <fstream>
 #include <sstream>
+#include "robot.tab.hpp"
 
 
-
+// ВАЖНО: класс в глобальном пространстве для Flex
 namespace yy {
-    class RobotParser;
-    class location;
-
-    class RobotLexer {
+    class RobotLexer : public yyFlexLexer {
     public:
-        RobotLexer(std::istream& input);
-        RobotLexer(const std::string& input);
-        ~RobotLexer();
+        RobotLexer(std::istream& input) : yyFlexLexer(&input) {}
+        RobotLexer(const std::string& input) : yyFlexLexer() {
+            iss_ = new std::istringstream(input);
+            switch_streams(iss_);
+        }
+        ~RobotLexer() {
+            if (iss_) delete iss_;
+        }
+        int yylex(yy::RobotParser::semantic_type* yylval, yy::location* loc);
 
-        int yylex(RobotParser::semantic_type* yylval, location* loc);
+
+
+    private:
+        std::istringstream* iss_ = nullptr;
     };
+
 }
+
 #endif

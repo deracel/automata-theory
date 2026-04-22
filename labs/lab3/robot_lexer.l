@@ -4,6 +4,7 @@
 %option batch
 %option never-interactive
 %option yylineno
+%option noyywrap
 %option noinput
 %option nounput
 
@@ -18,18 +19,19 @@
 #include "ast.hpp"
 #include "RobotLexer.h"
 
-
 int error_count = 0;
 
 void yyerror(const std::string* msg);
 using Token = yy::RobotParser::token;
+
+#undef YY_DECL
+#define YY_DECL int yy::RobotLexer::yylex(yy::RobotParser::semantic_type* yylval, yy::location* loc)
 
 %}
 
 DIGIT [0-9]
 LETTER [a-zA-Z]
 WHITESPACE [ \t\r]+
-NEWLINE \n
 
 %%
 
@@ -225,27 +227,3 @@ false                       {yylval->build<bool>(false); return Token::TOKEN_BOO
 
 %%
 
-
-namespace yy {
-
-    RobotLexer::RobotLexer(std::istream& input) : yyFlexLexer(&input) {}
-
-    RobotLexer::RobotLexer(const std::string& input) : yyFlexLexer() {
-        std::istringstream* iss = new std::istringstream(input);
-        switch_streams(iss);
-    }
-
-    int RobotLexer::yylex(RobotParser::semantic_type* yylval, location* loc) {
-        int token = yyFlexLexer::yylex();
-        if (loc) {
-            loc->begin.line = lineno();
-            loc->end.line = lineno();
-        }
-        return token;
-    }
-
-}
-
-void yyerror(const std::string& msg) {
-    std::cerr << "SYNTAX ERROR: " << msg << std::endl;
-}

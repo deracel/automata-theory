@@ -1,6 +1,6 @@
-#line 2 "robot.lex.cpp"
+#line 2 "generated/robot.lex.cpp"
 
-#line 4 "robot.lex.cpp"
+#line 4 "generated/robot.lex.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -701,8 +701,8 @@ using Token = yy::RobotParser::token;
 #undef YY_DECL
 #define YY_DECL int yy::RobotLexer::yylex(yy::RobotParser::semantic_type* yylval, yy::location* loc)
 
-#line 705 "robot.lex.cpp"
-#line 706 "robot.lex.cpp"
+#line 705 "generated/robot.lex.cpp"
+#line 706 "generated/robot.lex.cpp"
 
 #define INITIAL 0
 
@@ -837,7 +837,7 @@ YY_DECL
 #line 36 "robot_lexer.l"
 
 
-#line 841 "robot.lex.cpp"
+#line 841 "generated/robot.lex.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1380,7 +1380,7 @@ YY_RULE_SETUP
 #line 228 "robot_lexer.l"
 ECHO;
 	YY_BREAK
-#line 1384 "robot.lex.cpp"
+#line 1384 "generated/robot.lex.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

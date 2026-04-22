@@ -11,22 +11,25 @@
     #include <vector>
     #include <memory>
     #include "ast.hpp"
-    namespace yy{
-        class RobotLexer;
+    namespace yy {
+        class RobotLexer;   // ← ВАЖНО: вернуть эту строку!
     }
 }
 
 %code provides{
     void yyerror(const std::string& msg);
+    extern yy::RobotLexer* THE_LEXER;
 }
 
+
 %code{
-    #include "RobotLexer.h"
     #include <cstdio>
     #include <map>
     #include <stack>
+    #include "RobotLexer.h"
 
     bool has_main = false;
+    yy::RobotLexer* THE_LEXER = nullptr;
 
     // таблица символов
     struct SymbolInfo{
@@ -40,18 +43,24 @@
     void yyerror(const std::string& msg){
         std::cerr << "SYNTAX ERROR: " << msg << std::endl;
     }
+    static int yylex(yy::RobotParser::semantic_type* yylval,
+                     yy::location* loc,
+                     yy::RobotLexer& lexer) {
+        return lexer.yylex(yylval, loc);
+    }
 }
 
-%parse-param { yy::RobotLexer& lexer }
 %define api.parser.class { RobotParser }
 %define api.namespace { yy }
 %define api.value.type variant
-%define api.token.constructor
 %define parse.error verbose
 %define parse.trace
 
+
 %locations
 
+%lex-param { yy::RobotLexer& lexer }
+%parse-param { yy::RobotLexer& lexer }
 
 
 
