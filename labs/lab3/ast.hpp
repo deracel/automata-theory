@@ -30,6 +30,15 @@ struct ExprNode {
         EQ, MAX, MIN,
         SENDDRONS
     };
+    enum ValueType {
+        TYPE_INT,
+        TYPE_BOOL,
+        TYPE_CELL,
+        TYPE_UNKNOWN
+    };
+
+    ValueType value_type_ = TYPE_UNKNOWN;
+
     Type type_;
 
     int int_value_ = 0;
@@ -45,16 +54,19 @@ struct ExprNode {
     static expr_ptr make_int(int val) {
         auto node = std::make_shared<ExprNode>(INT_LIT);
         node->int_value_ = val;
+        node->value_type_ = TYPE_INT;
         return node;
     }
     static expr_ptr make_bool(bool val) {
         auto node = std::make_shared<ExprNode>(BOOL_LIT);
         node->bool_value_ = val;
+        node->value_type_ = TYPE_BOOL;
         return node;
     }
     static expr_ptr make_cell(CellValue val) {
         auto node = std::make_shared<ExprNode>(CELL_LIT);
         node->cell_value_ = val;
+        node->value_type_ = TYPE_CELL;
         return node;
     }
     static expr_ptr make_var_ref(const std::string& name) {

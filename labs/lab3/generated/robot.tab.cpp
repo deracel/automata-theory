@@ -69,8 +69,18 @@
                      yy::RobotLexer& lexer) {
         return lexer.yylex(yylval, loc);
     }
+    static void semantic_error(const std::string& msg){
+        std::cerr << "SEMANTIC ERROR: " << msg << std::endl;
+        //exit(1);
+    }
+    static int product(const std::vector<int>& dims){
+        int p = 1;
+        for (int d : dims) p *= d;
+        return p;
+    }
 
-#line 74 "robot.tab.cpp"
+
+#line 84 "generated/robot.tab.cpp"
 
 
 #ifndef YY_
@@ -161,9 +171,9 @@
 #define YYERROR         goto yyerrorlab
 #define YYRECOVERING()  (!!yyerrstatus_)
 
-#line 54 "robot.ypp"
+#line 64 "robot.ypp"
 namespace  yy  {
-#line 167 "robot.tab.cpp"
+#line 177 "generated/robot.tab.cpp"
 
   /// Build a parser object.
    RobotParser :: RobotParser  (yy::RobotLexer& lexer_yyarg)
@@ -1203,7 +1213,7 @@ namespace  yy  {
           switch (yyn)
             {
   case 2: // program: TOKEN_PROGRAM_OPEN program_items TOKEN_PROGRAM_CLOSE
-#line 161 "robot.ypp"
+#line 171 "robot.ypp"
     {
         if (!has_main){
             fprintf(stderr, "SEMANTIC ERROR: function 'main' not found\n");
@@ -1213,11 +1223,11 @@ namespace  yy  {
         std::cout << "Global variables: " << global_symbols.size() << std::endl;
         std::cout << "Functions: " << functions.size() << std::endl;
     }
-#line 1217 "robot.tab.cpp"
+#line 1227 "generated/robot.tab.cpp"
     break;
 
   case 5: // program_items: program_items func_def
-#line 176 "robot.ypp"
+#line 186 "robot.ypp"
     {
         if (!yystack_[0].value.as < FuncDecl > ().name_.empty()){
             if (functions.find(yystack_[0].value.as < FuncDecl > ().name_) != functions.end()){
@@ -1228,20 +1238,20 @@ namespace  yy  {
             std::cout << "Function defined: " << yystack_[0].value.as < FuncDecl > ().name_ << std::endl;
         }
     }
-#line 1232 "robot.tab.cpp"
+#line 1242 "generated/robot.tab.cpp"
     break;
 
   case 6: // program_items: program_items error
-#line 187 "robot.ypp"
+#line 197 "robot.ypp"
     {
         std::cerr << "Syntax error in global scope" << std::endl;
         yyerrok;
     }
-#line 1241 "robot.tab.cpp"
+#line 1251 "generated/robot.tab.cpp"
     break;
 
   case 7: // vardecl_block: TOKEN_VARDECL_OPEN var_list TOKEN_VARDECL_CLOSE
-#line 195 "robot.ypp"
+#line 205 "robot.ypp"
     {
         for (const auto& decl : yystack_[1].value.as < std::vector<VarDecl> > ()){
             if (global_symbols.find(decl.name_) != global_symbols.end()){
@@ -1254,88 +1264,95 @@ namespace  yy  {
             std::cout << "Variable declared: " << decl.name_ << "(type: " << decl.type_ << ")" << std::endl;
         }
     }
-#line 1258 "robot.tab.cpp"
+#line 1268 "generated/robot.tab.cpp"
     break;
 
   case 8: // var_list: var_item
-#line 211 "robot.ypp"
+#line 221 "robot.ypp"
     {
         yylhs.value.as < std::vector<VarDecl> > ().push_back(yystack_[0].value.as < VarDecl > ());
     }
-#line 1266 "robot.tab.cpp"
+#line 1276 "generated/robot.tab.cpp"
     break;
 
   case 9: // var_list: var_list var_item
-#line 215 "robot.ypp"
+#line 225 "robot.ypp"
     {
         yystack_[1].value.as < std::vector<VarDecl> > ().push_back(yystack_[0].value.as < VarDecl > ());
         yylhs.value.as < std::vector<VarDecl> > () = yystack_[1].value.as < std::vector<VarDecl> > ();
     }
-#line 1275 "robot.tab.cpp"
+#line 1285 "generated/robot.tab.cpp"
     break;
 
   case 10: // var_item: TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE
-#line 238 "robot.ypp"
+#line 248 "robot.ypp"
     {
         yylhs.value.as < VarDecl > ().name_ = yystack_[6].value.as < std::string > ();
         yylhs.value.as < VarDecl > ().is_const_ = yystack_[5].value.as < bool > ();
         yylhs.value.as < VarDecl > ().type_ = yystack_[3].value.as < VarDecl::VarType > ();
         yylhs.value.as < VarDecl > ().dimensions_ = yystack_[2].value.as < std::vector<int> > ();
         yylhs.value.as < VarDecl > ().init_values_ = yystack_[1].value.as < std::vector<expr_ptr> > ();
+
+        if (!yylhs.value.as < VarDecl > ().dimensions_.empty() && !yylhs.value.as < VarDecl > ().init_values_.empty()){
+            int expected = product(yylhs.value.as < VarDecl > ().dimensions_);
+            if ((int)yylhs.value.as < VarDecl > ().init_values_.size() != expected){
+                semantic_error("wrong number of initial values for '" + yylhs.value.as < VarDecl > ().name_ + "'");
+            }
+        }
     }
-#line 1287 "robot.tab.cpp"
+#line 1304 "generated/robot.tab.cpp"
     break;
 
   case 11: // opt_const: TOKEN_CONST TOKEN_BOOL
-#line 248 "robot.ypp"
+#line 265 "robot.ypp"
     {
         yylhs.value.as < bool > () = yystack_[0].value.as < bool > ();
     }
-#line 1295 "robot.tab.cpp"
+#line 1312 "generated/robot.tab.cpp"
     break;
 
   case 12: // opt_const: %empty
-#line 252 "robot.ypp"
+#line 269 "robot.ypp"
     {
         yylhs.value.as < bool > () = false;
     }
-#line 1303 "robot.tab.cpp"
+#line 1320 "generated/robot.tab.cpp"
     break;
 
   case 13: // type_spec: TOKEN_TYPE_OPEN TOKEN_TYPE_INT TOKEN_TYPE_CLOSE
-#line 259 "robot.ypp"
+#line 276 "robot.ypp"
     {
         yylhs.value.as < VarDecl::VarType > () = VarDecl::INT;
     }
-#line 1311 "robot.tab.cpp"
+#line 1328 "generated/robot.tab.cpp"
     break;
 
   case 14: // type_spec: TOKEN_TYPE_OPEN TOKEN_TYPE_BOOL TOKEN_TYPE_CLOSE
-#line 263 "robot.ypp"
+#line 280 "robot.ypp"
     {
         yylhs.value.as < VarDecl::VarType > () = VarDecl::BOOL;
     }
-#line 1319 "robot.tab.cpp"
+#line 1336 "generated/robot.tab.cpp"
     break;
 
   case 15: // type_spec: TOKEN_TYPE_OPEN TOKEN_TYPE_CELL TOKEN_TYPE_CLOSE
-#line 267 "robot.ypp"
+#line 284 "robot.ypp"
     {
         yylhs.value.as < VarDecl::VarType > () = VarDecl::CELL;
     }
-#line 1327 "robot.tab.cpp"
+#line 1344 "generated/robot.tab.cpp"
     break;
 
   case 16: // opt_dimensions: %empty
-#line 274 "robot.ypp"
+#line 291 "robot.ypp"
     {
         yylhs.value.as < std::vector<int> > () = std::vector<int>();
     }
-#line 1335 "robot.tab.cpp"
+#line 1352 "generated/robot.tab.cpp"
     break;
 
   case 17: // opt_dimensions: TOKEN_DIMENSIONS_OPEN TOKEN_COUNT TOKEN_INT_LIT '>' dims_list TOKEN_DIMENSIONS_CLOSE
-#line 278 "robot.ypp"
+#line 295 "robot.ypp"
     {
         if (yystack_[3].value.as < int > () != (int)yystack_[1].value.as < std::vector<int> > ().size()){ // несовпадение count и сколько объявлено измерений
             std::cerr << "SEMANTIC ERROR: dimension count mismatch" << std::endl;
@@ -1343,532 +1360,645 @@ namespace  yy  {
         }
         yylhs.value.as < std::vector<int> > () = yystack_[1].value.as < std::vector<int> > ();
     }
-#line 1347 "robot.tab.cpp"
+#line 1364 "generated/robot.tab.cpp"
     break;
 
   case 18: // dims_list: TOKEN_DIMENSION_OPEN TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE
-#line 289 "robot.ypp"
+#line 306 "robot.ypp"
     {
         yylhs.value.as < std::vector<int> > ().push_back(yystack_[1].value.as < int > ());
     }
-#line 1355 "robot.tab.cpp"
+#line 1372 "generated/robot.tab.cpp"
     break;
 
   case 19: // dims_list: dims_list TOKEN_DIMENSION_OPEN TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE
-#line 293 "robot.ypp"
+#line 310 "robot.ypp"
     {
         yystack_[3].value.as < std::vector<int> > ().push_back(yystack_[1].value.as < int > ());
         yylhs.value.as < std::vector<int> > () = yystack_[3].value.as < std::vector<int> > ();
     }
-#line 1364 "robot.tab.cpp"
+#line 1381 "generated/robot.tab.cpp"
     break;
 
   case 20: // opt_init_values: %empty
-#line 301 "robot.ypp"
+#line 318 "robot.ypp"
     {
         yylhs.value.as < std::vector<expr_ptr> > () = std::vector<expr_ptr>();
     }
-#line 1372 "robot.tab.cpp"
+#line 1389 "generated/robot.tab.cpp"
     break;
 
   case 21: // opt_init_values: TOKEN_VALUES_OPEN value_list TOKEN_VALUES_CLOSE
-#line 305 "robot.ypp"
+#line 322 "robot.ypp"
     {
         yylhs.value.as < std::vector<expr_ptr> > () = yystack_[1].value.as < std::vector<expr_ptr> > ();
     }
-#line 1380 "robot.tab.cpp"
+#line 1397 "generated/robot.tab.cpp"
     break;
 
   case 22: // value_list: TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE
-#line 312 "robot.ypp"
+#line 329 "robot.ypp"
     {
         yylhs.value.as < std::vector<expr_ptr> > ().push_back(yystack_[1].value.as < expr_ptr > ());
     }
-#line 1388 "robot.tab.cpp"
+#line 1405 "generated/robot.tab.cpp"
     break;
 
   case 23: // value_list: value_list TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE
-#line 316 "robot.ypp"
+#line 333 "robot.ypp"
     {
         yystack_[3].value.as < std::vector<expr_ptr> > ().push_back(yystack_[1].value.as < expr_ptr > ());
         yylhs.value.as < std::vector<expr_ptr> > () = yystack_[3].value.as < std::vector<expr_ptr> > ();
     }
-#line 1397 "robot.tab.cpp"
+#line 1414 "generated/robot.tab.cpp"
     break;
 
   case 24: // func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_MAIN '>' stmt_list TOKEN_FUNC_CLOSE
-#line 335 "robot.ypp"
+#line 352 "robot.ypp"
     {
+        if (has_main){
+            semantic_error("multiple definitions of 'main'");
+        }
         yylhs.value.as < FuncDecl > ().name_ = "main";
         yylhs.value.as < FuncDecl > ().body_ = yystack_[1].value.as < std::vector<stmt_ptr> > ();
         yylhs.value.as < FuncDecl > ().is_main_ = true;
         has_main = true;
     }
-#line 1408 "robot.tab.cpp"
+#line 1428 "generated/robot.tab.cpp"
     break;
 
   case 25: // func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_STRING '>' stmt_list TOKEN_FUNC_CLOSE
-#line 342 "robot.ypp"
+#line 362 "robot.ypp"
     {
         yylhs.value.as < FuncDecl > ().name_ = yystack_[3].value.as < std::string > ();
         yylhs.value.as < FuncDecl > ().body_ = yystack_[1].value.as < std::vector<stmt_ptr> > ();
         yylhs.value.as < FuncDecl > ().is_main_ = false;
     }
-#line 1418 "robot.tab.cpp"
+#line 1438 "generated/robot.tab.cpp"
     break;
 
   case 26: // stmt_list: %empty
-#line 350 "robot.ypp"
+#line 370 "robot.ypp"
            { yylhs.value.as < std::vector<stmt_ptr> > () = std::vector<stmt_ptr>(); }
-#line 1424 "robot.tab.cpp"
+#line 1444 "generated/robot.tab.cpp"
     break;
 
   case 27: // stmt_list: stmt_list stmt
-#line 352 "robot.ypp"
+#line 372 "robot.ypp"
     {
         yystack_[1].value.as < std::vector<stmt_ptr> > ().push_back(yystack_[0].value.as < stmt_ptr > ());
         yylhs.value.as < std::vector<stmt_ptr> > () = yystack_[1].value.as < std::vector<stmt_ptr> > ();
     }
-#line 1433 "robot.tab.cpp"
+#line 1453 "generated/robot.tab.cpp"
     break;
 
   case 28: // stmt_list: stmt_list error
-#line 357 "robot.ypp"
+#line 377 "robot.ypp"
     {
         std::cerr << "Syntax error in statement list. Skipping..." << std::endl;
         yyerrok;
         yylhs.value.as < std::vector<stmt_ptr> > () = yystack_[1].value.as < std::vector<stmt_ptr> > ();
     }
-#line 1443 "robot.tab.cpp"
+#line 1463 "generated/robot.tab.cpp"
     break;
 
   case 29: // stmt: assign_stmt
-#line 365 "robot.ypp"
+#line 385 "robot.ypp"
                 { yylhs.value.as < stmt_ptr > () = yystack_[0].value.as < stmt_ptr > (); }
-#line 1449 "robot.tab.cpp"
+#line 1469 "generated/robot.tab.cpp"
     break;
 
   case 30: // stmt: while_stmt
-#line 366 "robot.ypp"
+#line 386 "robot.ypp"
                  { yylhs.value.as < stmt_ptr > () = yystack_[0].value.as < stmt_ptr > (); }
-#line 1455 "robot.tab.cpp"
+#line 1475 "generated/robot.tab.cpp"
     break;
 
   case 31: // stmt: switch_stmt
-#line 367 "robot.ypp"
+#line 387 "robot.ypp"
                   { yylhs.value.as < stmt_ptr > () = yystack_[0].value.as < stmt_ptr > (); }
-#line 1461 "robot.tab.cpp"
+#line 1481 "generated/robot.tab.cpp"
     break;
 
   case 32: // stmt: move_stmt
-#line 368 "robot.ypp"
+#line 388 "robot.ypp"
                 { yylhs.value.as < stmt_ptr > () = yystack_[0].value.as < stmt_ptr > (); }
-#line 1467 "robot.tab.cpp"
+#line 1487 "generated/robot.tab.cpp"
     break;
 
   case 33: // stmt: call_stmt
-#line 369 "robot.ypp"
+#line 389 "robot.ypp"
                 { yylhs.value.as < stmt_ptr > () = yystack_[0].value.as < stmt_ptr > (); }
-#line 1473 "robot.tab.cpp"
+#line 1493 "generated/robot.tab.cpp"
     break;
 
   case 34: // stmt: getdrons_stmt
-#line 370 "robot.ypp"
+#line 390 "robot.ypp"
                     { yylhs.value.as < stmt_ptr > () = yystack_[0].value.as < stmt_ptr > (); }
-#line 1479 "robot.tab.cpp"
+#line 1499 "generated/robot.tab.cpp"
     break;
 
   case 35: // stmt: expr_stmt
-#line 371 "robot.ypp"
+#line 391 "robot.ypp"
                 { yylhs.value.as < stmt_ptr > () = yystack_[0].value.as < stmt_ptr > (); }
-#line 1485 "robot.tab.cpp"
+#line 1505 "generated/robot.tab.cpp"
     break;
 
   case 36: // expr_stmt: expr
-#line 376 "robot.ypp"
+#line 396 "robot.ypp"
     {
         auto statement = std::make_shared<StmtNode>(StmtNode::EXPR);
         statement->expr_val_ = yystack_[0].value.as < expr_ptr > ();
         yylhs.value.as < stmt_ptr > () = statement;
     }
-#line 1495 "robot.tab.cpp"
+#line 1515 "generated/robot.tab.cpp"
     break;
 
   case 37: // assign_stmt: TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
-#line 391 "robot.ypp"
+#line 411 "robot.ypp"
     {
+        for (auto& var : yystack_[2].value.as < std::vector<expr_ptr> > ()){
+            auto it = global_symbols.find(var->var_name_);
+            if (it == global_symbols.end()){
+                semantic_error("assignment to undeclared variable '" + var->var_name_ + "'");
+            }
+            if (it->second.decl_.is_const_){
+                semantic_error("assignment to const variable '" + var->var_name_ + "'");
+            }
+        }
+
         auto st = std::make_shared<StmtNode>(StmtNode::ASSIGN);
         st->value_ = yystack_[5].value.as < expr_ptr > ();
         st->targets_ = yystack_[2].value.as < std::vector<expr_ptr> > ();
         yylhs.value.as < stmt_ptr > () = st;
     }
-#line 1506 "robot.tab.cpp"
+#line 1536 "generated/robot.tab.cpp"
     break;
 
   case 38: // var_ref_list: var_ref
-#line 401 "robot.ypp"
+#line 431 "robot.ypp"
     {
         yylhs.value.as < std::vector<expr_ptr> > ().push_back(yystack_[0].value.as < expr_ptr > ());
     }
-#line 1514 "robot.tab.cpp"
+#line 1544 "generated/robot.tab.cpp"
     break;
 
   case 39: // var_ref_list: var_ref_list var_ref
-#line 405 "robot.ypp"
+#line 435 "robot.ypp"
     {
         yystack_[1].value.as < std::vector<expr_ptr> > ().push_back(yystack_[0].value.as < expr_ptr > ());
         yylhs.value.as < std::vector<expr_ptr> > () = yystack_[1].value.as < std::vector<expr_ptr> > ();
     }
-#line 1523 "robot.tab.cpp"
+#line 1553 "generated/robot.tab.cpp"
     break;
 
   case 40: // while_stmt: TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
-#line 423 "robot.ypp"
+#line 453 "robot.ypp"
     {
+        if (yystack_[5].value.as < expr_ptr > ()->value_type_ != ExprNode::TYPE_BOOL){
+            semantic_error("while condition must be boolean");
+        }
+
         auto st = std::make_shared<StmtNode>(StmtNode::WHILE);
         st->while_cond_ = yystack_[5].value.as < expr_ptr > ();
         st->while_body_ = yystack_[2].value.as < std::vector<stmt_ptr> > ();
         yylhs.value.as < stmt_ptr > () = st;
     }
-#line 1534 "robot.tab.cpp"
+#line 1568 "generated/robot.tab.cpp"
     break;
 
   case 41: // switch_stmt: TOKEN_SWITCH_OPEN cond_list TOKEN_SWITCH_CLOSE
-#line 454 "robot.ypp"
+#line 488 "robot.ypp"
     {
         auto st = std::make_shared<StmtNode>(StmtNode::SWITCH);
         st->switch_cases_ = yystack_[1].value.as < std::vector<ConditionBranch> > ();
         yylhs.value.as < stmt_ptr > () = st;
     }
-#line 1544 "robot.tab.cpp"
+#line 1578 "generated/robot.tab.cpp"
     break;
 
   case 42: // cond_list: cond_branch
-#line 463 "robot.ypp"
+#line 497 "robot.ypp"
     {
         yylhs.value.as < std::vector<ConditionBranch> > ().push_back(yystack_[0].value.as < ConditionBranch > ());
     }
-#line 1552 "robot.tab.cpp"
+#line 1586 "generated/robot.tab.cpp"
     break;
 
   case 43: // cond_list: cond_list cond_branch
-#line 467 "robot.ypp"
+#line 501 "robot.ypp"
     {
         yystack_[1].value.as < std::vector<ConditionBranch> > ().push_back(yystack_[0].value.as < ConditionBranch > ());
         yylhs.value.as < std::vector<ConditionBranch> > () = yystack_[1].value.as < std::vector<ConditionBranch> > ();
     }
-#line 1561 "robot.tab.cpp"
+#line 1595 "generated/robot.tab.cpp"
     break;
 
   case 44: // cond_branch: TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
-#line 475 "robot.ypp"
+#line 509 "robot.ypp"
     {
+        if (yystack_[5].value.as < expr_ptr > ()->value_type_ != ExprNode::TYPE_BOOL){
+            semantic_error("condition must be boolean");
+        }
         yylhs.value.as < ConditionBranch > ().condition_ = yystack_[5].value.as < expr_ptr > ();
         yylhs.value.as < ConditionBranch > ().body_ = yystack_[2].value.as < std::vector<stmt_ptr> > ();
     }
-#line 1570 "robot.tab.cpp"
+#line 1607 "generated/robot.tab.cpp"
     break;
 
   case 45: // move_stmt: TOKEN_LEFT_OPEN expr TOKEN_LEFT_CLOSE
-#line 493 "robot.ypp"
+#line 530 "robot.ypp"
     {
         auto st = std::make_shared<StmtNode>(StmtNode::MOVE);
         st->direction_ = StmtNode::LEFT;
         st->distance_ = yystack_[1].value.as < expr_ptr > ();
         yylhs.value.as < stmt_ptr > () = st;
     }
-#line 1581 "robot.tab.cpp"
+#line 1618 "generated/robot.tab.cpp"
     break;
 
   case 46: // move_stmt: TOKEN_RIGHT_OPEN expr TOKEN_RIGHT_CLOSE
-#line 500 "robot.ypp"
+#line 537 "robot.ypp"
     {
         auto st = std::make_shared<StmtNode>(StmtNode::MOVE);
         st->direction_ = StmtNode::RIGHT;
         st->distance_ = yystack_[1].value.as < expr_ptr > ();
         yylhs.value.as < stmt_ptr > () = st;
     }
-#line 1592 "robot.tab.cpp"
+#line 1629 "generated/robot.tab.cpp"
     break;
 
   case 47: // move_stmt: TOKEN_UP_OPEN expr TOKEN_UP_CLOSE
-#line 507 "robot.ypp"
+#line 544 "robot.ypp"
     {
         auto st = std::make_shared<StmtNode>(StmtNode::MOVE);
         st->direction_ = StmtNode::UP;
         st->distance_ = yystack_[1].value.as < expr_ptr > ();
         yylhs.value.as < stmt_ptr > () = st;
     }
-#line 1603 "robot.tab.cpp"
+#line 1640 "generated/robot.tab.cpp"
     break;
 
   case 48: // move_stmt: TOKEN_DOWN_OPEN expr TOKEN_DOWN_CLOSE
-#line 514 "robot.ypp"
+#line 551 "robot.ypp"
     {
         auto st = std::make_shared<StmtNode>(StmtNode::MOVE);
         st->direction_ = StmtNode::DOWN;
         st->distance_ = yystack_[1].value.as < expr_ptr > ();
         yylhs.value.as < stmt_ptr > () = st;
     }
-#line 1614 "robot.tab.cpp"
+#line 1651 "generated/robot.tab.cpp"
     break;
 
   case 49: // call_stmt: TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE
-#line 527 "robot.ypp"
+#line 564 "robot.ypp"
     {
+        if (functions.find(yystack_[1].value.as < std::string > ()) == functions.end()){
+            semantic_error("function '" + yystack_[1].value.as < std::string > () + "' not defined");
+        }
         auto st = std::make_shared<StmtNode>(StmtNode::CALL);
         st->call_name_ = yystack_[1].value.as < std::string > ();
         yylhs.value.as < stmt_ptr > () = st;
     }
-#line 1624 "robot.tab.cpp"
+#line 1664 "generated/robot.tab.cpp"
     break;
 
   case 50: // getdrons_stmt: TOKEN_GETDRONSCOUNT_OPEN var_ref TOKEN_GETDRONSCOUNT_CLOSE
-#line 539 "robot.ypp"
+#line 579 "robot.ypp"
     {
         auto st = std::make_shared<StmtNode>(StmtNode::GETDRONSCOUNT);
         st->dron_target_ = yystack_[1].value.as < expr_ptr > ();
         yylhs.value.as < stmt_ptr > () = st;
     }
-#line 1634 "robot.tab.cpp"
+#line 1674 "generated/robot.tab.cpp"
     break;
 
   case 51: // expr: primary_expr
-#line 554 "robot.ypp"
+#line 594 "robot.ypp"
     {
         yylhs.value.as < expr_ptr > () = yystack_[0].value.as < expr_ptr > ();
     }
-#line 1642 "robot.tab.cpp"
+#line 1682 "generated/robot.tab.cpp"
     break;
 
   case 52: // expr: TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
-#line 558 "robot.ypp"
+#line 598 "robot.ypp"
     {
+        for (auto& arg : yystack_[1].value.as < std::vector<expr_ptr> > ()){
+            if (arg->value_type_ != ExprNode::TYPE_INT){
+                semantic_error("ADD expects integer arguments");
+            }
+        }
+
         auto ad = std::make_shared<ExprNode>(ExprNode::ADD);
         ad->args_ = yystack_[1].value.as < std::vector<expr_ptr> > ();
+        ad->value_type_ = ExprNode::TYPE_INT;
         yylhs.value.as < expr_ptr > () = ad;
     }
-#line 1652 "robot.tab.cpp"
+#line 1699 "generated/robot.tab.cpp"
     break;
 
   case 53: // expr: TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
-#line 564 "robot.ypp"
+#line 611 "robot.ypp"
     {
+        for (auto& arg : yystack_[1].value.as < std::vector<expr_ptr> > ()){
+            if (arg->value_type_ != ExprNode::TYPE_INT){
+                semantic_error("MUL expects integer arguments");
+            }
+        }
+
         auto mu = std::make_shared<ExprNode>(ExprNode::MUL);
         mu->args_ = yystack_[1].value.as < std::vector<expr_ptr> > ();
+        mu->value_type_ = ExprNode::TYPE_INT;
         yylhs.value.as < expr_ptr > () = mu;
     }
-#line 1662 "robot.tab.cpp"
+#line 1716 "generated/robot.tab.cpp"
     break;
 
   case 54: // expr: TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
-#line 570 "robot.ypp"
+#line 624 "robot.ypp"
     {
+        if (yystack_[2].value.as < expr_ptr > ()->value_type_ != ExprNode::TYPE_INT ||
+            yystack_[1].value.as < expr_ptr > ()->value_type_ != ExprNode::TYPE_INT){
+            semantic_error("SUB expects integers");
+        }
+
         auto su = std::make_shared<ExprNode>(ExprNode::SUB);
         su->args_.push_back(yystack_[2].value.as < expr_ptr > ());
         su->args_.push_back(yystack_[1].value.as < expr_ptr > ());
+        su->value_type_ = ExprNode::TYPE_INT;
         yylhs.value.as < expr_ptr > () = su;
     }
-#line 1673 "robot.tab.cpp"
+#line 1733 "generated/robot.tab.cpp"
     break;
 
   case 55: // expr: TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
-#line 577 "robot.ypp"
+#line 637 "robot.ypp"
     {
+        if (yystack_[2].value.as < expr_ptr > ()->value_type_ != ExprNode::TYPE_INT ||
+            yystack_[1].value.as < expr_ptr > ()->value_type_ != ExprNode::TYPE_INT){
+            semantic_error("DIV expects integers");
+        }
+        if (yystack_[1].value.as < expr_ptr > ()->type_ == ExprNode::INT_LIT && yystack_[1].value.as < expr_ptr > ()->int_value_ == 0){
+            semantic_error("division by zero");
+        }
         auto di = std::make_shared<ExprNode>(ExprNode::DIV);
         di->args_.push_back(yystack_[2].value.as < expr_ptr > ());
         di->args_.push_back(yystack_[1].value.as < expr_ptr > ());
+        di->value_type_ = ExprNode::TYPE_INT;
         yylhs.value.as < expr_ptr > () = di;
     }
-#line 1684 "robot.tab.cpp"
+#line 1752 "generated/robot.tab.cpp"
     break;
 
   case 56: // expr: TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
-#line 584 "robot.ypp"
+#line 652 "robot.ypp"
     {
+        for (auto& arg : yystack_[1].value.as < std::vector<expr_ptr> > ()){
+            if (arg->value_type_ != ExprNode::TYPE_BOOL){
+                semantic_error("AND expects boolean arguments");
+            }
+        }
+
         auto a = std::make_shared<ExprNode>(ExprNode::AND);
         a->args_ = yystack_[1].value.as < std::vector<expr_ptr> > ();
+        a->value_type_ = ExprNode::TYPE_BOOL;
         yylhs.value.as < expr_ptr > () = a;
     }
-#line 1694 "robot.tab.cpp"
+#line 1769 "generated/robot.tab.cpp"
     break;
 
   case 57: // expr: TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
-#line 590 "robot.ypp"
+#line 665 "robot.ypp"
     {
+        for (auto& arg : yystack_[1].value.as < std::vector<expr_ptr> > ()){
+            if (arg->value_type_ != ExprNode::TYPE_BOOL){
+                semantic_error("OR expects boolean arguments");
+            }
+        }
+
         auto o = std::make_shared<ExprNode>(ExprNode::OR);
         o->args_ = yystack_[1].value.as < std::vector<expr_ptr> > ();
+        o->value_type_ = ExprNode::TYPE_BOOL;
         yylhs.value.as < expr_ptr > () = o;
     }
-#line 1704 "robot.tab.cpp"
+#line 1786 "generated/robot.tab.cpp"
     break;
 
   case 58: // expr: TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
-#line 596 "robot.ypp"
+#line 678 "robot.ypp"
     {
+        if (yystack_[1].value.as < expr_ptr > ()->value_type_ != ExprNode::TYPE_BOOL){
+            semantic_error("NOT expects boolean");
+        }
+
         auto n = std::make_shared<ExprNode>(ExprNode::NOT);
         n->args_.push_back(yystack_[1].value.as < expr_ptr > ());
+        n->value_type_ = ExprNode::TYPE_BOOL;
         yylhs.value.as < expr_ptr > () = n;
     }
-#line 1714 "robot.tab.cpp"
+#line 1801 "generated/robot.tab.cpp"
     break;
 
   case 59: // expr: TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
-#line 602 "robot.ypp"
+#line 689 "robot.ypp"
     {
+        for (size_t i = 1; i < yystack_[1].value.as < std::vector<expr_ptr> > ().size(); i++){
+            if (yystack_[1].value.as < std::vector<expr_ptr> > ()[i]->value_type_ != yystack_[1].value.as < std::vector<expr_ptr> > ()[0]->value_type_){
+                semantic_error("EQ arguments must have same type");
+            }
+        }
         auto eq = std::make_shared<ExprNode>(ExprNode::EQ);
         eq->args_ = yystack_[1].value.as < std::vector<expr_ptr> > ();
+        eq->value_type_ = ExprNode::TYPE_BOOL;
         yylhs.value.as < expr_ptr > () = eq;
     }
-#line 1724 "robot.tab.cpp"
+#line 1817 "generated/robot.tab.cpp"
     break;
 
   case 60: // expr: TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
-#line 608 "robot.ypp"
+#line 701 "robot.ypp"
     {
+        for (auto& arg : yystack_[1].value.as < std::vector<expr_ptr> > ()){
+            if (arg->value_type_ != ExprNode::TYPE_INT){
+                semantic_error("MAX expects integer arguments");
+            }
+        }
+
         auto ma = std::make_shared<ExprNode>(ExprNode::MAX);
         ma->args_ = yystack_[1].value.as < std::vector<expr_ptr> > ();
+        ma->value_type_ = ExprNode::TYPE_INT;
         yylhs.value.as < expr_ptr > () = ma;
     }
-#line 1734 "robot.tab.cpp"
+#line 1834 "generated/robot.tab.cpp"
     break;
 
   case 61: // expr: TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
-#line 614 "robot.ypp"
+#line 714 "robot.ypp"
     {
+        for (auto& arg : yystack_[1].value.as < std::vector<expr_ptr> > ()){
+            if (arg->value_type_ != ExprNode::TYPE_INT){
+                semantic_error("MIN expects integer arguments");
+            }
+        }
+
         auto mi = std::make_shared<ExprNode>(ExprNode::MIN);
         mi->args_ = yystack_[1].value.as < std::vector<expr_ptr> > ();
+        mi->value_type_ = ExprNode::TYPE_INT;
         yylhs.value.as < expr_ptr > () = mi;
     }
-#line 1744 "robot.tab.cpp"
+#line 1851 "generated/robot.tab.cpp"
     break;
 
   case 62: // expr: TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
-#line 620 "robot.ypp"
+#line 727 "robot.ypp"
     {
         auto drons = std::make_shared<ExprNode>(ExprNode::SENDDRONS);
         drons->args_.push_back(yystack_[1].value.as < expr_ptr > ());
+        drons->value_type_ = ExprNode::TYPE_INT;
         yylhs.value.as < expr_ptr > () = drons;
     }
-#line 1754 "robot.tab.cpp"
+#line 1862 "generated/robot.tab.cpp"
     break;
 
-  case 63: // expr: TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE
-#line 626 "robot.ypp"
-    {
-        auto call = std::make_shared<ExprNode>(ExprNode::CALL);
-        call->var_name_ = yystack_[1].value.as < std::string > ();
-        yylhs.value.as < expr_ptr > () = call;
-    }
-#line 1764 "robot.tab.cpp"
-    break;
-
-  case 64: // opt_expr_list: %empty
-#line 635 "robot.ypp"
+  case 63: // opt_expr_list: %empty
+#line 737 "robot.ypp"
     {
         yylhs.value.as < std::vector<expr_ptr> > () = std::vector<expr_ptr>();
     }
-#line 1772 "robot.tab.cpp"
+#line 1870 "generated/robot.tab.cpp"
     break;
 
-  case 65: // opt_expr_list: expr_list
-#line 639 "robot.ypp"
+  case 64: // opt_expr_list: expr_list
+#line 741 "robot.ypp"
     {
         yylhs.value.as < std::vector<expr_ptr> > () = yystack_[0].value.as < std::vector<expr_ptr> > ();
     }
-#line 1780 "robot.tab.cpp"
+#line 1878 "generated/robot.tab.cpp"
     break;
 
-  case 66: // expr_list: expr
-#line 646 "robot.ypp"
+  case 65: // expr_list: expr
+#line 748 "robot.ypp"
     {
         yylhs.value.as < std::vector<expr_ptr> > ().push_back(yystack_[0].value.as < expr_ptr > ());
     }
-#line 1788 "robot.tab.cpp"
+#line 1886 "generated/robot.tab.cpp"
     break;
 
-  case 67: // expr_list: expr_list expr
-#line 650 "robot.ypp"
+  case 66: // expr_list: expr_list expr
+#line 752 "robot.ypp"
     {
         yystack_[1].value.as < std::vector<expr_ptr> > ().push_back(yystack_[0].value.as < expr_ptr > ());
         yylhs.value.as < std::vector<expr_ptr> > () = yystack_[1].value.as < std::vector<expr_ptr> > ();
     }
-#line 1797 "robot.tab.cpp"
+#line 1895 "generated/robot.tab.cpp"
     break;
 
-  case 68: // primary_expr: TOKEN_INT_LIT
-#line 658 "robot.ypp"
+  case 67: // primary_expr: TOKEN_INT_LIT
+#line 760 "robot.ypp"
     {
         yylhs.value.as < expr_ptr > () = ExprNode::make_int(yystack_[0].value.as < int > ());
     }
-#line 1805 "robot.tab.cpp"
+#line 1903 "generated/robot.tab.cpp"
     break;
 
-  case 69: // primary_expr: TOKEN_BOOL_LIT
-#line 662 "robot.ypp"
+  case 68: // primary_expr: TOKEN_BOOL_LIT
+#line 764 "robot.ypp"
     {
         yylhs.value.as < expr_ptr > () = ExprNode::make_bool(yystack_[0].value.as < bool > ());
     }
-#line 1813 "robot.tab.cpp"
+#line 1911 "generated/robot.tab.cpp"
     break;
 
-  case 70: // primary_expr: TOKEN_CELL_VALUE
-#line 666 "robot.ypp"
+  case 69: // primary_expr: TOKEN_CELL_VALUE
+#line 768 "robot.ypp"
     {
         yylhs.value.as < expr_ptr > () = ExprNode::make_cell(yystack_[0].value.as < CellValue > ());
     }
-#line 1821 "robot.tab.cpp"
+#line 1919 "generated/robot.tab.cpp"
     break;
 
-  case 71: // primary_expr: var_ref
-#line 670 "robot.ypp"
+  case 70: // primary_expr: var_ref
+#line 772 "robot.ypp"
     {
         yylhs.value.as < expr_ptr > () = yystack_[0].value.as < expr_ptr > ();
     }
-#line 1829 "robot.tab.cpp"
+#line 1927 "generated/robot.tab.cpp"
     break;
 
-  case 72: // var_ref: TOKEN_IDENTIFIER
-#line 684 "robot.ypp"
+  case 71: // var_ref: TOKEN_IDENTIFIER
+#line 786 "robot.ypp"
     {
+        if (global_symbols.find(yystack_[0].value.as < std::string > ()) == global_symbols.end()){
+            semantic_error("variable '" + yystack_[0].value.as < std::string > () + "' not declared");
+        }
+
         auto iden = ExprNode::make_var_ref(yystack_[0].value.as < std::string > ());
+        auto& decl = global_symbols[yystack_[0].value.as < std::string > ()].decl_;
+
+        switch (decl.type_) {
+            case VarDecl::INT:  iden->value_type_ = ExprNode::TYPE_INT; break;
+            case VarDecl::BOOL: iden->value_type_ = ExprNode::TYPE_BOOL; break;
+            case VarDecl::CELL: iden->value_type_ = ExprNode::TYPE_CELL; break;
+            default: iden->value_type_ = ExprNode::TYPE_UNKNOWN;
+        }
+
         yylhs.value.as < expr_ptr > () = iden;
     }
-#line 1838 "robot.tab.cpp"
+#line 1949 "generated/robot.tab.cpp"
     break;
 
-  case 73: // var_ref: TOKEN_IDENTIFIER dim_ref_list
-#line 689 "robot.ypp"
+  case 72: // var_ref: TOKEN_IDENTIFIER dim_ref_list
+#line 804 "robot.ypp"
     {
+        if (global_symbols.find(yystack_[1].value.as < std::string > ()) == global_symbols.end()){
+            semantic_error("variable '" + yystack_[1].value.as < std::string > () + "' not declared");
+        }
+        auto& decl = global_symbols[yystack_[1].value.as < std::string > ()].decl_;
+        if (yystack_[0].value.as < std::vector<expr_ptr> > ().size() != decl.dimensions_.size()){
+            semantic_error("wrong number of indices for '" + yystack_[1].value.as < std::string > () + "'");
+        }
+        for (auto& idx : yystack_[0].value.as < std::vector<expr_ptr> > ()) {
+            if (idx->value_type_ != ExprNode::TYPE_INT){
+                semantic_error("array index must be integer");
+            }
+        }
         auto iden = ExprNode::make_var_ref(yystack_[1].value.as < std::string > ());
+        switch (decl.type_) {
+            case VarDecl::INT:  iden->value_type_ = ExprNode::TYPE_INT; break;
+            case VarDecl::BOOL: iden->value_type_ = ExprNode::TYPE_BOOL; break;
+            case VarDecl::CELL: iden->value_type_ = ExprNode::TYPE_CELL; break;
+            default: iden->value_type_ = ExprNode::TYPE_UNKNOWN;
+        }
+
         for (auto& idx : yystack_[0].value.as < std::vector<expr_ptr> > ()) {
             iden->indices_.push_back(idx);
         }
         yylhs.value.as < expr_ptr > () = iden;
     }
-#line 1850 "robot.tab.cpp"
+#line 1980 "generated/robot.tab.cpp"
     break;
 
-  case 74: // dim_ref_list: TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
-#line 700 "robot.ypp"
+  case 73: // dim_ref_list: TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+#line 834 "robot.ypp"
     {
         yylhs.value.as < std::vector<expr_ptr> > () = std::vector<expr_ptr>();
         yylhs.value.as < std::vector<expr_ptr> > ().push_back(yystack_[2].value.as < expr_ptr > ());
     }
-#line 1859 "robot.tab.cpp"
+#line 1989 "generated/robot.tab.cpp"
     break;
 
-  case 75: // dim_ref_list: dim_ref_list TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
-#line 705 "robot.ypp"
+  case 74: // dim_ref_list: dim_ref_list TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+#line 839 "robot.ypp"
     {
         yystack_[5].value.as < std::vector<expr_ptr> > ().push_back(yystack_[2].value.as < expr_ptr > ());
         yylhs.value.as < std::vector<expr_ptr> > () = yystack_[5].value.as < std::vector<expr_ptr> > ();
     }
-#line 1868 "robot.tab.cpp"
+#line 1998 "generated/robot.tab.cpp"
     break;
 
 
-#line 1872 "robot.tab.cpp"
+#line 2002 "generated/robot.tab.cpp"
 
             default:
               break;
@@ -2220,31 +2350,31 @@ namespace  yy  {
   }
 
 
-  const signed char  RobotParser ::yypact_ninf_ = -44;
+  const signed char  RobotParser ::yypact_ninf_ = -40;
 
   const signed char  RobotParser ::yytable_ninf_ = -1;
 
   const short
    RobotParser ::yypact_[] =
   {
-      15,   -44,    36,    34,   -44,   -44,   -44,    30,    26,   -44,
-     -44,    27,     2,   -44,    -1,    25,   -44,   -44,   -43,   -40,
-      33,   -44,   -44,    32,   -35,    98,   175,   -44,    35,   -44,
-     -44,    38,   -44,    20,     8,     7,     5,     5,     5,     5,
-       5,   -28,     5,     5,     5,     5,     5,     5,     5,     5,
-       5,     5,   -44,   -44,    40,   -44,   -44,   -44,   -44,   -44,
-     -44,   -44,   -44,   -44,   -44,   -44,   -44,   -16,    41,    45,
-       5,     5,    18,   -26,   -44,    43,    13,    17,    11,    19,
-       9,    21,   -44,    23,     5,    28,     5,     5,     3,    22,
-      16,    24,    29,    31,    46,    52,    71,    73,    75,    81,
-      69,   -44,    72,    55,     5,   -44,   -44,    90,   -44,   -44,
-     -44,   -44,   -44,   -44,   -44,   -44,   -44,    37,    42,   -44,
-     -44,   -44,   -44,   -44,   -44,     5,    76,   -44,   -44,   -44,
-      39,    83,   110,    67,    77,    78,   -44,   -44,   -44,    85,
-       5,    47,     5,    -6,   -44,   -28,   -44,    82,    93,    94,
-      92,    97,   -44,     5,   -36,   -44,   250,   -44,   -44,    99,
-      48,     1,   -44,   104,   100,   -44,   101,   325,   -44,   112,
-     -44,    57,   -44,   -44,   -44,    96,   -44,   116,   -44,   -44
+      15,   -40,    24,    33,   -40,   -40,   -40,    20,    25,   -40,
+     -40,    27,     2,   -40,    -1,    30,   -40,   -40,   -39,   -37,
+      36,   -40,   -40,    34,   -33,    16,    95,   -40,    37,   -40,
+     -40,    38,   -40,    28,    19,    13,   273,   273,   273,   273,
+     273,   -19,   273,   273,   273,   273,   273,   273,   273,   273,
+     273,   273,   -40,   -40,    32,   -40,   -40,   -40,   -40,   -40,
+     -40,   -40,   -40,   -40,   -40,   -40,   -40,   -16,    43,    57,
+     273,   273,    29,   -26,   -40,    40,    18,    26,    22,    42,
+      14,   -40,    39,   273,    44,   273,   273,    12,    35,    10,
+      46,     8,    45,    55,    61,    86,    88,    91,    99,    87,
+     -40,    85,    72,   273,   -40,   -40,   -40,   -40,   -40,   -40,
+     -40,   -40,   -40,   -40,   -40,    52,    51,   -40,   -40,   -40,
+     -40,   -40,   -40,   273,    94,   -40,   -40,   -40,    47,   102,
+     114,    96,    83,    84,   -40,   -40,   101,   273,    53,   273,
+       5,   -40,   -19,   -40,    98,   104,   107,   117,   113,   -40,
+     273,   -36,   -40,   170,   -40,   -40,   115,    63,    17,   -40,
+     119,   121,   -40,   111,   245,   -40,   127,   -40,    73,   -40,
+     -40,   -40,   123,   -40,   133,   -40,   -40
   };
 
   const signed char
@@ -2253,117 +2383,103 @@ namespace  yy  {
        0,     3,     0,     0,     1,     6,     2,     0,     0,     4,
        5,     0,     0,     8,     0,     0,     7,     9,     0,     0,
       12,    26,    26,     0,     0,     0,     0,    11,     0,    28,
-      24,     0,    70,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    64,    64,     0,     0,     0,    64,    64,    64,
-      64,    64,    69,    68,    72,    27,    35,    29,    30,    31,
-      32,    33,    34,    36,    51,    71,    25,     0,    16,     0,
+      24,     0,    69,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,    63,    63,     0,     0,     0,    63,    63,    63,
+      63,    63,    68,    67,    71,    27,    35,    29,    30,    31,
+      32,    33,    34,    36,    51,    70,    25,     0,    16,     0,
        0,     0,     0,     0,    42,     0,     0,     0,     0,     0,
-       0,     0,    66,     0,    65,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    73,     0,     0,     0,     0,
-      20,    49,     0,     0,     0,    41,    43,     0,    45,    46,
-      47,    48,    62,    50,    52,    67,    53,     0,     0,    58,
-      57,    56,    60,    61,    59,     0,     0,    13,    14,    15,
-       0,     0,     0,     0,     0,     0,    63,    54,    55,     0,
-       0,     0,     0,     0,    10,     0,    26,     0,     0,     0,
-       0,     0,    21,     0,     0,    38,     0,    26,    74,     0,
-       0,     0,    22,     0,     0,    39,     0,     0,    75,     0,
-      17,     0,    23,    37,    40,     0,    18,     0,    44,    19
+       0,    65,     0,    64,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,    72,     0,     0,     0,     0,    20,
+      49,     0,     0,     0,    41,    43,    45,    46,    47,    48,
+      62,    50,    52,    66,    53,     0,     0,    58,    57,    56,
+      60,    61,    59,     0,     0,    13,    14,    15,     0,     0,
+       0,     0,     0,     0,    54,    55,     0,     0,     0,     0,
+       0,    10,     0,    26,     0,     0,     0,     0,     0,    21,
+       0,     0,    38,     0,    26,    73,     0,     0,     0,    22,
+       0,     0,    39,     0,     0,    74,     0,    17,     0,    23,
+      37,    40,     0,    18,     0,    44,    19
   };
 
   const short
    RobotParser ::yypgoto_[] =
   {
-     -44,   -44,   -44,   -44,   -44,   135,   -44,   -44,   -44,   -44,
-     -44,   -44,   -44,   -20,   -44,   -44,   -44,   -44,   -44,   -44,
-     -44,    79,   -44,   -44,   -44,   -25,   -17,   -44,   -44,   -38,
-     -44
+     -40,   -40,   -40,   -40,   -40,   151,   -40,   -40,   -40,   -40,
+     -40,   -40,   -40,   -20,   -40,   -40,   -40,   -40,   -40,   -40,
+     -40,    92,   -40,   -40,   -40,   -25,   -18,   -40,   -40,   -38,
+     -40
   };
 
   const unsigned char
    RobotParser ::yydefgoto_[] =
   {
-       0,     2,     3,     9,    12,    13,    24,    68,   100,   161,
-     132,   143,    10,    25,    55,    56,    57,   154,    58,    59,
-      73,    74,    60,    61,    62,    82,    83,    84,    64,    65,
-      95
+       0,     2,     3,     9,    12,    13,    24,    68,    99,   158,
+     130,   140,    10,    25,    55,    56,    57,   151,    58,    59,
+      73,    74,    60,    61,    62,    81,    82,    83,    64,    65,
+      94
   };
 
   const unsigned char
    RobotParser ::yytable_[] =
   {
-      63,    63,    26,    81,   164,    96,    97,    98,    16,    11,
-      18,    76,    77,    78,    79,    80,    19,    75,     1,    86,
-      87,    88,   105,    72,   152,   153,    85,   170,   171,    32,
-      89,    90,    91,    92,    93,     5,     4,    11,     6,     7,
-      14,    15,    20,     8,    21,   102,   103,    22,    23,    54,
-      27,    70,    28,    71,    67,    69,    72,    54,   101,   115,
-     107,   117,   118,   104,    40,   108,    99,   110,    42,   112,
-      43,   109,    44,    94,    45,   119,    46,   111,    47,   135,
-      48,   125,    49,   113,    50,   126,    51,   114,    52,    53,
-      54,   127,   121,   128,   116,   129,   120,   130,   131,    29,
-     139,   134,   122,   136,   133,   137,   145,   155,    30,   123,
-      31,   140,   138,   124,   142,   149,   165,   151,   144,   160,
-     146,   148,    32,   141,   147,   157,   156,   158,   163,   162,
-     159,    63,   169,   168,   150,    33,   172,   167,   173,    34,
-     176,   177,    63,   174,   179,    35,   178,    17,     0,    36,
-       0,    37,   106,    38,     0,    39,     0,    40,     0,    41,
-       0,    42,     0,    43,     0,    44,     0,    45,     0,    46,
-       0,    47,     0,    48,     0,    49,    29,    50,     0,    51,
-       0,    52,    53,    54,     0,    66,     0,    31,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,    32,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    33,     0,     0,     0,    34,     0,     0,     0,
-       0,     0,    35,     0,     0,     0,    36,     0,    37,     0,
-      38,     0,    39,     0,    40,     0,    41,     0,    42,     0,
-      43,     0,    44,     0,    45,     0,    46,     0,    47,     0,
-      48,    29,    49,     0,    50,     0,    51,     0,    52,    53,
+      63,    63,    26,    80,   161,    95,    96,    97,    16,    11,
+      18,    75,    76,    77,    78,    79,    19,    29,     1,    85,
+      86,    87,   104,    72,     4,    84,    30,    11,    31,    88,
+      89,    90,    91,    92,     5,   149,   150,     6,     7,    14,
+      32,    15,     8,   167,   168,   101,   102,    20,    21,    54,
+      22,    23,    27,    33,    28,    69,    67,    34,   113,    70,
+     115,   116,    72,    35,    71,    93,    54,    36,    98,    37,
+     100,    38,   107,    39,   103,    40,   111,    41,   133,    42,
+     109,    43,   108,    44,   117,    45,   119,    46,   121,    47,
+     123,    48,   106,    49,   124,    50,    29,    51,   136,    52,
+      53,    54,   110,   112,   152,    66,   125,    31,   126,   118,
+     114,   127,   146,   162,   148,   128,   129,   131,   132,    32,
+     134,   135,   141,   153,   120,   160,   143,   122,    63,   137,
+     144,   138,    33,   139,   164,   142,    34,   145,   155,    63,
+     147,   154,    35,   156,   157,   159,    36,   166,    37,   165,
+      38,   169,    39,   171,    40,   173,    41,   174,    42,   170,
+      43,   176,    44,    17,    45,   105,    46,     0,    47,     0,
+      48,    29,    49,   175,    50,     0,    51,     0,    52,    53,
       54,     0,    31,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,    32,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,    33,     0,     0,
-       0,    34,     0,     0,   166,     0,     0,    35,     0,     0,
+       0,    34,     0,     0,   163,     0,     0,    35,     0,     0,
        0,    36,     0,    37,     0,    38,     0,    39,     0,    40,
        0,    41,     0,    42,     0,    43,     0,    44,     0,    45,
        0,    46,     0,    47,     0,    48,    29,    49,     0,    50,
        0,    51,     0,    52,    53,    54,     0,    31,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,    32,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    33,     0,     0,     0,    34,     0,     0,   175,
-       0,     0,    35,     0,     0,     0,    36,     0,    37,     0,
+       0,     0,    33,     0,     0,     0,    34,     0,     0,   172,
+       0,     0,    35,     0,     0,     0,    36,    32,    37,     0,
       38,     0,    39,     0,    40,     0,    41,     0,    42,     0,
       43,     0,    44,     0,    45,     0,    46,     0,    47,     0,
       48,     0,    49,     0,    50,     0,    51,     0,    52,    53,
-      54
+      54,     0,    40,     0,     0,     0,    42,     0,    43,     0,
+      44,     0,    45,     0,    46,     0,    47,     0,    48,     0,
+      49,     0,    50,     0,    51,     0,    52,    53,    54
   };
 
   const short
    RobotParser ::yycheck_[] =
   {
       25,    26,    22,    41,    40,    21,    22,    23,     6,     7,
-      11,    36,    37,    38,    39,    40,    17,    12,     3,    44,
-      45,    46,    48,    49,    30,    31,    43,    26,    27,    24,
-      47,    48,    49,    50,    51,     1,     0,     7,     4,     5,
-      14,    14,    17,     9,    87,    70,    71,    87,    15,    85,
-      18,    31,    87,    45,    19,    17,    49,    85,    13,    84,
-      17,    86,    87,    45,    59,    52,    25,    56,    63,    60,
-      65,    54,    67,    33,    69,    72,    71,    58,    73,   104,
-      75,    35,    77,    62,    79,    33,    81,    64,    83,    84,
-      85,    20,    76,    20,    66,    20,    74,    16,    29,     1,
-     125,    46,    78,    13,    32,    68,    39,   145,    10,    80,
-      12,    35,    70,    82,    31,   140,   154,   142,     8,    27,
-      43,    36,    24,    84,    46,    43,   146,    34,   153,    32,
-      36,   156,    84,    34,    87,    37,    32,   157,    38,    41,
-      28,    84,   167,    42,    28,    47,    50,    12,    -1,    51,
-      -1,    53,    73,    55,    -1,    57,    -1,    59,    -1,    61,
-      -1,    63,    -1,    65,    -1,    67,    -1,    69,    -1,    71,
-      -1,    73,    -1,    75,    -1,    77,     1,    79,    -1,    81,
-      -1,    83,    84,    85,    -1,    10,    -1,    12,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    24,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    37,    -1,    -1,    -1,    41,    -1,    -1,    -1,
-      -1,    -1,    47,    -1,    -1,    -1,    51,    -1,    53,    -1,
-      55,    -1,    57,    -1,    59,    -1,    61,    -1,    63,    -1,
-      65,    -1,    67,    -1,    69,    -1,    71,    -1,    73,    -1,
-      75,     1,    77,    -1,    79,    -1,    81,    -1,    83,    84,
+      11,    36,    37,    38,    39,    40,    17,     1,     3,    44,
+      45,    46,    48,    49,     0,    43,    10,     7,    12,    47,
+      48,    49,    50,    51,     1,    30,    31,     4,     5,    14,
+      24,    14,     9,    26,    27,    70,    71,    17,    87,    85,
+      87,    15,    18,    37,    87,    17,    19,    41,    83,    31,
+      85,    86,    49,    47,    45,    33,    85,    51,    25,    53,
+      13,    55,    54,    57,    45,    59,    62,    61,   103,    63,
+      58,    65,    56,    67,    72,    69,    76,    71,    80,    73,
+      35,    75,    52,    77,    33,    79,     1,    81,   123,    83,
+      84,    85,    60,    64,   142,    10,    20,    12,    20,    74,
+      66,    20,   137,   151,   139,    16,    29,    32,    46,    24,
+      68,    70,     8,   143,    78,   150,    43,    82,   153,    35,
+      46,    84,    37,    31,   154,    39,    41,    36,    34,   164,
+      87,    43,    47,    36,    27,    32,    51,    84,    53,    34,
+      55,    32,    57,    42,    59,    28,    61,    84,    63,    38,
+      65,    28,    67,    12,    69,    73,    71,    -1,    73,    -1,
+      75,     1,    77,    50,    79,    -1,    81,    -1,    83,    84,
       85,    -1,    12,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    24,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    37,    -1,    -1,
@@ -2375,11 +2491,13 @@ namespace  yy  {
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    24,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    37,    -1,    -1,    -1,    41,    -1,    -1,    44,
-      -1,    -1,    47,    -1,    -1,    -1,    51,    -1,    53,    -1,
+      -1,    -1,    47,    -1,    -1,    -1,    51,    24,    53,    -1,
       55,    -1,    57,    -1,    59,    -1,    61,    -1,    63,    -1,
       65,    -1,    67,    -1,    69,    -1,    71,    -1,    73,    -1,
       75,    -1,    77,    -1,    79,    -1,    81,    -1,    83,    84,
-      85
+      85,    -1,    59,    -1,    -1,    -1,    63,    -1,    65,    -1,
+      67,    -1,    69,    -1,    71,    -1,    73,    -1,    75,    -1,
+      77,    -1,    79,    -1,    81,    -1,    83,    84,    85
   };
 
   const signed char
@@ -2392,17 +2510,17 @@ namespace  yy  {
       59,    61,    63,    65,    67,    69,    71,    73,    75,    77,
       79,    81,    83,    84,    85,   102,   103,   104,   106,   107,
      110,   111,   112,   113,   116,   117,    10,    19,    95,    17,
-      31,    45,    49,   108,   109,    12,   113,   113,   113,   113,
-     113,   117,   113,   114,   115,   114,   113,   113,   113,   114,
-     114,   114,   114,   114,    33,   118,    21,    22,    23,    25,
-      96,    13,   113,   113,    45,    48,   109,    17,    52,    54,
-      56,    58,    60,    62,    64,   113,    66,   113,   113,    72,
-      74,    76,    78,    80,    82,    35,    33,    20,    20,    20,
-      16,    29,    98,    32,    46,   113,    13,    68,    70,   113,
-      35,    84,    31,    99,     8,    39,    43,    46,    36,   113,
-      87,   113,    30,    31,   105,   117,   101,    43,    34,    36,
-      27,    97,    32,   113,    40,   117,    44,   101,    34,    84,
-      26,    27,    32,    38,    42,    44,    28,    84,    50,    28
+      31,    45,    49,   108,   109,   113,   113,   113,   113,   113,
+     117,   113,   114,   115,   114,   113,   113,   113,   114,   114,
+     114,   114,   114,    33,   118,    21,    22,    23,    25,    96,
+      13,   113,   113,    45,    48,   109,    52,    54,    56,    58,
+      60,    62,    64,   113,    66,   113,   113,    72,    74,    76,
+      78,    80,    82,    35,    33,    20,    20,    20,    16,    29,
+      98,    32,    46,   113,    68,    70,   113,    35,    84,    31,
+      99,     8,    39,    43,    46,    36,   113,    87,   113,    30,
+      31,   105,   117,   101,    43,    34,    36,    27,    97,    32,
+     113,    40,   117,    44,   101,    34,    84,    26,    27,    32,
+      38,    42,    44,    28,    84,    50,    28
   };
 
   const signed char
@@ -2414,8 +2532,8 @@ namespace  yy  {
      102,   102,   102,   102,   102,   102,   103,   104,   105,   105,
      106,   107,   108,   108,   109,   110,   110,   110,   110,   111,
      112,   113,   113,   113,   113,   113,   113,   113,   113,   113,
-     113,   113,   113,   113,   114,   114,   115,   115,   116,   116,
-     116,   116,   117,   117,   118,   118
+     113,   113,   113,   114,   114,   115,   115,   116,   116,   116,
+     116,   117,   117,   118,   118
   };
 
   const signed char
@@ -2427,8 +2545,8 @@ namespace  yy  {
        1,     1,     1,     1,     1,     1,     1,     8,     1,     2,
        8,     3,     1,     2,     8,     3,     3,     3,     3,     3,
        3,     1,     3,     3,     4,     4,     3,     3,     3,     3,
-       3,     3,     3,     3,     0,     1,     1,     2,     1,     1,
-       1,     1,     1,     2,     5,     6
+       3,     3,     3,     0,     1,     1,     2,     1,     1,     1,
+       1,     1,     2,     5,     6
   };
 
 
@@ -2479,14 +2597,14 @@ namespace  yy  {
   const short
    RobotParser ::yyrline_[] =
   {
-       0,   160,   160,   173,   174,   175,   186,   194,   210,   214,
-     237,   247,   251,   258,   262,   266,   273,   277,   288,   292,
-     300,   304,   311,   315,   334,   341,   350,   351,   356,   365,
-     366,   367,   368,   369,   370,   371,   375,   390,   400,   404,
-     422,   453,   462,   466,   474,   492,   499,   506,   513,   526,
-     538,   553,   557,   563,   569,   576,   583,   589,   595,   601,
-     607,   613,   619,   625,   634,   638,   645,   649,   657,   661,
-     665,   669,   683,   688,   699,   704
+       0,   170,   170,   183,   184,   185,   196,   204,   220,   224,
+     247,   264,   268,   275,   279,   283,   290,   294,   305,   309,
+     317,   321,   328,   332,   351,   361,   370,   371,   376,   385,
+     386,   387,   388,   389,   390,   391,   395,   410,   430,   434,
+     452,   487,   496,   500,   508,   529,   536,   543,   550,   563,
+     578,   593,   597,   610,   623,   636,   651,   664,   677,   688,
+     700,   713,   726,   736,   740,   747,   751,   759,   763,   767,
+     771,   785,   803,   833,   838
   };
 
   void
@@ -2572,11 +2690,11 @@ namespace  yy  {
       return symbol_kind::S_YYUNDEF;
   }
 
-#line 54 "robot.ypp"
+#line 64 "robot.ypp"
 } //  yy 
-#line 2578 "robot.tab.cpp"
+#line 2696 "generated/robot.tab.cpp"
 
-#line 711 "robot.ypp"
+#line 845 "robot.ypp"
 
 
 void yy::RobotParser::error(const location_type& loc, const std::string& msg) {

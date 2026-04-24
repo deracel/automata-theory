@@ -1,0 +1,2924 @@
+Терминалы не используются в грамматике
+
+    TOKEN_SELFCLOSE
+
+
+Грамматика
+
+    0 $accept: program $end
+
+    1 program: TOKEN_PROGRAM_OPEN program_items TOKEN_PROGRAM_CLOSE
+
+    2 program_items: ε
+    3              | program_items vardecl_block
+    4              | program_items func_def
+    5              | program_items error
+
+    6 vardecl_block: TOKEN_VARDECL_OPEN var_list TOKEN_VARDECL_CLOSE
+
+    7 var_list: var_item
+    8         | var_list var_item
+
+    9 var_item: TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE
+
+   10 opt_const: TOKEN_CONST TOKEN_BOOL
+   11          | ε
+
+   12 type_spec: TOKEN_TYPE_OPEN TOKEN_TYPE_INT TOKEN_TYPE_CLOSE
+   13          | TOKEN_TYPE_OPEN TOKEN_TYPE_BOOL TOKEN_TYPE_CLOSE
+   14          | TOKEN_TYPE_OPEN TOKEN_TYPE_CELL TOKEN_TYPE_CLOSE
+
+   15 opt_dimensions: ε
+   16               | TOKEN_DIMENSIONS_OPEN TOKEN_COUNT TOKEN_INT_LIT '>' dims_list TOKEN_DIMENSIONS_CLOSE
+
+   17 dims_list: TOKEN_DIMENSION_OPEN TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE
+   18          | dims_list TOKEN_DIMENSION_OPEN TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE
+
+   19 opt_init_values: ε
+   20                | TOKEN_VALUES_OPEN value_list TOKEN_VALUES_CLOSE
+
+   21 value_list: TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE
+   22           | value_list TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE
+
+   23 func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_MAIN '>' stmt_list TOKEN_FUNC_CLOSE
+   24         | TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_STRING '>' stmt_list TOKEN_FUNC_CLOSE
+
+   25 stmt_list: ε
+   26          | stmt_list stmt
+   27          | stmt_list error
+
+   28 stmt: assign_stmt
+   29     | while_stmt
+   30     | switch_stmt
+   31     | move_stmt
+   32     | call_stmt
+   33     | getdrons_stmt
+   34     | expr_stmt
+
+   35 expr_stmt: expr
+
+   36 assign_stmt: TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+
+   37 var_ref_list: var_ref
+   38             | var_ref_list var_ref
+
+   39 while_stmt: TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+
+   40 switch_stmt: TOKEN_SWITCH_OPEN cond_list TOKEN_SWITCH_CLOSE
+
+   41 cond_list: cond_branch
+   42          | cond_list cond_branch
+
+   43 cond_branch: TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
+
+   44 move_stmt: TOKEN_LEFT_OPEN expr TOKEN_LEFT_CLOSE
+   45          | TOKEN_RIGHT_OPEN expr TOKEN_RIGHT_CLOSE
+   46          | TOKEN_UP_OPEN expr TOKEN_UP_CLOSE
+   47          | TOKEN_DOWN_OPEN expr TOKEN_DOWN_CLOSE
+
+   48 call_stmt: TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE
+
+   49 getdrons_stmt: TOKEN_GETDRONSCOUNT_OPEN var_ref TOKEN_GETDRONSCOUNT_CLOSE
+
+   50 expr: primary_expr
+   51     | TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+
+   62 opt_expr_list: ε
+   63              | expr_list
+
+   64 expr_list: expr
+   65          | expr_list expr
+
+   66 primary_expr: TOKEN_INT_LIT
+   67             | TOKEN_BOOL_LIT
+   68             | TOKEN_CELL_VALUE
+   69             | var_ref
+
+   70 var_ref: TOKEN_IDENTIFIER
+   71        | TOKEN_IDENTIFIER dim_ref_list
+
+   72 dim_ref_list: TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+   73             | dim_ref_list TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+
+
+Терминальные символы с правилами, в которых они появляются
+
+    $end (0) 0
+    '>' (62) 9 16 23 24
+    error (256) 5 27
+    TOKEN_PROGRAM_OPEN (258) 1
+    TOKEN_PROGRAM_CLOSE (259) 1
+    TOKEN_VARDECL_OPEN (260) 6
+    TOKEN_VARDECL_CLOSE (261) 6
+    TOKEN_VAR_OPEN (262) 9
+    TOKEN_VAR_CLOSE (263) 9
+    TOKEN_FUNC_OPEN (264) 23 24
+    TOKEN_FUNC_CLOSE (265) 23 24
+    TOKEN_MAIN <std::string> (266) 23
+    TOKEN_CALL_OPEN (267) 48
+    TOKEN_CALL_CLOSE (268) 48
+    TOKEN_NAME_ATTR (269) 9 23 24
+    TOKEN_CONST (270) 10
+    TOKEN_COUNT (271) 16
+    TOKEN_STRING <std::string> (272) 9 24 48
+    TOKEN_BOOL <bool> (273) 10
+    TOKEN_TYPE_OPEN (274) 12 13 14
+    TOKEN_TYPE_CLOSE (275) 12 13 14
+    TOKEN_TYPE_INT (276) 12
+    TOKEN_TYPE_BOOL (277) 13
+    TOKEN_TYPE_CELL (278) 14
+    TOKEN_CELL_VALUE <CellValue> (279) 68
+    TOKEN_DIMENSIONS_OPEN (280) 16
+    TOKEN_DIMENSIONS_CLOSE (281) 16
+    TOKEN_DIMENSION_OPEN (282) 17 18
+    TOKEN_DIMENSION_CLOSE (283) 17 18
+    TOKEN_VALUES_OPEN (284) 20
+    TOKEN_VALUES_CLOSE (285) 20
+    TOKEN_VALUE_OPEN (286) 21 22 36
+    TOKEN_VALUE_CLOSE (287) 21 22 36
+    TOKEN_DIM_OPEN (288) 72 73
+    TOKEN_DIM_CLOSE (289) 72 73
+    TOKEN_INDEX_OPEN (290) 72 73
+    TOKEN_INDEX_CLOSE (291) 72 73
+    TOKEN_ASSIGN_OPEN (292) 36
+    TOKEN_ASSIGN_CLOSE (293) 36
+    TOKEN_TO_OPEN (294) 36
+    TOKEN_TO_CLOSE (295) 36
+    TOKEN_WHILE_OPEN (296) 39
+    TOKEN_WHILE_CLOSE (297) 39
+    TOKEN_DO_OPEN (298) 39 43
+    TOKEN_DO_CLOSE (299) 39 43
+    TOKEN_CHECK_OPEN (300) 39 43
+    TOKEN_CHECK_CLOSE (301) 39 43
+    TOKEN_SWITCH_OPEN (302) 40
+    TOKEN_SWITCH_CLOSE (303) 40
+    TOKEN_CONDITION_OPEN (304) 43
+    TOKEN_CONDITION_CLOSE (305) 43
+    TOKEN_LEFT_OPEN (306) 44
+    TOKEN_LEFT_CLOSE (307) 44
+    TOKEN_RIGHT_OPEN (308) 45
+    TOKEN_RIGHT_CLOSE (309) 45
+    TOKEN_UP_OPEN (310) 46
+    TOKEN_UP_CLOSE (311) 46
+    TOKEN_DOWN_OPEN (312) 47
+    TOKEN_DOWN_CLOSE (313) 47
+    TOKEN_SENDDRONS_OPEN (314) 61
+    TOKEN_SENDDRONS_CLOSE (315) 61
+    TOKEN_GETDRONSCOUNT_OPEN (316) 49
+    TOKEN_GETDRONSCOUNT_CLOSE (317) 49
+    TOKEN_ADD_OPEN (318) 51
+    TOKEN_ADD_CLOSE (319) 51
+    TOKEN_MUL_OPEN (320) 52
+    TOKEN_MUL_CLOSE (321) 52
+    TOKEN_SUB_OPEN (322) 53
+    TOKEN_SUB_CLOSE (323) 53
+    TOKEN_DIV_OPEN (324) 54
+    TOKEN_DIV_CLOSE (325) 54
+    TOKEN_NOT_OPEN (326) 57
+    TOKEN_NOT_CLOSE (327) 57
+    TOKEN_OR_OPEN (328) 56
+    TOKEN_OR_CLOSE (329) 56
+    TOKEN_AND_OPEN (330) 55
+    TOKEN_AND_CLOSE (331) 55
+    TOKEN_MAX_OPEN (332) 59
+    TOKEN_MAX_CLOSE (333) 59
+    TOKEN_MIN_OPEN (334) 60
+    TOKEN_MIN_CLOSE (335) 60
+    TOKEN_EQ_OPEN (336) 58
+    TOKEN_EQ_CLOSE (337) 58
+    TOKEN_BOOL_LIT <bool> (338) 67
+    TOKEN_INT_LIT <int> (339) 16 17 18 66
+    TOKEN_IDENTIFIER <std::string> (340) 70 71
+    TOKEN_SELFCLOSE (341)
+
+
+Нетерминальные символы с правилами, в которых они появляются
+
+    $accept (88)
+        on left: 0
+    program (89)
+        on left: 1
+        on right: 0
+    program_items (90)
+        on left: 2 3 4 5
+        on right: 1 3 4 5
+    vardecl_block (91)
+        on left: 6
+        on right: 3
+    var_list <std::vector<VarDecl>> (92)
+        on left: 7 8
+        on right: 6 8
+    var_item <VarDecl> (93)
+        on left: 9
+        on right: 7 8
+    opt_const <bool> (94)
+        on left: 10 11
+        on right: 9
+    type_spec <VarDecl::VarType> (95)
+        on left: 12 13 14
+        on right: 9
+    opt_dimensions <std::vector<int>> (96)
+        on left: 15 16
+        on right: 9
+    dims_list <std::vector<int>> (97)
+        on left: 17 18
+        on right: 16 18
+    opt_init_values <std::vector<expr_ptr>> (98)
+        on left: 19 20
+        on right: 9
+    value_list <std::vector<expr_ptr>> (99)
+        on left: 21 22
+        on right: 20 22
+    func_def <FuncDecl> (100)
+        on left: 23 24
+        on right: 4
+    stmt_list <std::vector<stmt_ptr>> (101)
+        on left: 25 26 27
+        on right: 23 24 26 27 39 43
+    stmt <stmt_ptr> (102)
+        on left: 28 29 30 31 32 33 34
+        on right: 26
+    expr_stmt <stmt_ptr> (103)
+        on left: 35
+        on right: 34
+    assign_stmt <stmt_ptr> (104)
+        on left: 36
+        on right: 28
+    var_ref_list <std::vector<expr_ptr>> (105)
+        on left: 37 38
+        on right: 36 38
+    while_stmt <stmt_ptr> (106)
+        on left: 39
+        on right: 29
+    switch_stmt <stmt_ptr> (107)
+        on left: 40
+        on right: 30
+    cond_list <std::vector<ConditionBranch>> (108)
+        on left: 41 42
+        on right: 40 42
+    cond_branch <ConditionBranch> (109)
+        on left: 43
+        on right: 41 42
+    move_stmt <stmt_ptr> (110)
+        on left: 44 45 46 47
+        on right: 31
+    call_stmt <stmt_ptr> (111)
+        on left: 48
+        on right: 32
+    getdrons_stmt <stmt_ptr> (112)
+        on left: 49
+        on right: 33
+    expr <expr_ptr> (113)
+        on left: 50 51 52 53 54 55 56 57 58 59 60 61
+        on right: 21 22 35 36 39 43 44 45 46 47 53 54 57 61 64 65 72 73
+    opt_expr_list <std::vector<expr_ptr>> (114)
+        on left: 62 63
+        on right: 51 52 55 56 58 59 60
+    expr_list <std::vector<expr_ptr>> (115)
+        on left: 64 65
+        on right: 63 65
+    primary_expr <expr_ptr> (116)
+        on left: 66 67 68 69
+        on right: 50
+    var_ref <expr_ptr> (117)
+        on left: 70 71
+        on right: 37 38 49 69
+    dim_ref_list <std::vector<expr_ptr>> (118)
+        on left: 72 73
+        on right: 71 73
+
+
+Состояние 0
+
+    0 $accept: • program $end
+    1 program: • TOKEN_PROGRAM_OPEN program_items TOKEN_PROGRAM_CLOSE
+
+    TOKEN_PROGRAM_OPEN  сдвиг, и переход в состояние 1
+
+    program  переход в состояние 2
+
+
+Состояние 1
+
+    1 program: TOKEN_PROGRAM_OPEN • program_items TOKEN_PROGRAM_CLOSE
+    2 program_items: ε •
+    3              | • program_items vardecl_block
+    4              | • program_items func_def
+    5              | • program_items error
+
+    $default  вывод с использованием правила 2 (program_items)
+
+    program_items  переход в состояние 3
+
+
+Состояние 2
+
+    0 $accept: program • $end
+
+    $end  сдвиг, и переход в состояние 4
+
+
+Состояние 3
+
+    1 program: TOKEN_PROGRAM_OPEN program_items • TOKEN_PROGRAM_CLOSE
+    3 program_items: program_items • vardecl_block
+    4              | program_items • func_def
+    5              | program_items • error
+    6 vardecl_block: • TOKEN_VARDECL_OPEN var_list TOKEN_VARDECL_CLOSE
+   23 func_def: • TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_MAIN '>' stmt_list TOKEN_FUNC_CLOSE
+   24         | • TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_STRING '>' stmt_list TOKEN_FUNC_CLOSE
+
+    error                сдвиг, и переход в состояние 5
+    TOKEN_PROGRAM_CLOSE  сдвиг, и переход в состояние 6
+    TOKEN_VARDECL_OPEN   сдвиг, и переход в состояние 7
+    TOKEN_FUNC_OPEN      сдвиг, и переход в состояние 8
+
+    vardecl_block  переход в состояние 9
+    func_def       переход в состояние 10
+
+
+Состояние 4
+
+    0 $accept: program $end •
+
+    $default  принять
+
+
+Состояние 5
+
+    5 program_items: program_items error •
+
+    $default  вывод с использованием правила 5 (program_items)
+
+
+Состояние 6
+
+    1 program: TOKEN_PROGRAM_OPEN program_items TOKEN_PROGRAM_CLOSE •
+
+    $default  вывод с использованием правила 1 (program)
+
+
+Состояние 7
+
+    6 vardecl_block: TOKEN_VARDECL_OPEN • var_list TOKEN_VARDECL_CLOSE
+    7 var_list: • var_item
+    8         | • var_list var_item
+    9 var_item: • TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE
+
+    TOKEN_VAR_OPEN  сдвиг, и переход в состояние 11
+
+    var_list  переход в состояние 12
+    var_item  переход в состояние 13
+
+
+Состояние 8
+
+   23 func_def: TOKEN_FUNC_OPEN • TOKEN_NAME_ATTR TOKEN_MAIN '>' stmt_list TOKEN_FUNC_CLOSE
+   24         | TOKEN_FUNC_OPEN • TOKEN_NAME_ATTR TOKEN_STRING '>' stmt_list TOKEN_FUNC_CLOSE
+
+    TOKEN_NAME_ATTR  сдвиг, и переход в состояние 14
+
+
+Состояние 9
+
+    3 program_items: program_items vardecl_block •
+
+    $default  вывод с использованием правила 3 (program_items)
+
+
+Состояние 10
+
+    4 program_items: program_items func_def •
+
+    $default  вывод с использованием правила 4 (program_items)
+
+
+Состояние 11
+
+    9 var_item: TOKEN_VAR_OPEN • TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE
+
+    TOKEN_NAME_ATTR  сдвиг, и переход в состояние 15
+
+
+Состояние 12
+
+    6 vardecl_block: TOKEN_VARDECL_OPEN var_list • TOKEN_VARDECL_CLOSE
+    8 var_list: var_list • var_item
+    9 var_item: • TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE
+
+    TOKEN_VARDECL_CLOSE  сдвиг, и переход в состояние 16
+    TOKEN_VAR_OPEN       сдвиг, и переход в состояние 11
+
+    var_item  переход в состояние 17
+
+
+Состояние 13
+
+    7 var_list: var_item •
+
+    $default  вывод с использованием правила 7 (var_list)
+
+
+Состояние 14
+
+   23 func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR • TOKEN_MAIN '>' stmt_list TOKEN_FUNC_CLOSE
+   24         | TOKEN_FUNC_OPEN TOKEN_NAME_ATTR • TOKEN_STRING '>' stmt_list TOKEN_FUNC_CLOSE
+
+    TOKEN_MAIN    сдвиг, и переход в состояние 18
+    TOKEN_STRING  сдвиг, и переход в состояние 19
+
+
+Состояние 15
+
+    9 var_item: TOKEN_VAR_OPEN TOKEN_NAME_ATTR • TOKEN_STRING opt_const '>' type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE
+
+    TOKEN_STRING  сдвиг, и переход в состояние 20
+
+
+Состояние 16
+
+    6 vardecl_block: TOKEN_VARDECL_OPEN var_list TOKEN_VARDECL_CLOSE •
+
+    $default  вывод с использованием правила 6 (vardecl_block)
+
+
+Состояние 17
+
+    8 var_list: var_list var_item •
+
+    $default  вывод с использованием правила 8 (var_list)
+
+
+Состояние 18
+
+   23 func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_MAIN • '>' stmt_list TOKEN_FUNC_CLOSE
+
+    '>'  сдвиг, и переход в состояние 21
+
+
+Состояние 19
+
+   24 func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_STRING • '>' stmt_list TOKEN_FUNC_CLOSE
+
+    '>'  сдвиг, и переход в состояние 22
+
+
+Состояние 20
+
+    9 var_item: TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING • opt_const '>' type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE
+   10 opt_const: • TOKEN_CONST TOKEN_BOOL
+   11          | ε •  ['>']
+
+    TOKEN_CONST  сдвиг, и переход в состояние 23
+
+    $default  вывод с использованием правила 11 (opt_const)
+
+    opt_const  переход в состояние 24
+
+
+Состояние 21
+
+   23 func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_MAIN '>' • stmt_list TOKEN_FUNC_CLOSE
+   25 stmt_list: ε •
+   26          | • stmt_list stmt
+   27          | • stmt_list error
+
+    $default  вывод с использованием правила 25 (stmt_list)
+
+    stmt_list  переход в состояние 25
+
+
+Состояние 22
+
+   24 func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_STRING '>' • stmt_list TOKEN_FUNC_CLOSE
+   25 stmt_list: ε •
+   26          | • stmt_list stmt
+   27          | • stmt_list error
+
+    $default  вывод с использованием правила 25 (stmt_list)
+
+    stmt_list  переход в состояние 26
+
+
+Состояние 23
+
+   10 opt_const: TOKEN_CONST • TOKEN_BOOL
+
+    TOKEN_BOOL  сдвиг, и переход в состояние 27
+
+
+Состояние 24
+
+    9 var_item: TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const • '>' type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE
+
+    '>'  сдвиг, и переход в состояние 28
+
+
+Состояние 25
+
+   23 func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_MAIN '>' stmt_list • TOKEN_FUNC_CLOSE
+   26 stmt_list: stmt_list • stmt
+   27          | stmt_list • error
+   28 stmt: • assign_stmt
+   29     | • while_stmt
+   30     | • switch_stmt
+   31     | • move_stmt
+   32     | • call_stmt
+   33     | • getdrons_stmt
+   34     | • expr_stmt
+   35 expr_stmt: • expr
+   36 assign_stmt: • TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+   39 while_stmt: • TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+   40 switch_stmt: • TOKEN_SWITCH_OPEN cond_list TOKEN_SWITCH_CLOSE
+   44 move_stmt: • TOKEN_LEFT_OPEN expr TOKEN_LEFT_CLOSE
+   45          | • TOKEN_RIGHT_OPEN expr TOKEN_RIGHT_CLOSE
+   46          | • TOKEN_UP_OPEN expr TOKEN_UP_CLOSE
+   47          | • TOKEN_DOWN_OPEN expr TOKEN_DOWN_CLOSE
+   48 call_stmt: • TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE
+   49 getdrons_stmt: • TOKEN_GETDRONSCOUNT_OPEN var_ref TOKEN_GETDRONSCOUNT_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    error                     сдвиг, и переход в состояние 29
+    TOKEN_FUNC_CLOSE          сдвиг, и переход в состояние 30
+    TOKEN_CALL_OPEN           сдвиг, и переход в состояние 31
+    TOKEN_CELL_VALUE          сдвиг, и переход в состояние 32
+    TOKEN_ASSIGN_OPEN         сдвиг, и переход в состояние 33
+    TOKEN_WHILE_OPEN          сдвиг, и переход в состояние 34
+    TOKEN_SWITCH_OPEN         сдвиг, и переход в состояние 35
+    TOKEN_LEFT_OPEN           сдвиг, и переход в состояние 36
+    TOKEN_RIGHT_OPEN          сдвиг, и переход в состояние 37
+    TOKEN_UP_OPEN             сдвиг, и переход в состояние 38
+    TOKEN_DOWN_OPEN           сдвиг, и переход в состояние 39
+    TOKEN_SENDDRONS_OPEN      сдвиг, и переход в состояние 40
+    TOKEN_GETDRONSCOUNT_OPEN  сдвиг, и переход в состояние 41
+    TOKEN_ADD_OPEN            сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN            сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN            сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN            сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN            сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN             сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN            сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN            сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN            сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN             сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT            сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT             сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER          сдвиг, и переход в состояние 54
+
+    stmt           переход в состояние 55
+    expr_stmt      переход в состояние 56
+    assign_stmt    переход в состояние 57
+    while_stmt     переход в состояние 58
+    switch_stmt    переход в состояние 59
+    move_stmt      переход в состояние 60
+    call_stmt      переход в состояние 61
+    getdrons_stmt  переход в состояние 62
+    expr           переход в состояние 63
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 26
+
+   24 func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_STRING '>' stmt_list • TOKEN_FUNC_CLOSE
+   26 stmt_list: stmt_list • stmt
+   27          | stmt_list • error
+   28 stmt: • assign_stmt
+   29     | • while_stmt
+   30     | • switch_stmt
+   31     | • move_stmt
+   32     | • call_stmt
+   33     | • getdrons_stmt
+   34     | • expr_stmt
+   35 expr_stmt: • expr
+   36 assign_stmt: • TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+   39 while_stmt: • TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+   40 switch_stmt: • TOKEN_SWITCH_OPEN cond_list TOKEN_SWITCH_CLOSE
+   44 move_stmt: • TOKEN_LEFT_OPEN expr TOKEN_LEFT_CLOSE
+   45          | • TOKEN_RIGHT_OPEN expr TOKEN_RIGHT_CLOSE
+   46          | • TOKEN_UP_OPEN expr TOKEN_UP_CLOSE
+   47          | • TOKEN_DOWN_OPEN expr TOKEN_DOWN_CLOSE
+   48 call_stmt: • TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE
+   49 getdrons_stmt: • TOKEN_GETDRONSCOUNT_OPEN var_ref TOKEN_GETDRONSCOUNT_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    error                     сдвиг, и переход в состояние 29
+    TOKEN_FUNC_CLOSE          сдвиг, и переход в состояние 66
+    TOKEN_CALL_OPEN           сдвиг, и переход в состояние 31
+    TOKEN_CELL_VALUE          сдвиг, и переход в состояние 32
+    TOKEN_ASSIGN_OPEN         сдвиг, и переход в состояние 33
+    TOKEN_WHILE_OPEN          сдвиг, и переход в состояние 34
+    TOKEN_SWITCH_OPEN         сдвиг, и переход в состояние 35
+    TOKEN_LEFT_OPEN           сдвиг, и переход в состояние 36
+    TOKEN_RIGHT_OPEN          сдвиг, и переход в состояние 37
+    TOKEN_UP_OPEN             сдвиг, и переход в состояние 38
+    TOKEN_DOWN_OPEN           сдвиг, и переход в состояние 39
+    TOKEN_SENDDRONS_OPEN      сдвиг, и переход в состояние 40
+    TOKEN_GETDRONSCOUNT_OPEN  сдвиг, и переход в состояние 41
+    TOKEN_ADD_OPEN            сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN            сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN            сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN            сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN            сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN             сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN            сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN            сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN            сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN             сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT            сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT             сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER          сдвиг, и переход в состояние 54
+
+    stmt           переход в состояние 55
+    expr_stmt      переход в состояние 56
+    assign_stmt    переход в состояние 57
+    while_stmt     переход в состояние 58
+    switch_stmt    переход в состояние 59
+    move_stmt      переход в состояние 60
+    call_stmt      переход в состояние 61
+    getdrons_stmt  переход в состояние 62
+    expr           переход в состояние 63
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 27
+
+   10 opt_const: TOKEN_CONST TOKEN_BOOL •
+
+    $default  вывод с использованием правила 10 (opt_const)
+
+
+Состояние 28
+
+    9 var_item: TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' • type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE
+   12 type_spec: • TOKEN_TYPE_OPEN TOKEN_TYPE_INT TOKEN_TYPE_CLOSE
+   13          | • TOKEN_TYPE_OPEN TOKEN_TYPE_BOOL TOKEN_TYPE_CLOSE
+   14          | • TOKEN_TYPE_OPEN TOKEN_TYPE_CELL TOKEN_TYPE_CLOSE
+
+    TOKEN_TYPE_OPEN  сдвиг, и переход в состояние 67
+
+    type_spec  переход в состояние 68
+
+
+Состояние 29
+
+   27 stmt_list: stmt_list error •
+
+    $default  вывод с использованием правила 27 (stmt_list)
+
+
+Состояние 30
+
+   23 func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_MAIN '>' stmt_list TOKEN_FUNC_CLOSE •
+
+    $default  вывод с использованием правила 23 (func_def)
+
+
+Состояние 31
+
+   48 call_stmt: TOKEN_CALL_OPEN • TOKEN_STRING TOKEN_CALL_CLOSE
+
+    TOKEN_STRING  сдвиг, и переход в состояние 69
+
+
+Состояние 32
+
+   68 primary_expr: TOKEN_CELL_VALUE •
+
+    $default  вывод с использованием правила 68 (primary_expr)
+
+
+Состояние 33
+
+   36 assign_stmt: TOKEN_ASSIGN_OPEN • TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+
+    TOKEN_VALUE_OPEN  сдвиг, и переход в состояние 70
+
+
+Состояние 34
+
+   39 while_stmt: TOKEN_WHILE_OPEN • TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+
+    TOKEN_CHECK_OPEN  сдвиг, и переход в состояние 71
+
+
+Состояние 35
+
+   40 switch_stmt: TOKEN_SWITCH_OPEN • cond_list TOKEN_SWITCH_CLOSE
+   41 cond_list: • cond_branch
+   42          | • cond_list cond_branch
+   43 cond_branch: • TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
+
+    TOKEN_CONDITION_OPEN  сдвиг, и переход в состояние 72
+
+    cond_list    переход в состояние 73
+    cond_branch  переход в состояние 74
+
+
+Состояние 36
+
+   44 move_stmt: TOKEN_LEFT_OPEN • expr TOKEN_LEFT_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 75
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 37
+
+   45 move_stmt: TOKEN_RIGHT_OPEN • expr TOKEN_RIGHT_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 76
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 38
+
+   46 move_stmt: TOKEN_UP_OPEN • expr TOKEN_UP_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 77
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 39
+
+   47 move_stmt: TOKEN_DOWN_OPEN • expr TOKEN_DOWN_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 78
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 40
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   61     | TOKEN_SENDDRONS_OPEN • expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 79
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 41
+
+   49 getdrons_stmt: TOKEN_GETDRONSCOUNT_OPEN • var_ref TOKEN_GETDRONSCOUNT_CLOSE
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_IDENTIFIER  сдвиг, и переход в состояние 54
+
+    var_ref  переход в состояние 80
+
+
+Состояние 42
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   51     | TOKEN_ADD_OPEN • opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   62 opt_expr_list: ε •  [TOKEN_ADD_CLOSE]
+   63              | • expr_list
+   64 expr_list: • expr
+   65          | • expr_list expr
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    $default  вывод с использованием правила 62 (opt_expr_list)
+
+    expr           переход в состояние 81
+    opt_expr_list  переход в состояние 82
+    expr_list      переход в состояние 83
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 43
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   52     | TOKEN_MUL_OPEN • opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   62 opt_expr_list: ε •  [TOKEN_MUL_CLOSE]
+   63              | • expr_list
+   64 expr_list: • expr
+   65          | • expr_list expr
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    $default  вывод с использованием правила 62 (opt_expr_list)
+
+    expr           переход в состояние 81
+    opt_expr_list  переход в состояние 84
+    expr_list      переход в состояние 83
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 44
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   53     | TOKEN_SUB_OPEN • expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 85
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 45
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   54     | TOKEN_DIV_OPEN • expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 86
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 46
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   57     | TOKEN_NOT_OPEN • expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 87
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 47
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   56     | TOKEN_OR_OPEN • opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   62 opt_expr_list: ε •  [TOKEN_OR_CLOSE]
+   63              | • expr_list
+   64 expr_list: • expr
+   65          | • expr_list expr
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    $default  вывод с использованием правила 62 (opt_expr_list)
+
+    expr           переход в состояние 81
+    opt_expr_list  переход в состояние 88
+    expr_list      переход в состояние 83
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 48
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   55     | TOKEN_AND_OPEN • opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   62 opt_expr_list: ε •  [TOKEN_AND_CLOSE]
+   63              | • expr_list
+   64 expr_list: • expr
+   65          | • expr_list expr
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    $default  вывод с использованием правила 62 (opt_expr_list)
+
+    expr           переход в состояние 81
+    opt_expr_list  переход в состояние 89
+    expr_list      переход в состояние 83
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 49
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   59     | TOKEN_MAX_OPEN • opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   62 opt_expr_list: ε •  [TOKEN_MAX_CLOSE]
+   63              | • expr_list
+   64 expr_list: • expr
+   65          | • expr_list expr
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    $default  вывод с использованием правила 62 (opt_expr_list)
+
+    expr           переход в состояние 81
+    opt_expr_list  переход в состояние 90
+    expr_list      переход в состояние 83
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 50
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   60     | TOKEN_MIN_OPEN • opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   62 opt_expr_list: ε •  [TOKEN_MIN_CLOSE]
+   63              | • expr_list
+   64 expr_list: • expr
+   65          | • expr_list expr
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    $default  вывод с использованием правила 62 (opt_expr_list)
+
+    expr           переход в состояние 81
+    opt_expr_list  переход в состояние 91
+    expr_list      переход в состояние 83
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 51
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   58     | TOKEN_EQ_OPEN • opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   62 opt_expr_list: ε •  [TOKEN_EQ_CLOSE]
+   63              | • expr_list
+   64 expr_list: • expr
+   65          | • expr_list expr
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    $default  вывод с использованием правила 62 (opt_expr_list)
+
+    expr           переход в состояние 81
+    opt_expr_list  переход в состояние 92
+    expr_list      переход в состояние 83
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 52
+
+   67 primary_expr: TOKEN_BOOL_LIT •
+
+    $default  вывод с использованием правила 67 (primary_expr)
+
+
+Состояние 53
+
+   66 primary_expr: TOKEN_INT_LIT •
+
+    $default  вывод с использованием правила 66 (primary_expr)
+
+
+Состояние 54
+
+   70 var_ref: TOKEN_IDENTIFIER •  [error, TOKEN_FUNC_CLOSE, TOKEN_CALL_OPEN, TOKEN_CELL_VALUE, TOKEN_VALUE_CLOSE, TOKEN_INDEX_CLOSE, TOKEN_ASSIGN_OPEN, TOKEN_TO_CLOSE, TOKEN_WHILE_OPEN, TOKEN_DO_CLOSE, TOKEN_CHECK_CLOSE, TOKEN_SWITCH_OPEN, TOKEN_LEFT_OPEN, TOKEN_LEFT_CLOSE, TOKEN_RIGHT_OPEN, TOKEN_RIGHT_CLOSE, TOKEN_UP_OPEN, TOKEN_UP_CLOSE, TOKEN_DOWN_OPEN, TOKEN_DOWN_CLOSE, TOKEN_SENDDRONS_OPEN, TOKEN_SENDDRONS_CLOSE, TOKEN_GETDRONSCOUNT_OPEN, TOKEN_GETDRONSCOUNT_CLOSE, TOKEN_ADD_OPEN, TOKEN_ADD_CLOSE, TOKEN_MUL_OPEN, TOKEN_MUL_CLOSE, TOKEN_SUB_OPEN, TOKEN_SUB_CLOSE, TOKEN_DIV_OPEN, TOKEN_DIV_CLOSE, TOKEN_NOT_OPEN, TOKEN_NOT_CLOSE, TOKEN_OR_OPEN, TOKEN_OR_CLOSE, TOKEN_AND_OPEN, TOKEN_AND_CLOSE, TOKEN_MAX_OPEN, TOKEN_MAX_CLOSE, TOKEN_MIN_OPEN, TOKEN_MIN_CLOSE, TOKEN_EQ_OPEN, TOKEN_EQ_CLOSE, TOKEN_BOOL_LIT, TOKEN_INT_LIT, TOKEN_IDENTIFIER]
+   71        | TOKEN_IDENTIFIER • dim_ref_list
+   72 dim_ref_list: • TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+   73             | • dim_ref_list TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+
+    TOKEN_DIM_OPEN  сдвиг, и переход в состояние 93
+
+    $default  вывод с использованием правила 70 (var_ref)
+
+    dim_ref_list  переход в состояние 94
+
+
+Состояние 55
+
+   26 stmt_list: stmt_list stmt •
+
+    $default  вывод с использованием правила 26 (stmt_list)
+
+
+Состояние 56
+
+   34 stmt: expr_stmt •
+
+    $default  вывод с использованием правила 34 (stmt)
+
+
+Состояние 57
+
+   28 stmt: assign_stmt •
+
+    $default  вывод с использованием правила 28 (stmt)
+
+
+Состояние 58
+
+   29 stmt: while_stmt •
+
+    $default  вывод с использованием правила 29 (stmt)
+
+
+Состояние 59
+
+   30 stmt: switch_stmt •
+
+    $default  вывод с использованием правила 30 (stmt)
+
+
+Состояние 60
+
+   31 stmt: move_stmt •
+
+    $default  вывод с использованием правила 31 (stmt)
+
+
+Состояние 61
+
+   32 stmt: call_stmt •
+
+    $default  вывод с использованием правила 32 (stmt)
+
+
+Состояние 62
+
+   33 stmt: getdrons_stmt •
+
+    $default  вывод с использованием правила 33 (stmt)
+
+
+Состояние 63
+
+   35 expr_stmt: expr •
+
+    $default  вывод с использованием правила 35 (expr_stmt)
+
+
+Состояние 64
+
+   50 expr: primary_expr •
+
+    $default  вывод с использованием правила 50 (expr)
+
+
+Состояние 65
+
+   69 primary_expr: var_ref •
+
+    $default  вывод с использованием правила 69 (primary_expr)
+
+
+Состояние 66
+
+   24 func_def: TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_STRING '>' stmt_list TOKEN_FUNC_CLOSE •
+
+    $default  вывод с использованием правила 24 (func_def)
+
+
+Состояние 67
+
+   12 type_spec: TOKEN_TYPE_OPEN • TOKEN_TYPE_INT TOKEN_TYPE_CLOSE
+   13          | TOKEN_TYPE_OPEN • TOKEN_TYPE_BOOL TOKEN_TYPE_CLOSE
+   14          | TOKEN_TYPE_OPEN • TOKEN_TYPE_CELL TOKEN_TYPE_CLOSE
+
+    TOKEN_TYPE_INT   сдвиг, и переход в состояние 95
+    TOKEN_TYPE_BOOL  сдвиг, и переход в состояние 96
+    TOKEN_TYPE_CELL  сдвиг, и переход в состояние 97
+
+
+Состояние 68
+
+    9 var_item: TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' type_spec • opt_dimensions opt_init_values TOKEN_VAR_CLOSE
+   15 opt_dimensions: ε •  [TOKEN_VAR_CLOSE, TOKEN_VALUES_OPEN]
+   16               | • TOKEN_DIMENSIONS_OPEN TOKEN_COUNT TOKEN_INT_LIT '>' dims_list TOKEN_DIMENSIONS_CLOSE
+
+    TOKEN_DIMENSIONS_OPEN  сдвиг, и переход в состояние 98
+
+    $default  вывод с использованием правила 15 (opt_dimensions)
+
+    opt_dimensions  переход в состояние 99
+
+
+Состояние 69
+
+   48 call_stmt: TOKEN_CALL_OPEN TOKEN_STRING • TOKEN_CALL_CLOSE
+
+    TOKEN_CALL_CLOSE  сдвиг, и переход в состояние 100
+
+
+Состояние 70
+
+   36 assign_stmt: TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN • expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 101
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 71
+
+   39 while_stmt: TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN • expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 102
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 72
+
+   43 cond_branch: TOKEN_CONDITION_OPEN • TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
+
+    TOKEN_CHECK_OPEN  сдвиг, и переход в состояние 103
+
+
+Состояние 73
+
+   40 switch_stmt: TOKEN_SWITCH_OPEN cond_list • TOKEN_SWITCH_CLOSE
+   42 cond_list: cond_list • cond_branch
+   43 cond_branch: • TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
+
+    TOKEN_SWITCH_CLOSE    сдвиг, и переход в состояние 104
+    TOKEN_CONDITION_OPEN  сдвиг, и переход в состояние 72
+
+    cond_branch  переход в состояние 105
+
+
+Состояние 74
+
+   41 cond_list: cond_branch •
+
+    $default  вывод с использованием правила 41 (cond_list)
+
+
+Состояние 75
+
+   44 move_stmt: TOKEN_LEFT_OPEN expr • TOKEN_LEFT_CLOSE
+
+    TOKEN_LEFT_CLOSE  сдвиг, и переход в состояние 106
+
+
+Состояние 76
+
+   45 move_stmt: TOKEN_RIGHT_OPEN expr • TOKEN_RIGHT_CLOSE
+
+    TOKEN_RIGHT_CLOSE  сдвиг, и переход в состояние 107
+
+
+Состояние 77
+
+   46 move_stmt: TOKEN_UP_OPEN expr • TOKEN_UP_CLOSE
+
+    TOKEN_UP_CLOSE  сдвиг, и переход в состояние 108
+
+
+Состояние 78
+
+   47 move_stmt: TOKEN_DOWN_OPEN expr • TOKEN_DOWN_CLOSE
+
+    TOKEN_DOWN_CLOSE  сдвиг, и переход в состояние 109
+
+
+Состояние 79
+
+   61 expr: TOKEN_SENDDRONS_OPEN expr • TOKEN_SENDDRONS_CLOSE
+
+    TOKEN_SENDDRONS_CLOSE  сдвиг, и переход в состояние 110
+
+
+Состояние 80
+
+   49 getdrons_stmt: TOKEN_GETDRONSCOUNT_OPEN var_ref • TOKEN_GETDRONSCOUNT_CLOSE
+
+    TOKEN_GETDRONSCOUNT_CLOSE  сдвиг, и переход в состояние 111
+
+
+Состояние 81
+
+   64 expr_list: expr •
+
+    $default  вывод с использованием правила 64 (expr_list)
+
+
+Состояние 82
+
+   51 expr: TOKEN_ADD_OPEN opt_expr_list • TOKEN_ADD_CLOSE
+
+    TOKEN_ADD_CLOSE  сдвиг, и переход в состояние 112
+
+
+Состояние 83
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   63 opt_expr_list: expr_list •  [TOKEN_ADD_CLOSE, TOKEN_MUL_CLOSE, TOKEN_OR_CLOSE, TOKEN_AND_CLOSE, TOKEN_MAX_CLOSE, TOKEN_MIN_CLOSE, TOKEN_EQ_CLOSE]
+   65 expr_list: expr_list • expr
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    $default  вывод с использованием правила 63 (opt_expr_list)
+
+    expr          переход в состояние 113
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 84
+
+   52 expr: TOKEN_MUL_OPEN opt_expr_list • TOKEN_MUL_CLOSE
+
+    TOKEN_MUL_CLOSE  сдвиг, и переход в состояние 114
+
+
+Состояние 85
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   53     | TOKEN_SUB_OPEN expr • expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 115
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 86
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   54     | TOKEN_DIV_OPEN expr • expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 116
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 87
+
+   57 expr: TOKEN_NOT_OPEN expr • TOKEN_NOT_CLOSE
+
+    TOKEN_NOT_CLOSE  сдвиг, и переход в состояние 117
+
+
+Состояние 88
+
+   56 expr: TOKEN_OR_OPEN opt_expr_list • TOKEN_OR_CLOSE
+
+    TOKEN_OR_CLOSE  сдвиг, и переход в состояние 118
+
+
+Состояние 89
+
+   55 expr: TOKEN_AND_OPEN opt_expr_list • TOKEN_AND_CLOSE
+
+    TOKEN_AND_CLOSE  сдвиг, и переход в состояние 119
+
+
+Состояние 90
+
+   59 expr: TOKEN_MAX_OPEN opt_expr_list • TOKEN_MAX_CLOSE
+
+    TOKEN_MAX_CLOSE  сдвиг, и переход в состояние 120
+
+
+Состояние 91
+
+   60 expr: TOKEN_MIN_OPEN opt_expr_list • TOKEN_MIN_CLOSE
+
+    TOKEN_MIN_CLOSE  сдвиг, и переход в состояние 121
+
+
+Состояние 92
+
+   58 expr: TOKEN_EQ_OPEN opt_expr_list • TOKEN_EQ_CLOSE
+
+    TOKEN_EQ_CLOSE  сдвиг, и переход в состояние 122
+
+
+Состояние 93
+
+   72 dim_ref_list: TOKEN_DIM_OPEN • TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+
+    TOKEN_INDEX_OPEN  сдвиг, и переход в состояние 123
+
+
+Состояние 94
+
+   71 var_ref: TOKEN_IDENTIFIER dim_ref_list •  [error, TOKEN_FUNC_CLOSE, TOKEN_CALL_OPEN, TOKEN_CELL_VALUE, TOKEN_VALUE_CLOSE, TOKEN_INDEX_CLOSE, TOKEN_ASSIGN_OPEN, TOKEN_TO_CLOSE, TOKEN_WHILE_OPEN, TOKEN_DO_CLOSE, TOKEN_CHECK_CLOSE, TOKEN_SWITCH_OPEN, TOKEN_LEFT_OPEN, TOKEN_LEFT_CLOSE, TOKEN_RIGHT_OPEN, TOKEN_RIGHT_CLOSE, TOKEN_UP_OPEN, TOKEN_UP_CLOSE, TOKEN_DOWN_OPEN, TOKEN_DOWN_CLOSE, TOKEN_SENDDRONS_OPEN, TOKEN_SENDDRONS_CLOSE, TOKEN_GETDRONSCOUNT_OPEN, TOKEN_GETDRONSCOUNT_CLOSE, TOKEN_ADD_OPEN, TOKEN_ADD_CLOSE, TOKEN_MUL_OPEN, TOKEN_MUL_CLOSE, TOKEN_SUB_OPEN, TOKEN_SUB_CLOSE, TOKEN_DIV_OPEN, TOKEN_DIV_CLOSE, TOKEN_NOT_OPEN, TOKEN_NOT_CLOSE, TOKEN_OR_OPEN, TOKEN_OR_CLOSE, TOKEN_AND_OPEN, TOKEN_AND_CLOSE, TOKEN_MAX_OPEN, TOKEN_MAX_CLOSE, TOKEN_MIN_OPEN, TOKEN_MIN_CLOSE, TOKEN_EQ_OPEN, TOKEN_EQ_CLOSE, TOKEN_BOOL_LIT, TOKEN_INT_LIT, TOKEN_IDENTIFIER]
+   73 dim_ref_list: dim_ref_list • TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+
+    TOKEN_DIM_OPEN  сдвиг, и переход в состояние 124
+
+    $default  вывод с использованием правила 71 (var_ref)
+
+
+Состояние 95
+
+   12 type_spec: TOKEN_TYPE_OPEN TOKEN_TYPE_INT • TOKEN_TYPE_CLOSE
+
+    TOKEN_TYPE_CLOSE  сдвиг, и переход в состояние 125
+
+
+Состояние 96
+
+   13 type_spec: TOKEN_TYPE_OPEN TOKEN_TYPE_BOOL • TOKEN_TYPE_CLOSE
+
+    TOKEN_TYPE_CLOSE  сдвиг, и переход в состояние 126
+
+
+Состояние 97
+
+   14 type_spec: TOKEN_TYPE_OPEN TOKEN_TYPE_CELL • TOKEN_TYPE_CLOSE
+
+    TOKEN_TYPE_CLOSE  сдвиг, и переход в состояние 127
+
+
+Состояние 98
+
+   16 opt_dimensions: TOKEN_DIMENSIONS_OPEN • TOKEN_COUNT TOKEN_INT_LIT '>' dims_list TOKEN_DIMENSIONS_CLOSE
+
+    TOKEN_COUNT  сдвиг, и переход в состояние 128
+
+
+Состояние 99
+
+    9 var_item: TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' type_spec opt_dimensions • opt_init_values TOKEN_VAR_CLOSE
+   19 opt_init_values: ε •  [TOKEN_VAR_CLOSE]
+   20                | • TOKEN_VALUES_OPEN value_list TOKEN_VALUES_CLOSE
+
+    TOKEN_VALUES_OPEN  сдвиг, и переход в состояние 129
+
+    $default  вывод с использованием правила 19 (opt_init_values)
+
+    opt_init_values  переход в состояние 130
+
+
+Состояние 100
+
+   48 call_stmt: TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE •
+
+    $default  вывод с использованием правила 48 (call_stmt)
+
+
+Состояние 101
+
+   36 assign_stmt: TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr • TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+
+    TOKEN_VALUE_CLOSE  сдвиг, и переход в состояние 131
+
+
+Состояние 102
+
+   39 while_stmt: TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr • TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+
+    TOKEN_CHECK_CLOSE  сдвиг, и переход в состояние 132
+
+
+Состояние 103
+
+   43 cond_branch: TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN • expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 133
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 104
+
+   40 switch_stmt: TOKEN_SWITCH_OPEN cond_list TOKEN_SWITCH_CLOSE •
+
+    $default  вывод с использованием правила 40 (switch_stmt)
+
+
+Состояние 105
+
+   42 cond_list: cond_list cond_branch •
+
+    $default  вывод с использованием правила 42 (cond_list)
+
+
+Состояние 106
+
+   44 move_stmt: TOKEN_LEFT_OPEN expr TOKEN_LEFT_CLOSE •
+
+    $default  вывод с использованием правила 44 (move_stmt)
+
+
+Состояние 107
+
+   45 move_stmt: TOKEN_RIGHT_OPEN expr TOKEN_RIGHT_CLOSE •
+
+    $default  вывод с использованием правила 45 (move_stmt)
+
+
+Состояние 108
+
+   46 move_stmt: TOKEN_UP_OPEN expr TOKEN_UP_CLOSE •
+
+    $default  вывод с использованием правила 46 (move_stmt)
+
+
+Состояние 109
+
+   47 move_stmt: TOKEN_DOWN_OPEN expr TOKEN_DOWN_CLOSE •
+
+    $default  вывод с использованием правила 47 (move_stmt)
+
+
+Состояние 110
+
+   61 expr: TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE •
+
+    $default  вывод с использованием правила 61 (expr)
+
+
+Состояние 111
+
+   49 getdrons_stmt: TOKEN_GETDRONSCOUNT_OPEN var_ref TOKEN_GETDRONSCOUNT_CLOSE •
+
+    $default  вывод с использованием правила 49 (getdrons_stmt)
+
+
+Состояние 112
+
+   51 expr: TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE •
+
+    $default  вывод с использованием правила 51 (expr)
+
+
+Состояние 113
+
+   65 expr_list: expr_list expr •
+
+    $default  вывод с использованием правила 65 (expr_list)
+
+
+Состояние 114
+
+   52 expr: TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE •
+
+    $default  вывод с использованием правила 52 (expr)
+
+
+Состояние 115
+
+   53 expr: TOKEN_SUB_OPEN expr expr • TOKEN_SUB_CLOSE
+
+    TOKEN_SUB_CLOSE  сдвиг, и переход в состояние 134
+
+
+Состояние 116
+
+   54 expr: TOKEN_DIV_OPEN expr expr • TOKEN_DIV_CLOSE
+
+    TOKEN_DIV_CLOSE  сдвиг, и переход в состояние 135
+
+
+Состояние 117
+
+   57 expr: TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE •
+
+    $default  вывод с использованием правила 57 (expr)
+
+
+Состояние 118
+
+   56 expr: TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE •
+
+    $default  вывод с использованием правила 56 (expr)
+
+
+Состояние 119
+
+   55 expr: TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE •
+
+    $default  вывод с использованием правила 55 (expr)
+
+
+Состояние 120
+
+   59 expr: TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE •
+
+    $default  вывод с использованием правила 59 (expr)
+
+
+Состояние 121
+
+   60 expr: TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE •
+
+    $default  вывод с использованием правила 60 (expr)
+
+
+Состояние 122
+
+   58 expr: TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE •
+
+    $default  вывод с использованием правила 58 (expr)
+
+
+Состояние 123
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+   72 dim_ref_list: TOKEN_DIM_OPEN TOKEN_INDEX_OPEN • expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 136
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 124
+
+   73 dim_ref_list: dim_ref_list TOKEN_DIM_OPEN • TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+
+    TOKEN_INDEX_OPEN  сдвиг, и переход в состояние 137
+
+
+Состояние 125
+
+   12 type_spec: TOKEN_TYPE_OPEN TOKEN_TYPE_INT TOKEN_TYPE_CLOSE •
+
+    $default  вывод с использованием правила 12 (type_spec)
+
+
+Состояние 126
+
+   13 type_spec: TOKEN_TYPE_OPEN TOKEN_TYPE_BOOL TOKEN_TYPE_CLOSE •
+
+    $default  вывод с использованием правила 13 (type_spec)
+
+
+Состояние 127
+
+   14 type_spec: TOKEN_TYPE_OPEN TOKEN_TYPE_CELL TOKEN_TYPE_CLOSE •
+
+    $default  вывод с использованием правила 14 (type_spec)
+
+
+Состояние 128
+
+   16 opt_dimensions: TOKEN_DIMENSIONS_OPEN TOKEN_COUNT • TOKEN_INT_LIT '>' dims_list TOKEN_DIMENSIONS_CLOSE
+
+    TOKEN_INT_LIT  сдвиг, и переход в состояние 138
+
+
+Состояние 129
+
+   20 opt_init_values: TOKEN_VALUES_OPEN • value_list TOKEN_VALUES_CLOSE
+   21 value_list: • TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE
+   22           | • value_list TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE
+
+    TOKEN_VALUE_OPEN  сдвиг, и переход в состояние 139
+
+    value_list  переход в состояние 140
+
+
+Состояние 130
+
+    9 var_item: TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' type_spec opt_dimensions opt_init_values • TOKEN_VAR_CLOSE
+
+    TOKEN_VAR_CLOSE  сдвиг, и переход в состояние 141
+
+
+Состояние 131
+
+   36 assign_stmt: TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE • TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+
+    TOKEN_TO_OPEN  сдвиг, и переход в состояние 142
+
+
+Состояние 132
+
+   39 while_stmt: TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE • TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+
+    TOKEN_DO_OPEN  сдвиг, и переход в состояние 143
+
+
+Состояние 133
+
+   43 cond_branch: TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr • TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
+
+    TOKEN_CHECK_CLOSE  сдвиг, и переход в состояние 144
+
+
+Состояние 134
+
+   53 expr: TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE •
+
+    $default  вывод с использованием правила 53 (expr)
+
+
+Состояние 135
+
+   54 expr: TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE •
+
+    $default  вывод с использованием правила 54 (expr)
+
+
+Состояние 136
+
+   72 dim_ref_list: TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr • TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+
+    TOKEN_INDEX_CLOSE  сдвиг, и переход в состояние 145
+
+
+Состояние 137
+
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+   73 dim_ref_list: dim_ref_list TOKEN_DIM_OPEN TOKEN_INDEX_OPEN • expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 146
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 138
+
+   16 opt_dimensions: TOKEN_DIMENSIONS_OPEN TOKEN_COUNT TOKEN_INT_LIT • '>' dims_list TOKEN_DIMENSIONS_CLOSE
+
+    '>'  сдвиг, и переход в состояние 147
+
+
+Состояние 139
+
+   21 value_list: TOKEN_VALUE_OPEN • expr TOKEN_VALUE_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 148
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 140
+
+   20 opt_init_values: TOKEN_VALUES_OPEN value_list • TOKEN_VALUES_CLOSE
+   22 value_list: value_list • TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE
+
+    TOKEN_VALUES_CLOSE  сдвиг, и переход в состояние 149
+    TOKEN_VALUE_OPEN    сдвиг, и переход в состояние 150
+
+
+Состояние 141
+
+    9 var_item: TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE •
+
+    $default  вывод с использованием правила 9 (var_item)
+
+
+Состояние 142
+
+   36 assign_stmt: TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN • var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+   37 var_ref_list: • var_ref
+   38             | • var_ref_list var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_IDENTIFIER  сдвиг, и переход в состояние 54
+
+    var_ref_list  переход в состояние 151
+    var_ref       переход в состояние 152
+
+
+Состояние 143
+
+   25 stmt_list: ε •
+   26          | • stmt_list stmt
+   27          | • stmt_list error
+   39 while_stmt: TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN • stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+
+    $default  вывод с использованием правила 25 (stmt_list)
+
+    stmt_list  переход в состояние 153
+
+
+Состояние 144
+
+   43 cond_branch: TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE • TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
+
+    TOKEN_DO_OPEN  сдвиг, и переход в состояние 154
+
+
+Состояние 145
+
+   72 dim_ref_list: TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE • TOKEN_DIM_CLOSE
+
+    TOKEN_DIM_CLOSE  сдвиг, и переход в состояние 155
+
+
+Состояние 146
+
+   73 dim_ref_list: dim_ref_list TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr • TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE
+
+    TOKEN_INDEX_CLOSE  сдвиг, и переход в состояние 156
+
+
+Состояние 147
+
+   16 opt_dimensions: TOKEN_DIMENSIONS_OPEN TOKEN_COUNT TOKEN_INT_LIT '>' • dims_list TOKEN_DIMENSIONS_CLOSE
+   17 dims_list: • TOKEN_DIMENSION_OPEN TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE
+   18          | • dims_list TOKEN_DIMENSION_OPEN TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE
+
+    TOKEN_DIMENSION_OPEN  сдвиг, и переход в состояние 157
+
+    dims_list  переход в состояние 158
+
+
+Состояние 148
+
+   21 value_list: TOKEN_VALUE_OPEN expr • TOKEN_VALUE_CLOSE
+
+    TOKEN_VALUE_CLOSE  сдвиг, и переход в состояние 159
+
+
+Состояние 149
+
+   20 opt_init_values: TOKEN_VALUES_OPEN value_list TOKEN_VALUES_CLOSE •
+
+    $default  вывод с использованием правила 20 (opt_init_values)
+
+
+Состояние 150
+
+   22 value_list: value_list TOKEN_VALUE_OPEN • expr TOKEN_VALUE_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_CELL_VALUE      сдвиг, и переход в состояние 32
+    TOKEN_SENDDRONS_OPEN  сдвиг, и переход в состояние 40
+    TOKEN_ADD_OPEN        сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN        сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN        сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN        сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN        сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN         сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN        сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN        сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN        сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN         сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT        сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT         сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER      сдвиг, и переход в состояние 54
+
+    expr          переход в состояние 160
+    primary_expr  переход в состояние 64
+    var_ref       переход в состояние 65
+
+
+Состояние 151
+
+   36 assign_stmt: TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list • TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+   38 var_ref_list: var_ref_list • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    TOKEN_TO_CLOSE    сдвиг, и переход в состояние 161
+    TOKEN_IDENTIFIER  сдвиг, и переход в состояние 54
+
+    var_ref  переход в состояние 162
+
+
+Состояние 152
+
+   37 var_ref_list: var_ref •
+
+    $default  вывод с использованием правила 37 (var_ref_list)
+
+
+Состояние 153
+
+   26 stmt_list: stmt_list • stmt
+   27          | stmt_list • error
+   28 stmt: • assign_stmt
+   29     | • while_stmt
+   30     | • switch_stmt
+   31     | • move_stmt
+   32     | • call_stmt
+   33     | • getdrons_stmt
+   34     | • expr_stmt
+   35 expr_stmt: • expr
+   36 assign_stmt: • TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+   39 while_stmt: • TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+   39           | TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list • TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+   40 switch_stmt: • TOKEN_SWITCH_OPEN cond_list TOKEN_SWITCH_CLOSE
+   44 move_stmt: • TOKEN_LEFT_OPEN expr TOKEN_LEFT_CLOSE
+   45          | • TOKEN_RIGHT_OPEN expr TOKEN_RIGHT_CLOSE
+   46          | • TOKEN_UP_OPEN expr TOKEN_UP_CLOSE
+   47          | • TOKEN_DOWN_OPEN expr TOKEN_DOWN_CLOSE
+   48 call_stmt: • TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE
+   49 getdrons_stmt: • TOKEN_GETDRONSCOUNT_OPEN var_ref TOKEN_GETDRONSCOUNT_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    error                     сдвиг, и переход в состояние 29
+    TOKEN_CALL_OPEN           сдвиг, и переход в состояние 31
+    TOKEN_CELL_VALUE          сдвиг, и переход в состояние 32
+    TOKEN_ASSIGN_OPEN         сдвиг, и переход в состояние 33
+    TOKEN_WHILE_OPEN          сдвиг, и переход в состояние 34
+    TOKEN_DO_CLOSE            сдвиг, и переход в состояние 163
+    TOKEN_SWITCH_OPEN         сдвиг, и переход в состояние 35
+    TOKEN_LEFT_OPEN           сдвиг, и переход в состояние 36
+    TOKEN_RIGHT_OPEN          сдвиг, и переход в состояние 37
+    TOKEN_UP_OPEN             сдвиг, и переход в состояние 38
+    TOKEN_DOWN_OPEN           сдвиг, и переход в состояние 39
+    TOKEN_SENDDRONS_OPEN      сдвиг, и переход в состояние 40
+    TOKEN_GETDRONSCOUNT_OPEN  сдвиг, и переход в состояние 41
+    TOKEN_ADD_OPEN            сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN            сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN            сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN            сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN            сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN             сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN            сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN            сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN            сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN             сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT            сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT             сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER          сдвиг, и переход в состояние 54
+
+    stmt           переход в состояние 55
+    expr_stmt      переход в состояние 56
+    assign_stmt    переход в состояние 57
+    while_stmt     переход в состояние 58
+    switch_stmt    переход в состояние 59
+    move_stmt      переход в состояние 60
+    call_stmt      переход в состояние 61
+    getdrons_stmt  переход в состояние 62
+    expr           переход в состояние 63
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 154
+
+   25 stmt_list: ε •
+   26          | • stmt_list stmt
+   27          | • stmt_list error
+   43 cond_branch: TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN • stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
+
+    $default  вывод с использованием правила 25 (stmt_list)
+
+    stmt_list  переход в состояние 164
+
+
+Состояние 155
+
+   72 dim_ref_list: TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE •
+
+    $default  вывод с использованием правила 72 (dim_ref_list)
+
+
+Состояние 156
+
+   73 dim_ref_list: dim_ref_list TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE • TOKEN_DIM_CLOSE
+
+    TOKEN_DIM_CLOSE  сдвиг, и переход в состояние 165
+
+
+Состояние 157
+
+   17 dims_list: TOKEN_DIMENSION_OPEN • TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE
+
+    TOKEN_INT_LIT  сдвиг, и переход в состояние 166
+
+
+Состояние 158
+
+   16 opt_dimensions: TOKEN_DIMENSIONS_OPEN TOKEN_COUNT TOKEN_INT_LIT '>' dims_list • TOKEN_DIMENSIONS_CLOSE
+   18 dims_list: dims_list • TOKEN_DIMENSION_OPEN TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE
+
+    TOKEN_DIMENSIONS_CLOSE  сдвиг, и переход в состояние 167
+    TOKEN_DIMENSION_OPEN    сдвиг, и переход в состояние 168
+
+
+Состояние 159
+
+   21 value_list: TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE •
+
+    $default  вывод с использованием правила 21 (value_list)
+
+
+Состояние 160
+
+   22 value_list: value_list TOKEN_VALUE_OPEN expr • TOKEN_VALUE_CLOSE
+
+    TOKEN_VALUE_CLOSE  сдвиг, и переход в состояние 169
+
+
+Состояние 161
+
+   36 assign_stmt: TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE • TOKEN_ASSIGN_CLOSE
+
+    TOKEN_ASSIGN_CLOSE  сдвиг, и переход в состояние 170
+
+
+Состояние 162
+
+   38 var_ref_list: var_ref_list var_ref •
+
+    $default  вывод с использованием правила 38 (var_ref_list)
+
+
+Состояние 163
+
+   39 while_stmt: TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE • TOKEN_WHILE_CLOSE
+
+    TOKEN_WHILE_CLOSE  сдвиг, и переход в состояние 171
+
+
+Состояние 164
+
+   26 stmt_list: stmt_list • stmt
+   27          | stmt_list • error
+   28 stmt: • assign_stmt
+   29     | • while_stmt
+   30     | • switch_stmt
+   31     | • move_stmt
+   32     | • call_stmt
+   33     | • getdrons_stmt
+   34     | • expr_stmt
+   35 expr_stmt: • expr
+   36 assign_stmt: • TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
+   39 while_stmt: • TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
+   40 switch_stmt: • TOKEN_SWITCH_OPEN cond_list TOKEN_SWITCH_CLOSE
+   43 cond_branch: TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list • TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
+   44 move_stmt: • TOKEN_LEFT_OPEN expr TOKEN_LEFT_CLOSE
+   45          | • TOKEN_RIGHT_OPEN expr TOKEN_RIGHT_CLOSE
+   46          | • TOKEN_UP_OPEN expr TOKEN_UP_CLOSE
+   47          | • TOKEN_DOWN_OPEN expr TOKEN_DOWN_CLOSE
+   48 call_stmt: • TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE
+   49 getdrons_stmt: • TOKEN_GETDRONSCOUNT_OPEN var_ref TOKEN_GETDRONSCOUNT_CLOSE
+   50 expr: • primary_expr
+   51     | • TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
+   52     | • TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
+   53     | • TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
+   54     | • TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
+   55     | • TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
+   56     | • TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
+   57     | • TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
+   58     | • TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
+   59     | • TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
+   60     | • TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
+   61     | • TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
+   66 primary_expr: • TOKEN_INT_LIT
+   67             | • TOKEN_BOOL_LIT
+   68             | • TOKEN_CELL_VALUE
+   69             | • var_ref
+   70 var_ref: • TOKEN_IDENTIFIER
+   71        | • TOKEN_IDENTIFIER dim_ref_list
+
+    error                     сдвиг, и переход в состояние 29
+    TOKEN_CALL_OPEN           сдвиг, и переход в состояние 31
+    TOKEN_CELL_VALUE          сдвиг, и переход в состояние 32
+    TOKEN_ASSIGN_OPEN         сдвиг, и переход в состояние 33
+    TOKEN_WHILE_OPEN          сдвиг, и переход в состояние 34
+    TOKEN_DO_CLOSE            сдвиг, и переход в состояние 172
+    TOKEN_SWITCH_OPEN         сдвиг, и переход в состояние 35
+    TOKEN_LEFT_OPEN           сдвиг, и переход в состояние 36
+    TOKEN_RIGHT_OPEN          сдвиг, и переход в состояние 37
+    TOKEN_UP_OPEN             сдвиг, и переход в состояние 38
+    TOKEN_DOWN_OPEN           сдвиг, и переход в состояние 39
+    TOKEN_SENDDRONS_OPEN      сдвиг, и переход в состояние 40
+    TOKEN_GETDRONSCOUNT_OPEN  сдвиг, и переход в состояние 41
+    TOKEN_ADD_OPEN            сдвиг, и переход в состояние 42
+    TOKEN_MUL_OPEN            сдвиг, и переход в состояние 43
+    TOKEN_SUB_OPEN            сдвиг, и переход в состояние 44
+    TOKEN_DIV_OPEN            сдвиг, и переход в состояние 45
+    TOKEN_NOT_OPEN            сдвиг, и переход в состояние 46
+    TOKEN_OR_OPEN             сдвиг, и переход в состояние 47
+    TOKEN_AND_OPEN            сдвиг, и переход в состояние 48
+    TOKEN_MAX_OPEN            сдвиг, и переход в состояние 49
+    TOKEN_MIN_OPEN            сдвиг, и переход в состояние 50
+    TOKEN_EQ_OPEN             сдвиг, и переход в состояние 51
+    TOKEN_BOOL_LIT            сдвиг, и переход в состояние 52
+    TOKEN_INT_LIT             сдвиг, и переход в состояние 53
+    TOKEN_IDENTIFIER          сдвиг, и переход в состояние 54
+
+    stmt           переход в состояние 55
+    expr_stmt      переход в состояние 56
+    assign_stmt    переход в состояние 57
+    while_stmt     переход в состояние 58
+    switch_stmt    переход в состояние 59
+    move_stmt      переход в состояние 60
+    call_stmt      переход в состояние 61
+    getdrons_stmt  переход в состояние 62
+    expr           переход в состояние 63
+    primary_expr   переход в состояние 64
+    var_ref        переход в состояние 65
+
+
+Состояние 165
+
+   73 dim_ref_list: dim_ref_list TOKEN_DIM_OPEN TOKEN_INDEX_OPEN expr TOKEN_INDEX_CLOSE TOKEN_DIM_CLOSE •
+
+    $default  вывод с использованием правила 73 (dim_ref_list)
+
+
+Состояние 166
+
+   17 dims_list: TOKEN_DIMENSION_OPEN TOKEN_INT_LIT • TOKEN_DIMENSION_CLOSE
+
+    TOKEN_DIMENSION_CLOSE  сдвиг, и переход в состояние 173
+
+
+Состояние 167
+
+   16 opt_dimensions: TOKEN_DIMENSIONS_OPEN TOKEN_COUNT TOKEN_INT_LIT '>' dims_list TOKEN_DIMENSIONS_CLOSE •
+
+    $default  вывод с использованием правила 16 (opt_dimensions)
+
+
+Состояние 168
+
+   18 dims_list: dims_list TOKEN_DIMENSION_OPEN • TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE
+
+    TOKEN_INT_LIT  сдвиг, и переход в состояние 174
+
+
+Состояние 169
+
+   22 value_list: value_list TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE •
+
+    $default  вывод с использованием правила 22 (value_list)
+
+
+Состояние 170
+
+   36 assign_stmt: TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE •
+
+    $default  вывод с использованием правила 36 (assign_stmt)
+
+
+Состояние 171
+
+   39 while_stmt: TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE •
+
+    $default  вывод с использованием правила 39 (while_stmt)
+
+
+Состояние 172
+
+   43 cond_branch: TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE • TOKEN_CONDITION_CLOSE
+
+    TOKEN_CONDITION_CLOSE  сдвиг, и переход в состояние 175
+
+
+Состояние 173
+
+   17 dims_list: TOKEN_DIMENSION_OPEN TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE •
+
+    $default  вывод с использованием правила 17 (dims_list)
+
+
+Состояние 174
+
+   18 dims_list: dims_list TOKEN_DIMENSION_OPEN TOKEN_INT_LIT • TOKEN_DIMENSION_CLOSE
+
+    TOKEN_DIMENSION_CLOSE  сдвиг, и переход в состояние 176
+
+
+Состояние 175
+
+   43 cond_branch: TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE •
+
+    $default  вывод с использованием правила 43 (cond_branch)
+
+
+Состояние 176
+
+   18 dims_list: dims_list TOKEN_DIMENSION_OPEN TOKEN_INT_LIT TOKEN_DIMENSION_CLOSE •
+
+    $default  вывод с использованием правила 18 (dims_list)

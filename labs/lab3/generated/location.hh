@@ -31,12 +31,12 @@
 // version 2.2 of Bison.
 
 /**
- ** \file location.hh
+ ** \file generated/location.hh
  ** Define the  yy ::location class.
  */
 
-#ifndef YY_YY_LOCATION_HH_INCLUDED
-# define YY_YY_LOCATION_HH_INCLUDED
+#ifndef YY_YY_GENERATED_LOCATION_HH_INCLUDED
+# define YY_YY_GENERATED_LOCATION_HH_INCLUDED
 
 # include <iostream>
 # include <string>
@@ -53,9 +53,9 @@
 #  endif
 # endif
 
-#line 54 "robot.ypp"
+#line 64 "robot.ypp"
 namespace  yy  {
-#line 59 "location.hh"
+#line 59 "generated/location.hh"
 
   /// A point in a source file.
   class position
@@ -299,8 +299,8 @@ namespace  yy  {
     return ostr;
   }
 
-#line 54 "robot.ypp"
+#line 64 "robot.ypp"
 } //  yy 
-#line 305 "location.hh"
+#line 305 "generated/location.hh"
 
-#endif // !YY_YY_LOCATION_HH_INCLUDED
+#endif // !YY_YY_GENERATED_LOCATION_HH_INCLUDED

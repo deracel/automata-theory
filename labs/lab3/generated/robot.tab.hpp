@@ -32,7 +32,7 @@
 
 
 /**
- ** \file robot.tab.hpp
+ ** \file generated/robot.tab.hpp
  ** Define the  yy ::parser class.
  */
 
@@ -42,8 +42,8 @@
 // especially those whose name start with YY_ or yy_.  They are
 // private implementation details that can be changed or removed.
 
-#ifndef YY_YY_ROBOT_TAB_HPP_INCLUDED
-# define YY_YY_ROBOT_TAB_HPP_INCLUDED
+#ifndef YY_YY_GENERATED_ROBOT_TAB_HPP_INCLUDED
+# define YY_YY_GENERATED_ROBOT_TAB_HPP_INCLUDED
 // "%code requires" blocks.
 #line 8 "robot.ypp"
 
@@ -56,7 +56,7 @@
         class RobotLexer;   // ← ВАЖНО: вернуть эту строку!
     }
 
-#line 60 "robot.tab.hpp"
+#line 60 "generated/robot.tab.hpp"
 
 
 # include <cstdlib> // std::abort
@@ -190,9 +190,9 @@
 # define YYDEBUG 1
 #endif
 
-#line 54 "robot.ypp"
+#line 64 "robot.ypp"
 namespace  yy  {
-#line 196 "robot.tab.hpp"
+#line 196 "generated/robot.tab.hpp"
 
 
 
@@ -2983,7 +2983,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 410,     ///< Last index in yytable_.
+      yylast_ = 358,     ///< Last index in yytable_.
       yynnts_ = 31,  ///< Number of nonterminal symbols.
       yyfinal_ = 4 ///< Termination state number.
     };
@@ -2995,9 +2995,9 @@ switch (yykind)
   };
 
 
-#line 54 "robot.ypp"
+#line 64 "robot.ypp"
 } //  yy 
-#line 3001 "robot.tab.hpp"
+#line 3001 "generated/robot.tab.hpp"
 
 
 // "%code provides" blocks.
@@ -3006,7 +3006,7 @@ switch (yykind)
     void yyerror(const std::string& msg);
     extern yy::RobotLexer* THE_LEXER;
 
-#line 3010 "robot.tab.hpp"
+#line 3010 "generated/robot.tab.hpp"
 
 
-#endif // !YY_YY_ROBOT_TAB_HPP_INCLUDED
+#endif // !YY_YY_GENERATED_ROBOT_TAB_HPP_INCLUDED

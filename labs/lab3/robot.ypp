@@ -2,8 +2,8 @@
 %require "3.0"
 %language "c++"
 
-%defines "robot.tab.hpp"
-%output "robot.tab.cpp"
+%defines "generated/robot.tab.hpp"
+%output "generated/robot.tab.cpp"
 
 %code requires{
     #include <iostream>
@@ -48,6 +48,16 @@
                      yy::RobotLexer& lexer) {
         return lexer.yylex(yylval, loc);
     }
+    static void semantic_error(const std::string& msg){
+        std::cerr << "SEMANTIC ERROR: " << msg << std::endl;
+        //exit(1);
+    }
+    static int product(const std::vector<int>& dims){
+        int p = 1;
+        for (int d : dims) p *= d;
+        return p;
+    }
+
 }
 
 %define api.parser.class { RobotParser }
@@ -241,6 +251,13 @@ var_item:
         $$.type_ = $6;
         $$.dimensions_ = $7;
         $$.init_values_ = $8;
+
+        if (!$$.dimensions_.empty() && !$$.init_values_.empty()){
+            int expected = product($$.dimensions_);
+            if ((int)$$.init_values_.size() != expected){
+                semantic_error("wrong number of initial values for '" + $$.name_ + "'");
+            }
+        }
     }
 ;
 opt_const:
@@ -333,6 +350,9 @@ value_list:
 func_def:
     TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_MAIN '>' stmt_list TOKEN_FUNC_CLOSE
     {
+        if (has_main){
+            semantic_error("multiple definitions of 'main'");
+        }
         $$.name_ = "main";
         $$.body_ = $5;
         $$.is_main_ = true;
@@ -389,6 +409,16 @@ expr_stmt:
 assign_stmt:
     TOKEN_ASSIGN_OPEN TOKEN_VALUE_OPEN expr TOKEN_VALUE_CLOSE TOKEN_TO_OPEN var_ref_list TOKEN_TO_CLOSE TOKEN_ASSIGN_CLOSE
     {
+        for (auto& var : $6){
+            auto it = global_symbols.find(var->var_name_);
+            if (it == global_symbols.end()){
+                semantic_error("assignment to undeclared variable '" + var->var_name_ + "'");
+            }
+            if (it->second.decl_.is_const_){
+                semantic_error("assignment to const variable '" + var->var_name_ + "'");
+            }
+        }
+
         auto st = std::make_shared<StmtNode>(StmtNode::ASSIGN);
         st->value_ = $3;
         st->targets_ = $6;
@@ -421,6 +451,10 @@ var_ref_list:
 while_stmt:
     TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
     {
+        if ($3->value_type_ != ExprNode::TYPE_BOOL){
+            semantic_error("while condition must be boolean");
+        }
+
         auto st = std::make_shared<StmtNode>(StmtNode::WHILE);
         st->while_cond_ = $3;
         st->while_body_ = $6;
@@ -473,6 +507,9 @@ cond_list:
 cond_branch:
     TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
     {
+        if ($3->value_type_ != ExprNode::TYPE_BOOL){
+            semantic_error("condition must be boolean");
+        }
         $$.condition_ = $3;
         $$.body_ = $6;
     }
@@ -525,6 +562,9 @@ move_stmt:
 call_stmt:
     TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE
     {
+        if (functions.find($2) == functions.end()){
+            semantic_error("function '" + $2 + "' not defined");
+        }
         auto st = std::make_shared<StmtNode>(StmtNode::CALL);
         st->call_name_ = $2;
         $$ = st;
@@ -556,77 +596,139 @@ expr:
     }
     | TOKEN_ADD_OPEN opt_expr_list TOKEN_ADD_CLOSE
     {
+        for (auto& arg : $2){
+            if (arg->value_type_ != ExprNode::TYPE_INT){
+                semantic_error("ADD expects integer arguments");
+            }
+        }
+
         auto ad = std::make_shared<ExprNode>(ExprNode::ADD);
         ad->args_ = $2;
+        ad->value_type_ = ExprNode::TYPE_INT;
         $$ = ad;
     }
     | TOKEN_MUL_OPEN opt_expr_list TOKEN_MUL_CLOSE
     {
+        for (auto& arg : $2){
+            if (arg->value_type_ != ExprNode::TYPE_INT){
+                semantic_error("MUL expects integer arguments");
+            }
+        }
+
         auto mu = std::make_shared<ExprNode>(ExprNode::MUL);
         mu->args_ = $2;
+        mu->value_type_ = ExprNode::TYPE_INT;
         $$ = mu;
     }
     | TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
     {
+        if ($2->value_type_ != ExprNode::TYPE_INT ||
+            $3->value_type_ != ExprNode::TYPE_INT){
+            semantic_error("SUB expects integers");
+        }
+
         auto su = std::make_shared<ExprNode>(ExprNode::SUB);
         su->args_.push_back($2);
         su->args_.push_back($3);
+        su->value_type_ = ExprNode::TYPE_INT;
         $$ = su;
     }
     | TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
     {
+        if ($2->value_type_ != ExprNode::TYPE_INT ||
+            $3->value_type_ != ExprNode::TYPE_INT){
+            semantic_error("DIV expects integers");
+        }
+        if ($3->type_ == ExprNode::INT_LIT && $3->int_value_ == 0){
+            semantic_error("division by zero");
+        }
         auto di = std::make_shared<ExprNode>(ExprNode::DIV);
         di->args_.push_back($2);
         di->args_.push_back($3);
+        di->value_type_ = ExprNode::TYPE_INT;
         $$ = di;
     }
     | TOKEN_AND_OPEN opt_expr_list TOKEN_AND_CLOSE
     {
+        for (auto& arg : $2){
+            if (arg->value_type_ != ExprNode::TYPE_BOOL){
+                semantic_error("AND expects boolean arguments");
+            }
+        }
+
         auto a = std::make_shared<ExprNode>(ExprNode::AND);
         a->args_ = $2;
+        a->value_type_ = ExprNode::TYPE_BOOL;
         $$ = a;
     }
     | TOKEN_OR_OPEN opt_expr_list TOKEN_OR_CLOSE
     {
+        for (auto& arg : $2){
+            if (arg->value_type_ != ExprNode::TYPE_BOOL){
+                semantic_error("OR expects boolean arguments");
+            }
+        }
+
         auto o = std::make_shared<ExprNode>(ExprNode::OR);
         o->args_ = $2;
+        o->value_type_ = ExprNode::TYPE_BOOL;
         $$ = o;
     }
     | TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
     {
+        if ($2->value_type_ != ExprNode::TYPE_BOOL){
+            semantic_error("NOT expects boolean");
+        }
+
         auto n = std::make_shared<ExprNode>(ExprNode::NOT);
         n->args_.push_back($2);
+        n->value_type_ = ExprNode::TYPE_BOOL;
         $$ = n;
     }
     | TOKEN_EQ_OPEN opt_expr_list TOKEN_EQ_CLOSE
     {
+        for (size_t i = 1; i < $2.size(); i++){
+            if ($2[i]->value_type_ != $2[0]->value_type_){
+                semantic_error("EQ arguments must have same type");
+            }
+        }
         auto eq = std::make_shared<ExprNode>(ExprNode::EQ);
         eq->args_ = $2;
+        eq->value_type_ = ExprNode::TYPE_BOOL;
         $$ = eq;
     }
     | TOKEN_MAX_OPEN opt_expr_list TOKEN_MAX_CLOSE
     {
+        for (auto& arg : $2){
+            if (arg->value_type_ != ExprNode::TYPE_INT){
+                semantic_error("MAX expects integer arguments");
+            }
+        }
+
         auto ma = std::make_shared<ExprNode>(ExprNode::MAX);
         ma->args_ = $2;
+        ma->value_type_ = ExprNode::TYPE_INT;
         $$ = ma;
     }
     | TOKEN_MIN_OPEN opt_expr_list TOKEN_MIN_CLOSE
     {
+        for (auto& arg : $2){
+            if (arg->value_type_ != ExprNode::TYPE_INT){
+                semantic_error("MIN expects integer arguments");
+            }
+        }
+
         auto mi = std::make_shared<ExprNode>(ExprNode::MIN);
         mi->args_ = $2;
+        mi->value_type_ = ExprNode::TYPE_INT;
         $$ = mi;
     }
     | TOKEN_SENDDRONS_OPEN expr TOKEN_SENDDRONS_CLOSE
     {
         auto drons = std::make_shared<ExprNode>(ExprNode::SENDDRONS);
         drons->args_.push_back($2);
+        drons->value_type_ = ExprNode::TYPE_INT;
         $$ = drons;
-    }
-    | TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE
-    {
-        auto call = std::make_shared<ExprNode>(ExprNode::CALL);
-        call->var_name_ = $2;
-        $$ = call;
     }
 ;
 
@@ -682,12 +784,44 @@ primary_expr:
 var_ref:
     TOKEN_IDENTIFIER
     {
+        if (global_symbols.find($1) == global_symbols.end()){
+            semantic_error("variable '" + $1 + "' not declared");
+        }
+
         auto iden = ExprNode::make_var_ref($1);
+        auto& decl = global_symbols[$1].decl_;
+
+        switch (decl.type_) {
+            case VarDecl::INT:  iden->value_type_ = ExprNode::TYPE_INT; break;
+            case VarDecl::BOOL: iden->value_type_ = ExprNode::TYPE_BOOL; break;
+            case VarDecl::CELL: iden->value_type_ = ExprNode::TYPE_CELL; break;
+            default: iden->value_type_ = ExprNode::TYPE_UNKNOWN;
+        }
+
         $$ = iden;
     }
     | TOKEN_IDENTIFIER dim_ref_list
     {
+        if (global_symbols.find($1) == global_symbols.end()){
+            semantic_error("variable '" + $1 + "' not declared");
+        }
+        auto& decl = global_symbols[$1].decl_;
+        if ($2.size() != decl.dimensions_.size()){
+            semantic_error("wrong number of indices for '" + $1 + "'");
+        }
+        for (auto& idx : $2) {
+            if (idx->value_type_ != ExprNode::TYPE_INT){
+                semantic_error("array index must be integer");
+            }
+        }
         auto iden = ExprNode::make_var_ref($1);
+        switch (decl.type_) {
+            case VarDecl::INT:  iden->value_type_ = ExprNode::TYPE_INT; break;
+            case VarDecl::BOOL: iden->value_type_ = ExprNode::TYPE_BOOL; break;
+            case VarDecl::CELL: iden->value_type_ = ExprNode::TYPE_CELL; break;
+            default: iden->value_type_ = ExprNode::TYPE_UNKNOWN;
+        }
+
         for (auto& idx : $2) {
             iden->indices_.push_back(idx);
         }
