@@ -3,12 +3,13 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <memory>
 #include <map>
 #include <variant>
 
-// Forward declaration
+
 struct ExprNode;
 using expr_ptr = std::shared_ptr<ExprNode>;
 
@@ -19,7 +20,6 @@ enum class CellValue {
     UNDEF = 3
 };
 
-// Узел выражения
 struct ExprNode {
     enum Type {
         INT_LIT, BOOL_LIT, CELL_LIT,
@@ -49,7 +49,7 @@ struct ExprNode {
     std::vector<expr_ptr> indices_;
     std::vector<expr_ptr> args_;
 
-    ExprNode(Type t) : type_(t) {}
+    explicit ExprNode(Type t) : type_(t) {}
 
     static expr_ptr make_int(int val) {
         auto node = std::make_shared<ExprNode>(INT_LIT);
@@ -76,7 +76,6 @@ struct ExprNode {
     }
 };
 
-// Описание переменной
 struct VarDecl {
     std::string name_;
     bool is_const_ = false;
@@ -86,10 +85,9 @@ struct VarDecl {
     std::vector<expr_ptr> init_values_;
 
     VarDecl() = default;
-    VarDecl(const std::string& n, bool c, VarType t) : name_(n), is_const_(c), type_(t) {}
+    VarDecl(std::string  n, bool c, VarType t) : name_(std::move(n)), is_const_(c), type_(t) {}
 };
 
-// Forward declaration
 struct StmtNode;
 using stmt_ptr = std::shared_ptr<StmtNode>;
 
@@ -130,18 +128,24 @@ struct StmtNode {
     std::string call_name_;
 
     // GETDRONSCOUNT
-    expr_ptr dron_target_;
+    expr_ptr dron_target_;  // переменная куда записывается количество дронов
 
     // EXPR
     expr_ptr expr_val_;
 
-    StmtNode(Type t) : type_(t) {}
+    explicit StmtNode(Type t) : type_(t) {}
 };
 
 struct FuncDecl {
     std::string name_;
     std::vector<stmt_ptr> body_;
     bool is_main_ = false;
+};
+
+struct SymbolInfo {
+    VarDecl decl_;
+    std::vector<int> array_value_;
+    bool initialized_ = false;
 };
 
 #endif

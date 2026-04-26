@@ -20,11 +20,6 @@ extern std::map<std::string, struct SymbolInfo> global_symbols;
 extern std::map<std::string, FuncDecl> functions;
 
 
-struct SymbolInfo {
-    VarDecl decl_;
-    std::vector<int> array_value_;
-    bool initialized_ = false;
-};
 
 class Interpreter {
 private:
@@ -35,7 +30,7 @@ private:
 
     int robot_x = 0;
     int robot_y = 0;
-    int drone_count = 10;
+    int drone_count = 100;
     bool robot_broken = false;
     bool robot_escaped = false;
 
@@ -257,8 +252,25 @@ private:
         }
 
         Value v;
-        v.type_ = Value::INT;
-        v.int_val_ = sym.array_value_[flat_index];
+        switch (sym.decl_.type_) {
+        case VarDecl::INT:
+            v.type_ = Value::INT;
+            v.int_val_ = sym.array_value_[flat_index];
+            break;
+
+        case VarDecl::BOOL:
+            v.type_ = Value::BOOL;
+            v.bool_val_ = static_cast<bool>(sym.array_value_[flat_index]);
+            break;
+
+        case VarDecl::CELL:
+            v.type_ = Value::CELL;
+            v.cell_val_ = static_cast<CellValue>(sym.array_value_[flat_index]);
+            break;
+
+        default:
+            v.type_ = Value::UNDEF;
+        }
         return v;
     }
 
@@ -273,7 +285,7 @@ private:
         }
 
         std::uniform_int_distribution<int> dir_dist(0, 3);  // рандомная дистанция
-        std::uniform_int_distribution<int> step_dist(1, 5); // рандомное количество шагов
+        std::uniform_int_distribution<int> step_dist(3, 5); // рандомное количество шагов
 
         std::vector<json> drone_paths;
 
@@ -312,7 +324,6 @@ private:
 
         drone_count -= num_drones;
 
-        // отправка в Go
         send_to_go({
             {"command", "drones_launched"},
             {"count", num_drones},
@@ -330,6 +341,7 @@ private:
                 int x = p["x"];
                 int y = p["y"];
                 scan[y * FIELD_WIDTH + x] = field[y][x];
+                std::cerr << "field[" << y << "]" << "[" << x << "]" << " == " << field[y][x] << std::endl;
             }
         }
 
@@ -347,8 +359,7 @@ private:
             throw std::runtime_error("Function not found: " + node->var_name_);
         }
 
-        // создаём новую область видимости
-        scopes_.push_back(scopes_.back());
+        scopes_.push_back({});
 
         execute_stmt_list(it->second.body_);
 
@@ -400,7 +411,6 @@ private:
         else if (value.type_ == Value::BOOL) int_val = value.bool_val_;
         else if (value.type_ == Value::CELL) int_val = (int)value.cell_val_;
 
-        std::cout << "Я ТУТА\n";
         if (target->indices_.empty()) {
             if (sym.array_value_.empty()) {
                 sym.array_value_.push_back(int_val);
@@ -493,12 +503,10 @@ private:
             case StmtNode::DOWN:  dy = 1;  dir_name = "down"; break;
         }
 
-        // Двигаем робота пошагово
         for (int i = 0; i < distance; i++) {
             int new_x = robot_x + dx;
             int new_y = robot_y + dy;
 
-            // Проверка границ
             if (new_x < 0 || new_x >= FIELD_WIDTH ||
                 new_y < 0 || new_y >= FIELD_HEIGHT) {
 
@@ -516,7 +524,6 @@ private:
                 return;
             }
 
-            // Проверка стены
             if (field[new_y][new_x] == 1) {
                 send_to_go({
                     {"command", "robot_status"},
@@ -535,7 +542,6 @@ private:
             robot_x = new_x;
             robot_y = new_y;
 
-            // Отправляем позицию в Go
             send_to_go({
                 {"command", "robot_move"},
                 {"x", robot_x},
@@ -546,7 +552,6 @@ private:
             std::cout << "Robot moved to (" << robot_x << ","
                       << robot_y << ")" << std::endl;
 
-            // Проверка выхода
             if (field[robot_y][robot_x] == 2) {
                 send_to_go({
                     {"command", "robot_status"},
@@ -575,7 +580,7 @@ private:
             {"name", stmt->call_name_}
         });
 
-        scopes_.push_back(scopes_.back());
+        scopes_.push_back({});
 
         execute_stmt_list(it->second.body_);
 
@@ -596,10 +601,8 @@ public:
     Interpreter(FILE* go_stdin = nullptr)
         : go_stdin(go_stdin), rng(std::random_device{}()) {
 
-        // Инициализация поля
         load_field("map.txt");
 
-        // Отправляем карту в Go
         json field_json = json::array();
         for (int y = 0; y < FIELD_HEIGHT; y++) {
             json row = json::array();
@@ -609,7 +612,7 @@ public:
             field_json.push_back(row);
         }
 
-        scopes_.push_back(global_symbols);
+        scopes_.push_back({});
         send_to_go({
             {"command", "init"},
             {"width", FIELD_WIDTH},
@@ -693,7 +696,6 @@ public:
     }
 
     SymbolInfo& find_variable(const std::string& name) {
-        std::cout << "NAME = " << name << std::endl;
         for (auto it = scopes_.rbegin(); it != scopes_.rend(); ++it) {
             auto found = it->find(name);
             if (found != it->end()) {
@@ -702,7 +704,6 @@ public:
         }
         auto found = global_symbols.find(name);
         if (found != global_symbols.end()) {
-            std::cout << "я тута\n";
             return found->second;
         }
 

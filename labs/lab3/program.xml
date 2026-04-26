@@ -1,39 +1,582 @@
 <PROGRAM>
     <VARDECLARATION>
+        <VAR name="x">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="y">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="scan_data">
+            <TYPE>CELL</TYPE>
+            <DIMENSIONS count="2">
+                <DIMENSION>10</DIMENSION>
+                <DIMENSION>10</DIMENSION>
+            </DIMENSIONS>
+        </VAR>
+        <VAR name="passed_cells">
+            <TYPE>BOOL</TYPE>
+            <DIMENSIONS count="2">
+                <DIMENSION>10</DIMENSION>
+                <DIMENSION>10</DIMENSION>
+            </DIMENSIONS>
+        </VAR>
+        <VAR name="drones_left">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="exit_found">
+            <TYPE>BOOL</TYPE>
+        </VAR>
+        <VAR name="i">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="j">
+            <TYPE>INT</TYPE>
+        </VAR>
+
         <VAR name="exit_x">
-            <TYPE>
-                INT
-            </TYPE>
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="exit_y">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="send_drones">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="can_move">
+            <TYPE>BOOL</TYPE>
         </VAR>
     </VARDECLARATION>
-    <FUNC name="main">
+
+
+    <FUNC name="scan_and_search">
+        <GETDRONSCOUNT>drones_left</GETDRONSCOUNT>
+        <SWITCH>
+            <CONDITION>
+                <CHECK>
+                    <NOT>
+                        <EQ>
+                            <VALUE>drones_left</VALUE>
+                            <VALUE>0</VALUE>
+                        </EQ>
+                    </NOT>
+                </CHECK>
+                <DO>
+                    <ASSIGN>
+                        <VALUE>
+                            <SENDDRONS>
+                                <VALUE>
+                                    send_drones
+                                </VALUE>
+                            </SENDDRONS>
+                        </VALUE>
+                        <TO>scan_data</TO>
+                    </ASSIGN>
+                    <ASSIGN>
+                        <VALUE>false</VALUE>
+                        <TO>exit_found</TO>
+                    </ASSIGN>
+
+                    <ASSIGN>
+                        <VALUE>0</VALUE>
+                        <TO>i</TO>
+                    </ASSIGN>
+
+                    <WHILE>
+                        <CHECK>
+                            <AND>
+                                <NOT>
+                                    <VALUE>exit_found</VALUE>
+                                </NOT>
+                                <NOT>
+                                    <EQ>
+                                        <VALUE>i</VALUE>
+                                        <VALUE>10</VALUE>
+                                    </EQ>
+                                </NOT>
+                            </AND>
+                        </CHECK>
+                        <DO>
+                            <ASSIGN>
+                                <VALUE>0</VALUE>
+                                <TO>j</TO>
+                               
+                            </ASSIGN>
+
+                            <WHILE>
+                                <CHECK>
+                                    <AND>
+                                        <NOT>
+                                            <VALUE>exit_found</VALUE>
+                                        </NOT>
+                                        <NOT>
+                                            <EQ>
+                                                <VALUE>j</VALUE>
+                                                <VALUE>10</VALUE>
+                                            </EQ>
+                                        </NOT>
+                                    </AND>
+                                </CHECK>
+                                <DO>
+                                    <SWITCH>
+                                        <CONDITION>
+                                            <CHECK>
+                                                <EQ>
+                                                    <VALUE>
+                                                        scan_data
+                                                        <DIM><INDEX>i</INDEX></DIM>
+                                                        <DIM><INDEX>j</INDEX></DIM>
+                                                    </VALUE>
+                                                    <VALUE>EXIT</VALUE>
+                                                </EQ>
+                                            </CHECK>
+                                            <DO>
+                                                <ASSIGN>
+                                                    <VALUE>true</VALUE>
+                                                    <TO>exit_found</TO>
+                                                </ASSIGN>
+                                                <ASSIGN>
+                                                    <VALUE>j</VALUE>
+                                                    <TO>exit_x</TO>
+                                                </ASSIGN>
+                                                <ASSIGN>
+                                                    <VALUE>i</VALUE>
+                                                    <TO>exit_y</TO>
+                                                </ASSIGN>
+                                            </DO>
+                                        </CONDITION>
+                                    </SWITCH>
+                                    <ASSIGN>
+                                        <VALUE>
+                                            <ADD>
+                                                <VALUE>j</VALUE>
+                                                <VALUE>1</VALUE>
+                                            </ADD>
+                                        </VALUE>
+                                        <TO>j</TO>
+                                    </ASSIGN>
+                                </DO>
+                            </WHILE>
+
+                            <ASSIGN>
+                                <VALUE>
+                                    <ADD>
+                                        <VALUE>i</VALUE>
+                                        <VALUE>1</VALUE>
+                                    </ADD>
+                                </VALUE>
+                                <TO>i</TO>
+                            </ASSIGN>
+                        </DO>
+                    </WHILE>
+                </DO>
+            </CONDITION>
+        </SWITCH>
+    </FUNC>
+
+    <FUNC name="mark_passed_cell">
+        <ASSIGN>
+            <VALUE>true</VALUE>
+            <TO>
+                passed_cells
+                <DIM><INDEX>y</INDEX></DIM>
+                <DIM><INDEX>x</INDEX></DIM>
+            </TO>
+        </ASSIGN>
+    </FUNC>
+
+    <FUNC name="move_left">
+        <CALL>mark_passed_cell</CALL>
         <ASSIGN>
             <VALUE>
-                <MUL>
+                <SUB>
+                    <VALUE>x</VALUE>
                     <VALUE>1</VALUE>
-                    <VALUE>3</VALUE>
-                </MUL>
+                </SUB>
             </VALUE>
-            <TO>exit_x</TO>
+            <TO>x</TO>
+        </ASSIGN>
+        <LEFT>1</LEFT>
+    </FUNC>
+    <FUNC name="move_right">
+        <CALL>mark_passed_cell</CALL>
+        <ASSIGN>
+            <VALUE>
+                <ADD>
+                    <VALUE>x</VALUE>
+                    <VALUE>1</VALUE>
+                </ADD>
+            </VALUE>
+            <TO>x</TO>
+        </ASSIGN>
+        <RIGHT>1</RIGHT>
+    </FUNC>
+    <FUNC name="move_up">
+        <CALL>mark_passed_cell</CALL>
+        <ASSIGN>
+            <VALUE>
+                <SUB>
+                    <VALUE>y</VALUE>
+                    <VALUE>1</VALUE>
+                </SUB>
+            </VALUE>
+            <TO>y</TO>
+        </ASSIGN>
+        <UP>1</UP>
+    </FUNC>
+    <FUNC name="move_down">
+        <CALL>mark_passed_cell</CALL>
+        <ASSIGN>
+            <VALUE>
+                <ADD>
+                    <VALUE>y</VALUE>
+                    <VALUE>1</VALUE>
+                </ADD>
+            </VALUE>
+            <TO>y</TO>
+        </ASSIGN>
+        <DOWN>1</DOWN>
+    </FUNC>
+
+    <FUNC name="mark_undef">
+        <ASSIGN>
+            <VALUE>0</VALUE>
+            <TO>
+                i
+                j
+            </TO>
         </ASSIGN>
         <WHILE>
             <CHECK>
                 <NOT>
                     <EQ>
-                        <VALUE>
-                            exit_x
-                        </VALUE>
-                        <VALUE>
-                            0
-                        </VALUE>
+                        <VALUE>i</VALUE>
+                        <VALUE>10</VALUE>
                     </EQ>
                 </NOT>
             </CHECK>
             <DO>
-                <RIGHT>
-                    1
-                </RIGHT>
+                <ASSIGN>
+                    <VALUE>0</VALUE>
+                    <TO>j</TO>
+
+                </ASSIGN>
+
+                <WHILE>
+                    <CHECK>
+                        <NOT>
+                            <EQ>
+                                <VALUE>j</VALUE>
+                                <VALUE>10</VALUE>
+                            </EQ>
+                        </NOT>
+                    </CHECK>
+                    <DO>
+                        <ASSIGN>
+                            <VALUE>UNDEF</VALUE>
+                            <TO>
+                                scan_data
+                                <DIM><INDEX>i</INDEX></DIM>
+                                <DIM><INDEX>j</INDEX></DIM>
+                            </TO>
+                        </ASSIGN>
+                        <ASSIGN>
+                            <VALUE>
+                                <ADD>
+                                    <VALUE>j</VALUE>
+                                    <VALUE>1</VALUE>
+                                </ADD>
+                            </VALUE>
+                            <TO>j</TO>
+                        </ASSIGN>
+                    </DO>
+                </WHILE>
+
+                <ASSIGN>
+                    <VALUE>
+                        <ADD>
+                            <VALUE>i</VALUE>
+                            <VALUE>1</VALUE>
+                        </ADD>
+                    </VALUE>
+                    <TO>i</TO>
+                </ASSIGN>
             </DO>
         </WHILE>
+        <ASSIGN>
+            <VALUE>0</VALUE>
+            <TO>
+                i
+                j
+            </TO>
+        </ASSIGN>
+    </FUNC>
+
+    <FUNC name="can_move_next">
+        <SWITCH>
+            <CONDITION>
+                <CHECK>
+                    <AND>
+                        <NOT>
+                            <EQ>
+                                <VALUE>y</VALUE>
+                                <VALUE>9</VALUE>
+                            </EQ>
+                        </NOT>
+                        <OR>
+                            <EQ>
+                                scan_data
+                                <DIM><INDEX>
+                                    <ADD>
+                                        <VALUE>y</VALUE>
+                                        <VALUE>1</VALUE>
+                                    </ADD>
+                                </INDEX></DIM>
+                                <DIM><INDEX>x</INDEX></DIM>
+                                EMPTY
+                            </EQ>
+                            <EQ>
+                                scan_data
+                                <DIM><INDEX>
+                                    <ADD>
+                                        <VALUE>y</VALUE>
+                                        <VALUE>1</VALUE>
+                                    </ADD>
+                                </INDEX></DIM>
+                                <DIM><INDEX>x</INDEX></DIM>
+                                EXIT
+                            </EQ>
+                        </OR>
+                        <EQ>
+                            passed_cells
+                            <DIM><INDEX>
+                                <ADD>
+                                    <VALUE>y</VALUE>
+                                    <VALUE>1</VALUE>
+                                </ADD>
+                            </INDEX></DIM>
+                            <DIM><INDEX>x</INDEX></DIM>
+                            false
+                        </EQ>
+                    </AND>
+                </CHECK>
+                <DO>
+                    <CALL>move_down</CALL>
+                </DO>
+            </CONDITION>
+            <CONDITION>
+                <CHECK>
+                    <AND>
+                        <NOT>
+                            <EQ>
+                                <VALUE>y</VALUE>
+                                <VALUE>0</VALUE>
+                            </EQ>
+                        </NOT>
+                        <OR>
+                            <EQ>
+                                scan_data
+                                <DIM><INDEX>
+                                    <SUB>
+                                        <VALUE>y</VALUE>
+                                        <VALUE>1</VALUE>
+                                    </SUB>
+                                </INDEX></DIM>
+                                <DIM><INDEX>x</INDEX></DIM>
+                                EMPTY
+                            </EQ>
+                            <EQ>
+                                scan_data
+                                <DIM><INDEX>
+                                    <SUB>
+                                        <VALUE>y</VALUE>
+                                        <VALUE>1</VALUE>
+                                    </SUB>
+                                </INDEX></DIM>
+                                <DIM><INDEX>x</INDEX></DIM>
+                                EXIT
+                            </EQ>
+                        </OR>
+                        <EQ>
+                            passed_cells
+                            <DIM><INDEX>
+                                <SUB>
+                                    <VALUE>y</VALUE>
+                                    <VALUE>1</VALUE>
+                                </SUB>
+                            </INDEX></DIM>
+                            <DIM><INDEX>x</INDEX></DIM>
+                            false
+                        </EQ>
+                    </AND>
+                </CHECK>
+                <DO>
+                    <CALL>move_up</CALL>
+                </DO>
+            </CONDITION>
+            <CONDITION>
+                <CHECK>
+                    <AND>
+                        <NOT>
+                            <EQ>
+                                <VALUE>x</VALUE>
+                                <VALUE>9</VALUE>
+                            </EQ>
+                        </NOT>
+                        <OR>
+                            <EQ>
+                                scan_data
+                                <DIM><INDEX>y</INDEX></DIM>
+                                <DIM><INDEX>
+                                    <ADD>
+                                        <VALUE>x</VALUE>
+                                        <VALUE>1</VALUE>
+                                    </ADD>
+                                </INDEX></DIM>
+                                EMPTY
+                            </EQ>
+                            <EQ>
+                                scan_data
+                                <DIM><INDEX>y</INDEX></DIM>
+                                <DIM><INDEX>
+                                    <ADD>
+                                        <VALUE>x</VALUE>
+                                        <VALUE>1</VALUE>
+                                    </ADD>
+                                </INDEX></DIM>
+                                EXIT
+                            </EQ>
+                        </OR>
+                        <EQ>
+                            passed_cells
+                            <DIM><INDEX>y</INDEX></DIM>
+                            <DIM><INDEX>
+                                <ADD>
+                                    <VALUE>x</VALUE>
+                                    <VALUE>1</VALUE>
+                                </ADD>
+                            </INDEX></DIM>
+                            false
+                        </EQ>
+                    </AND>
+                </CHECK>
+                <DO>
+                    <CALL>move_right</CALL>
+                </DO>
+            </CONDITION>
+            <CONDITION>
+                <CHECK>
+                    <AND>
+                        <NOT>
+                            <EQ>
+                                <VALUE>x</VALUE>
+                                <VALUE>0</VALUE>
+                            </EQ>
+                        </NOT>
+                        <OR>
+                            <EQ>
+                                scan_data
+                                <DIM><INDEX>y</INDEX></DIM>
+                                <DIM><INDEX>
+                                    <SUB>
+                                        <VALUE>x</VALUE>
+                                        <VALUE>1</VALUE>
+                                    </SUB>
+                                </INDEX></DIM>
+                                EMPTY
+                            </EQ>
+                            <EQ>
+                                scan_data
+                                <DIM><INDEX>y</INDEX></DIM>
+                                <DIM><INDEX>
+                                    <SUB>
+                                        <VALUE>x</VALUE>
+                                        <VALUE>1</VALUE>
+                                    </SUB>
+                                </INDEX></DIM>
+                                EXIT
+                            </EQ>
+                        </OR>
+                        <EQ>
+                            passed_cells
+                            <DIM><INDEX>y</INDEX></DIM>
+                            <DIM><INDEX>
+                                <SUB>
+                                    <VALUE>x</VALUE>
+                                    <VALUE>1</VALUE>
+                                </SUB>
+                            </INDEX></DIM>
+                            false
+                        </EQ>
+                    </AND>
+                </CHECK>
+                <DO>
+                    <CALL>move_left</CALL>
+                </DO>
+            </CONDITION>
+            <CONDITION>
+                <CHECK>
+                    <EQ>
+                        <VALUE>1</VALUE>
+                        <VALUE>1</VALUE>
+                    </EQ>
+                </CHECK>
+                <DO>
+                    <CALL>scan_and_search</CALL>
+                    <GETDRONSCOUNT>drones_left</GETDRONSCOUNT>
+                </DO>
+            </CONDITION>
+        </SWITCH>
+    </FUNC>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <FUNC name="main">
+        <ASSIGN>
+            <VALUE>10</VALUE>
+            <TO>send_drones</TO>
+        </ASSIGN>
+        <ASSIGN><VALUE>0</VALUE><TO>x</TO></ASSIGN>
+        <ASSIGN><VALUE>0</VALUE><TO>y</TO></ASSIGN>
+
+        <CALL>mark_undef</CALL>
+        <CALL>mark_passed_cell</CALL>
+        <GETDRONSCOUNT>drones_left</GETDRONSCOUNT>
+        <WHILE>
+            <CHECK>
+                <NOT>
+                    <EQ>
+                        <VALUE>drones_left</VALUE>
+                        <VALUE>0</VALUE>
+                    </EQ>
+                </NOT>
+            </CHECK>
+            <DO>
+                <CALL>can_move_next</CALL>
+            </DO>
+        </WHILE>
+        <WHILE>
+            <CHECK>
+                <EQ>
+                    <VALUE>drones_left</VALUE>
+                    <VALUE>0</VALUE>
+                </EQ>
+            </CHECK>
+            <DO>
+                <UP>1</UP>
+            </DO>
+        </WHILE>
+
     </FUNC>
 </PROGRAM>

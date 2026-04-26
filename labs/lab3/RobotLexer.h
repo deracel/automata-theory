@@ -11,17 +11,16 @@
 #include "robot.tab.hpp"
 
 
-// ВАЖНО: класс в глобальном пространстве для Flex
 namespace yy {
     class RobotLexer : public yyFlexLexer {
     public:
-        RobotLexer(std::istream& input) : yyFlexLexer(&input) {}
-        RobotLexer(const std::string& input) : yyFlexLexer() {
+        explicit RobotLexer(std::istream& input) : yyFlexLexer(&input) {}
+        explicit RobotLexer(const std::string& input) : yyFlexLexer() {
             iss_ = new std::istringstream(input);
-            switch_streams(iss_);
+            yyFlexLexer::switch_streams(iss_);
         }
-        ~RobotLexer() {
-            if (iss_) delete iss_;
+        ~RobotLexer() override {
+            delete iss_;
         }
         int yylex(yy::RobotParser::semantic_type* yylval, yy::location* loc);
 

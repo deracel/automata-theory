@@ -190,7 +190,7 @@
 # define YYDEBUG 1
 #endif
 
-#line 64 "robot.ypp"
+#line 57 "robot.ypp"
 namespace  yy  {
 #line 196 "generated/robot.tab.hpp"
 
@@ -2995,14 +2995,14 @@ switch (yykind)
   };
 
 
-#line 64 "robot.ypp"
+#line 57 "robot.ypp"
 } //  yy 
 #line 3001 "generated/robot.tab.hpp"
 
 
 // "%code provides" blocks.
 #line 19 "robot.ypp"
-
+             // код доступен другим файлам
     void yyerror(const std::string& msg);
     extern yy::RobotLexer* THE_LEXER;
 

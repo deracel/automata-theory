@@ -691,9 +691,9 @@ static const flex_int32_t yy_rule_can_match_eol[94] =
 #include <cstring>
 #include <sstream>
 
-#include "robot.tab.hpp"
-#include "ast.hpp"
-#include "RobotLexer.h"
+#include "robot.tab.hpp"    //
+#include "ast.hpp"          // там все енамы
+#include "RobotLexer.h"     // класс отнаследованный от yyFlexLexer
 
 int error_count = 0;
 
@@ -703,8 +703,13 @@ using Token = yy::RobotParser::token;
 #undef YY_DECL
 #define YY_DECL int yy::RobotLexer::yylex(yy::RobotParser::semantic_type* yylval, yy::location* loc)
 
-#line 707 "generated/robot.lex.cpp"
-#line 708 "generated/robot.lex.cpp"
+#define YY_USER_ACTION \
+    loc->begin.line = loc->end.line = yylineno; \
+    loc->begin.column = 1; \
+    loc->end.column = yyleng;
+
+#line 712 "generated/robot.lex.cpp"
+#line 713 "generated/robot.lex.cpp"
 
 #define INITIAL 0
 
@@ -836,10 +841,10 @@ YY_DECL
 		}
 
 	{
-#line 35 "robot_lexer.l"
+#line 40 "robot_lexer.l"
 
 
-#line 843 "generated/robot.lex.cpp"
+#line 848 "generated/robot.lex.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -904,453 +909,451 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 37 "robot_lexer.l"
-{std::cout << "<PROGRAM>" << std::endl; return Token::TOKEN_PROGRAM_OPEN;}
+#line 42 "robot_lexer.l"
+{return Token::TOKEN_PROGRAM_OPEN;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 38 "robot_lexer.l"
-{std::cout << "</PROGRAM>" << std::endl; return Token::TOKEN_PROGRAM_CLOSE;}
+#line 43 "robot_lexer.l"
+{return Token::TOKEN_PROGRAM_CLOSE;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 40 "robot_lexer.l"
-{std::cout << "<VARDECL>" << std::endl; return Token::TOKEN_VARDECL_OPEN;}
+#line 45 "robot_lexer.l"
+{return Token::TOKEN_VARDECL_OPEN;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 41 "robot_lexer.l"
-{std::cout << "</VARDECL>" << std::endl; return Token::TOKEN_VARDECL_CLOSE;}
+#line 46 "robot_lexer.l"
+{return Token::TOKEN_VARDECL_CLOSE;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 43 "robot_lexer.l"
-{std::cout << "VAR" << std::endl; return Token::TOKEN_VAR_OPEN;}
+#line 48 "robot_lexer.l"
+{return Token::TOKEN_VAR_OPEN;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 44 "robot_lexer.l"
-{std::cout << "/VAR" << std::endl; return Token::TOKEN_VAR_CLOSE;}
+#line 49 "robot_lexer.l"
+{return Token::TOKEN_VAR_CLOSE;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 46 "robot_lexer.l"
+#line 51 "robot_lexer.l"
 {return Token::TOKEN_FUNC_OPEN;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 47 "robot_lexer.l"
+#line 52 "robot_lexer.l"
 {return Token::TOKEN_FUNC_CLOSE;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 48 "robot_lexer.l"
-{yylval->build<std::string>("main"); return Token::TOKEN_MAIN;}
+#line 53 "robot_lexer.l"
+{yylval->build<std::string>("main"); return Token::TOKEN_MAIN;} //yylval - семантическое значение токена. Передается парсеру вместе с самим токеном
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 50 "robot_lexer.l"
+#line 55 "robot_lexer.l"
 {return Token::TOKEN_CALL_OPEN;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 51 "robot_lexer.l"
+#line 56 "robot_lexer.l"
 {return Token::TOKEN_CALL_CLOSE;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 55 "robot_lexer.l"
-{std::cout << "name=" << std::endl; return Token::TOKEN_NAME_ATTR;}
+#line 60 "robot_lexer.l"
+{return Token::TOKEN_NAME_ATTR;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 56 "robot_lexer.l"
+#line 61 "robot_lexer.l"
 {return Token::TOKEN_CONST;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 57 "robot_lexer.l"
+#line 62 "robot_lexer.l"
 {return Token::TOKEN_COUNT;}
 	YY_BREAK
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 62 "robot_lexer.l"
+#line 67 "robot_lexer.l"
 {
                                 std::string str(yytext + 1, yyleng - 2);
-                                std::cout << str << std::endl;
                                 yylval->build<std::string>(str);
                                 return Token::TOKEN_STRING;
                             }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 68 "robot_lexer.l"
+#line 72 "robot_lexer.l"
 {yylval->build<bool>(true); return Token::TOKEN_BOOL;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 69 "robot_lexer.l"
+#line 73 "robot_lexer.l"
 {yylval->build<bool>(false); return Token::TOKEN_BOOL;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 72 "robot_lexer.l"
-{std::cout << "TYPE" << std::endl; return Token::TOKEN_TYPE_OPEN;}
+#line 76 "robot_lexer.l"
+{return Token::TOKEN_TYPE_OPEN;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 73 "robot_lexer.l"
-{std::cout << "/TYPE" << std::endl;return Token::TOKEN_TYPE_CLOSE;}
+#line 77 "robot_lexer.l"
+{return Token::TOKEN_TYPE_CLOSE;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 75 "robot_lexer.l"
+#line 79 "robot_lexer.l"
 {return Token::TOKEN_TYPE_INT;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 76 "robot_lexer.l"
+#line 80 "robot_lexer.l"
 {return Token::TOKEN_TYPE_BOOL;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 77 "robot_lexer.l"
+#line 81 "robot_lexer.l"
 {return Token::TOKEN_TYPE_CELL;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 78 "robot_lexer.l"
+#line 82 "robot_lexer.l"
 {yylval->build<CellValue>(CellValue::EMPTY); return Token::TOKEN_CELL_VALUE;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 79 "robot_lexer.l"
+#line 83 "robot_lexer.l"
 {yylval->build<CellValue>(CellValue::WALL); return Token::TOKEN_CELL_VALUE;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 80 "robot_lexer.l"
+#line 84 "robot_lexer.l"
 {yylval->build<CellValue>(CellValue::EXIT); return Token::TOKEN_CELL_VALUE;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 81 "robot_lexer.l"
+#line 85 "robot_lexer.l"
 {yylval->build<CellValue>(CellValue::UNDEF); return Token::TOKEN_CELL_VALUE;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 85 "robot_lexer.l"
+#line 89 "robot_lexer.l"
 {return Token::TOKEN_DIMENSIONS_OPEN;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 86 "robot_lexer.l"
+#line 90 "robot_lexer.l"
 {return Token::TOKEN_DIMENSIONS_CLOSE;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 88 "robot_lexer.l"
+#line 92 "robot_lexer.l"
 {return Token::TOKEN_DIMENSION_OPEN;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 89 "robot_lexer.l"
+#line 93 "robot_lexer.l"
 {return Token::TOKEN_DIMENSION_CLOSE;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 91 "robot_lexer.l"
+#line 95 "robot_lexer.l"
 {return Token::TOKEN_VALUES_OPEN;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 92 "robot_lexer.l"
+#line 96 "robot_lexer.l"
 {return Token::TOKEN_VALUES_CLOSE;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 94 "robot_lexer.l"
-{std::cout << "VALUE" << std::endl; return Token::TOKEN_VALUE_OPEN;}
+#line 98 "robot_lexer.l"
+{return Token::TOKEN_VALUE_OPEN;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 95 "robot_lexer.l"
-{std::cout << "/VALUE" << std::endl; return Token::TOKEN_VALUE_CLOSE;}
+#line 99 "robot_lexer.l"
+{return Token::TOKEN_VALUE_CLOSE;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 97 "robot_lexer.l"
+#line 101 "robot_lexer.l"
 {return Token::TOKEN_DIM_OPEN;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 98 "robot_lexer.l"
+#line 102 "robot_lexer.l"
 {return Token::TOKEN_DIM_CLOSE;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 100 "robot_lexer.l"
+#line 104 "robot_lexer.l"
 {return Token::TOKEN_INDEX_OPEN;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 101 "robot_lexer.l"
+#line 105 "robot_lexer.l"
 {return Token::TOKEN_INDEX_CLOSE;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 106 "robot_lexer.l"
-{std::cout << "ASSIGN" << std::endl; return Token::TOKEN_ASSIGN_OPEN;}
+#line 110 "robot_lexer.l"
+{return Token::TOKEN_ASSIGN_OPEN;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 107 "robot_lexer.l"
-{std::cout << "/ASSIGN" << std::endl; return Token::TOKEN_ASSIGN_CLOSE;}
+#line 111 "robot_lexer.l"
+{return Token::TOKEN_ASSIGN_CLOSE;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 109 "robot_lexer.l"
+#line 113 "robot_lexer.l"
 {return Token::TOKEN_TO_OPEN;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 110 "robot_lexer.l"
+#line 114 "robot_lexer.l"
 {return Token::TOKEN_TO_CLOSE;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 116 "robot_lexer.l"
-{std::cout << "тутаwhiile" << std::endl; return Token::TOKEN_WHILE_OPEN;}
+#line 120 "robot_lexer.l"
+{return Token::TOKEN_WHILE_OPEN;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 117 "robot_lexer.l"
+#line 121 "robot_lexer.l"
 {return Token::TOKEN_WHILE_CLOSE;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 119 "robot_lexer.l"
+#line 123 "robot_lexer.l"
 {return Token::TOKEN_CHECK_OPEN;}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 120 "robot_lexer.l"
+#line 124 "robot_lexer.l"
 {return Token::TOKEN_CHECK_CLOSE;}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 122 "robot_lexer.l"
+#line 126 "robot_lexer.l"
 {return Token::TOKEN_DO_OPEN;}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 123 "robot_lexer.l"
+#line 127 "robot_lexer.l"
 {return Token::TOKEN_DO_CLOSE;}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 125 "robot_lexer.l"
+#line 129 "robot_lexer.l"
 {return Token::TOKEN_SWITCH_OPEN;}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 126 "robot_lexer.l"
+#line 130 "robot_lexer.l"
 {return Token::TOKEN_SWITCH_CLOSE;}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 128 "robot_lexer.l"
+#line 132 "robot_lexer.l"
 {return Token::TOKEN_CONDITION_OPEN;}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 129 "robot_lexer.l"
+#line 133 "robot_lexer.l"
 {return Token::TOKEN_CONDITION_CLOSE;}
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 137 "robot_lexer.l"
+#line 141 "robot_lexer.l"
 {return Token::TOKEN_LEFT_OPEN;}
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 138 "robot_lexer.l"
+#line 142 "robot_lexer.l"
 {return Token::TOKEN_LEFT_CLOSE;}
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 140 "robot_lexer.l"
+#line 144 "robot_lexer.l"
 {return Token::TOKEN_RIGHT_OPEN;}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 141 "robot_lexer.l"
+#line 145 "robot_lexer.l"
 {return Token::TOKEN_RIGHT_CLOSE;}
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 143 "robot_lexer.l"
+#line 147 "robot_lexer.l"
 {return Token::TOKEN_UP_OPEN;}
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 144 "robot_lexer.l"
+#line 148 "robot_lexer.l"
 {return Token::TOKEN_UP_CLOSE;}
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 146 "robot_lexer.l"
+#line 150 "robot_lexer.l"
 {return Token::TOKEN_DOWN_OPEN;}
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 147 "robot_lexer.l"
+#line 151 "robot_lexer.l"
 {return Token::TOKEN_DOWN_CLOSE;}
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 149 "robot_lexer.l"
+#line 153 "robot_lexer.l"
 {return Token::TOKEN_SENDDRONS_OPEN;}
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 150 "robot_lexer.l"
+#line 154 "robot_lexer.l"
 {return Token::TOKEN_SENDDRONS_CLOSE;}
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 152 "robot_lexer.l"
+#line 156 "robot_lexer.l"
 {return Token::TOKEN_GETDRONSCOUNT_OPEN;}
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 153 "robot_lexer.l"
+#line 157 "robot_lexer.l"
 {return Token::TOKEN_GETDRONSCOUNT_CLOSE;}
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 158 "robot_lexer.l"
+#line 162 "robot_lexer.l"
 {return Token::TOKEN_ADD_OPEN;}
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 159 "robot_lexer.l"
+#line 163 "robot_lexer.l"
 {return Token::TOKEN_ADD_CLOSE;}
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 161 "robot_lexer.l"
-{std::cout << "MUL" << std::endl; return Token::TOKEN_MUL_OPEN;}
+#line 165 "robot_lexer.l"
+{return Token::TOKEN_MUL_OPEN;}
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 162 "robot_lexer.l"
-{std::cout << "/MUL" << std::endl; return Token::TOKEN_MUL_CLOSE;}
+#line 166 "robot_lexer.l"
+{return Token::TOKEN_MUL_CLOSE;}
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 164 "robot_lexer.l"
+#line 168 "robot_lexer.l"
 {return Token::TOKEN_SUB_OPEN;}
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 165 "robot_lexer.l"
+#line 169 "robot_lexer.l"
 {return Token::TOKEN_SUB_CLOSE;}
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 167 "robot_lexer.l"
+#line 171 "robot_lexer.l"
 {return Token::TOKEN_DIV_OPEN;}
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 168 "robot_lexer.l"
+#line 172 "robot_lexer.l"
 {return Token::TOKEN_DIV_CLOSE;}
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 174 "robot_lexer.l"
+#line 178 "robot_lexer.l"
 {return Token::TOKEN_NOT_OPEN;}
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 175 "robot_lexer.l"
+#line 179 "robot_lexer.l"
 {return Token::TOKEN_NOT_CLOSE;}
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 177 "robot_lexer.l"
+#line 181 "robot_lexer.l"
 {return Token::TOKEN_OR_OPEN;}
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 178 "robot_lexer.l"
+#line 182 "robot_lexer.l"
 {return Token::TOKEN_OR_CLOSE;}
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 180 "robot_lexer.l"
+#line 184 "robot_lexer.l"
 {return Token::TOKEN_AND_OPEN;}
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 181 "robot_lexer.l"
+#line 185 "robot_lexer.l"
 {return Token::TOKEN_AND_CLOSE;}
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 186 "robot_lexer.l"
+#line 190 "robot_lexer.l"
 {return Token::TOKEN_MAX_OPEN;}
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 187 "robot_lexer.l"
+#line 191 "robot_lexer.l"
 {return Token::TOKEN_MAX_CLOSE;}
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 189 "robot_lexer.l"
+#line 193 "robot_lexer.l"
 {return Token::TOKEN_MIN_OPEN;}
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 190 "robot_lexer.l"
+#line 194 "robot_lexer.l"
 {return Token::TOKEN_MIN_CLOSE;}
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 192 "robot_lexer.l"
+#line 196 "robot_lexer.l"
 {return Token::TOKEN_EQ_OPEN;}
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 193 "robot_lexer.l"
+#line 197 "robot_lexer.l"
 {return Token::TOKEN_EQ_CLOSE;}
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 197 "robot_lexer.l"
+#line 201 "robot_lexer.l"
 {yylval->build<bool>(true); return Token::TOKEN_BOOL_LIT;}
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 198 "robot_lexer.l"
+#line 202 "robot_lexer.l"
 {yylval->build<bool>(false); return Token::TOKEN_BOOL_LIT;}
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 202 "robot_lexer.l"
+#line 206 "robot_lexer.l"
 {
                                 int val = std::atoi(yytext);
-                                std::cout << val << std::endl;
                                 yylval->build<int>(val);
                                 return Token::TOKEN_INT_LIT;
                             }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 209 "robot_lexer.l"
+#line 212 "robot_lexer.l"
 {
                                 yylval->build<std::string>(yytext);
                                 return Token::TOKEN_IDENTIFIER;
@@ -1359,22 +1362,22 @@ YY_RULE_SETUP
 case 89:
 /* rule 89 can match eol */
 YY_RULE_SETUP
-#line 216 "robot_lexer.l"
+#line 219 "robot_lexer.l"
 {    }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 220 "robot_lexer.l"
-{std::cout << ">" << std::endl; return '>';}
+#line 223 "robot_lexer.l"
+{return '>';}
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 221 "robot_lexer.l"
+#line 224 "robot_lexer.l"
 {return Token::TOKEN_SELFCLOSE;}
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 226 "robot_lexer.l"
+#line 228 "robot_lexer.l"
 {
                         std::cerr << "LEXICAL ERROR (line " << yylineno << "): invalid character '" << yytext << "'" << std::endl;
                         error_count++;
@@ -1382,10 +1385,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 231 "robot_lexer.l"
+#line 233 "robot_lexer.l"
 ECHO;
 	YY_BREAK
-#line 1389 "generated/robot.lex.cpp"
+#line 1392 "generated/robot.lex.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2358,7 +2361,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 231 "robot_lexer.l"
+#line 233 "robot_lexer.l"
 
 
 

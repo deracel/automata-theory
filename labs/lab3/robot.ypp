@@ -1,4 +1,4 @@
-%skeleton "lalr1.cc"
+%skeleton "lalr1.cc"    // восходящий анализ
 %require "3.0"
 %language "c++"
 
@@ -16,7 +16,7 @@
     }
 }
 
-%code provides{
+%code provides{             // код доступен другим файлам
     void yyerror(const std::string& msg);
     extern yy::RobotLexer* THE_LEXER;
 }
@@ -28,36 +28,40 @@
     #include <stack>
     #include "RobotLexer.h"
 
-    bool has_main = false;
     yy::RobotLexer* THE_LEXER = nullptr;
 
-    // таблица символов
-    struct SymbolInfo{
-        VarDecl decl_;
-        std::vector<int> array_values_;
-        bool initialized_ = false;
-    };
+
     std::map<std::string, SymbolInfo> global_symbols;
     std::map<std::string, FuncDecl> functions;
+    bool has_main = false;
 
     void yyerror(const std::string& msg){
         std::cerr << "SYNTAX ERROR: " << msg << std::endl;
     }
-    static int yylex(yy::RobotParser::semantic_type* yylval,
-                     yy::location* loc,
-                     yy::RobotLexer& lexer) {
+    static int yylex(yy::RobotParser::semantic_type* yylval, yy::location* loc, yy::RobotLexer& lexer) {
         return lexer.yylex(yylval, loc);
     }
     static void semantic_error(const std::string& msg){
         std::cerr << "SEMANTIC ERROR: " << msg << std::endl;
         //exit(1);
     }
-    static int product(const std::vector<int>& dims){
+    static int product(const std::vector<int>& dims){ // для вычисления общего количества элементов в многомерном массиве
         int p = 1;
         for (int d : dims) p *= d;
         return p;
     }
 
+    int syntax_errors_ = 0;
+    struct ErrorInfo{
+        int line_;
+        int column_;
+        std::string msg_;
+        std::string type_; // syntax или semantic
+    };
+    std::vector<ErrorInfo> errors_;
+    void add_syntax_error(int line, int col, const std::string& error_msg){
+        errors_.push_back()
+    }
 }
 
 %define api.parser.class { RobotParser }
@@ -67,10 +71,10 @@
 %define parse.trace
 
 
-%locations
+%locations  // для отслежки строк и столбцов
 
-%lex-param { yy::RobotLexer& lexer }
-%parse-param { yy::RobotLexer& lexer }
+%lex-param { yy::RobotLexer& lexer }    // передача лексера в обертку yylex
+%parse-param { yy::RobotLexer& lexer }  // для передачи лексера в конструктор парсера
 
 
 
@@ -146,19 +150,28 @@
 %token TOKEN_SELFCLOSE
 %token '>'
 
-%type <std::vector<VarDecl>> var_list // хранит все переменные внутри var declaration
-%type <VarDecl> var_item // одно объявление переменной
+%type <std::vector<VarDecl>> var_list // список переменных
+
+%type <VarDecl> var_item // переменная
+
 %type <bool> opt_const // true или false. Является ли переменная константой
+
 %type <VarDecl::VarType> type_spec // тип перменной (INT, BOOL, CELL)
+
 %type <std::vector<int>> dims_list opt_dimensions // размеры векторов (объявлены либо опционально)
+
 %type <std::vector<expr_ptr>> value_list opt_init_values // список значений (объявлены либо опционально)
 
 %type <expr_ptr> expr primary_expr var_ref // (expr - указатель на узел выражения; primary - базовое выражение без операторов; var_ref - ссылка на переменную)
-%type <std::vector<expr_ptr>> expr_list opt_expr_list var_ref_list dim_ref_list //(expr_list - список выражения (аргументы для ADD и тд). Может быть опционален или состоять из ссылок)
+
+%type <std::vector<expr_ptr>> expr_list opt_expr_list var_ref_list dim_ref_list // (expr_list - список выражений (аргументы для ADD и тд). Может быть опционален или состоять из ссылок)
 
 %type <stmt_ptr> expr_stmt stmt assign_stmt while_stmt switch_stmt move_stmt call_stmt getdrons_stmt // (указатель на узел любой инструкции)
+
 %type <std::vector<stmt_ptr>> stmt_list // список инструкций
+
 %type <ConditionBranch> cond_branch // ветка условия
+
 %type <std::vector<ConditionBranch>> cond_list // список веток условий для switch
 
 %type <FuncDecl> func_def // описание функции
@@ -208,7 +221,6 @@ vardecl_block:
         for (const auto& decl : $2){
             if (global_symbols.find(decl.name_) != global_symbols.end()){
                 std::cerr << "SEMANTIC ERROR: variable '" << decl.name_ << "' already declared" << std::endl;
-
             }
             SymbolInfo info;
             info.decl_ = decl;
@@ -244,7 +256,6 @@ var_list:
     </VALUES>
 </VAR>
 */
-
 var_item:
     TOKEN_VAR_OPEN TOKEN_NAME_ATTR TOKEN_STRING opt_const '>' type_spec opt_dimensions opt_init_values TOKEN_VAR_CLOSE
     {
@@ -254,7 +265,7 @@ var_item:
         $$.dimensions_ = $7;
         $$.init_values_ = $8;
 
-        if (!$$.dimensions_.empty() && !$$.init_values_.empty()){
+        if (!$$.dimensions_.empty() && !$$.init_values_.empty()){ // если инициализированы не все переменные в массиве
             int expected = product($$.dimensions_);
             if ((int)$$.init_values_.size() != expected){
                 semantic_error("wrong number of initial values for '" + $$.name_ + "'");
@@ -269,7 +280,7 @@ opt_const:
     }
     | %empty
     {
-        $$ = false;
+        $$ = false; // по умолчанию ставлю false
     }
 ;
 
@@ -293,9 +304,10 @@ opt_dimensions:
     {
         $$ = std::vector<int>();
     }
-    | TOKEN_DIMENSIONS_OPEN TOKEN_COUNT TOKEN_INT_LIT '>' dims_list TOKEN_DIMENSIONS_CLOSE
+    | TOKEN_DIMENSIONS_OPEN TOKEN_COUNT TOKEN_STRING '>' dims_list TOKEN_DIMENSIONS_CLOSE
     {
-        if ($3 != (int)$5.size()){ // несовпадение count и сколько объявлено измерений
+        int value = atoi($3.c_str());
+        if (value != (int)$5.size()){ // несовпадение count и сколько объявлено измерений
             std::cerr << "SEMANTIC ERROR: dimension count mismatch" << std::endl;
             exit(1);
         }
@@ -338,6 +350,7 @@ value_list:
     }
 ;
 
+
 /*
 <FUNC name="main">
     <LEFT>1</LEFT>
@@ -348,7 +361,6 @@ value_list:
     <CALL>helper</CALL>
 </FUNC>
 */
-
 func_def:
     TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_MAIN '>' stmt_list TOKEN_FUNC_CLOSE
     {
@@ -563,7 +575,7 @@ move_stmt:
 <CALL>scan</CALL>
 */
 call_stmt:
-    TOKEN_CALL_OPEN TOKEN_STRING TOKEN_CALL_CLOSE
+    TOKEN_CALL_OPEN TOKEN_IDENTIFIER TOKEN_CALL_CLOSE
     {
         if (functions.find($2) == functions.end()){
             semantic_error("function '" + $2 + "' not defined");
@@ -629,8 +641,7 @@ expr:
     }
     | TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
     {
-        if ($2->value_type_ != ExprNode::TYPE_INT ||
-            $3->value_type_ != ExprNode::TYPE_INT){
+        if ($2->value_type_ != ExprNode::TYPE_INT || $3->value_type_ != ExprNode::TYPE_INT){
             semantic_error("SUB expects integers");
         }
 
@@ -642,8 +653,7 @@ expr:
     }
     | TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
     {
-        if ($2->value_type_ != ExprNode::TYPE_INT ||
-            $3->value_type_ != ExprNode::TYPE_INT){
+        if ($2->value_type_ != ExprNode::TYPE_INT || $3->value_type_ != ExprNode::TYPE_INT){
             semantic_error("DIV expects integers");
         }
         if ($3->type_ == ExprNode::INT_LIT && $3->int_value_ == 0){
@@ -699,6 +709,7 @@ expr:
                 semantic_error("EQ arguments must have same type");
             }
         }
+
         auto eq = std::make_shared<ExprNode>(ExprNode::EQ);
         eq->args_ = $2;
         eq->value_type_ = ExprNode::TYPE_BOOL;
@@ -799,9 +810,15 @@ var_ref:
         auto& decl = global_symbols[$1].decl_;
 
         switch (decl.type_) {
-            case VarDecl::INT:  iden->value_type_ = ExprNode::TYPE_INT; break;
-            case VarDecl::BOOL: iden->value_type_ = ExprNode::TYPE_BOOL; break;
-            case VarDecl::CELL: iden->value_type_ = ExprNode::TYPE_CELL; break;
+            case VarDecl::INT:
+                iden->value_type_ = ExprNode::TYPE_INT;
+                break;
+            case VarDecl::BOOL:
+                iden->value_type_ = ExprNode::TYPE_BOOL;
+                break;
+            case VarDecl::CELL:
+                iden->value_type_ = ExprNode::TYPE_CELL;
+                break;
             default: iden->value_type_ = ExprNode::TYPE_UNKNOWN;
         }
 
@@ -823,9 +840,15 @@ var_ref:
         }
         auto iden = ExprNode::make_var_ref($1);
         switch (decl.type_) {
-            case VarDecl::INT:  iden->value_type_ = ExprNode::TYPE_INT; break;
-            case VarDecl::BOOL: iden->value_type_ = ExprNode::TYPE_BOOL; break;
-            case VarDecl::CELL: iden->value_type_ = ExprNode::TYPE_CELL; break;
+            case VarDecl::INT:
+                iden->value_type_ = ExprNode::TYPE_INT;
+                break;
+            case VarDecl::BOOL:
+                iden->value_type_ = ExprNode::TYPE_BOOL;
+                break;
+            case VarDecl::CELL:
+                iden->value_type_ = ExprNode::TYPE_CELL;
+                break;
             default: iden->value_type_ = ExprNode::TYPE_UNKNOWN;
         }
 
@@ -852,9 +875,12 @@ dim_ref_list:
 %%
 
 void yy::RobotParser::error(const location_type& loc, const std::string& msg) {
-    std::cerr << "Error at " << loc << ": " << msg << std::endl;
+    std::cerr << "Syntax error at line "
+              << loc.begin.line
+              << ", column "
+              << loc.begin.column
+              << ": " << msg << std::endl;
 }
-
 
 
 

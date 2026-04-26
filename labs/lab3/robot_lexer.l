@@ -14,9 +14,9 @@
 #include <cstring>
 #include <sstream>
 
-#include "robot.tab.hpp"
-#include "ast.hpp"
-#include "RobotLexer.h"
+#include "robot.tab.hpp"    //
+#include "ast.hpp"          // там все енамы
+#include "RobotLexer.h"     // класс отнаследованный от yyFlexLexer
 
 int error_count = 0;
 
@@ -26,6 +26,11 @@ using Token = yy::RobotParser::token;
 #undef YY_DECL
 #define YY_DECL int yy::RobotLexer::yylex(yy::RobotParser::semantic_type* yylval, yy::location* loc)
 
+#define YY_USER_ACTION \
+    loc->begin.line = loc->end.line = yylineno; \
+    loc->begin.column = 1; \
+    loc->end.column = yyleng;
+
 %}
 
 DIGIT [0-9]
@@ -34,25 +39,25 @@ WHITESPACE [ \t\r\n]+
 
 %%
 
-"<PROGRAM>"                   {std::cout << "<PROGRAM>" << std::endl; return Token::TOKEN_PROGRAM_OPEN;}
-"</PROGRAM>"                  {std::cout << "</PROGRAM>" << std::endl; return Token::TOKEN_PROGRAM_CLOSE;}
+"<PROGRAM>"                   {return Token::TOKEN_PROGRAM_OPEN;}
+"</PROGRAM>"                  {return Token::TOKEN_PROGRAM_CLOSE;}
 
-"<VARDECLARATION>"            {std::cout << "<VARDECL>" << std::endl; return Token::TOKEN_VARDECL_OPEN;}
-"</VARDECLARATION>"           {std::cout << "</VARDECL>" << std::endl; return Token::TOKEN_VARDECL_CLOSE;}
+"<VARDECLARATION>"            {return Token::TOKEN_VARDECL_OPEN;}
+"</VARDECLARATION>"           {return Token::TOKEN_VARDECL_CLOSE;}
 
-"<VAR"                        {std::cout << "VAR" << std::endl; return Token::TOKEN_VAR_OPEN;}
-"</VAR>"                      {std::cout << "/VAR" << std::endl; return Token::TOKEN_VAR_CLOSE;}
+"<VAR"                        {return Token::TOKEN_VAR_OPEN;}
+"</VAR>"                      {return Token::TOKEN_VAR_CLOSE;}
 
 "<FUNC"                       {return Token::TOKEN_FUNC_OPEN;}
 "</FUNC>"                     {return Token::TOKEN_FUNC_CLOSE;}
-"main"                        {yylval->build<std::string>("main"); return Token::TOKEN_MAIN;}
+"main"                        {yylval->build<std::string>("main"); return Token::TOKEN_MAIN;} //yylval - семантическое значение токена. Передается парсеру вместе с самим токеном
 
 "<CALL>"                      {return Token::TOKEN_CALL_OPEN;}
 "</CALL>"                     {return Token::TOKEN_CALL_CLOSE;}
 
 
 
-name=                       {std::cout << "name=" << std::endl; return Token::TOKEN_NAME_ATTR;}
+name=                       {return Token::TOKEN_NAME_ATTR;}
 CONST=                      {return Token::TOKEN_CONST;}
 count=                      {return Token::TOKEN_COUNT;}
 
@@ -61,7 +66,6 @@ count=                      {return Token::TOKEN_COUNT;}
 
 \"[^\">]*\"                  {
                                 std::string str(yytext + 1, yyleng - 2);
-                                std::cout << str << std::endl;
                                 yylval->build<std::string>(str);
                                 return Token::TOKEN_STRING;
                             }
@@ -69,8 +73,8 @@ TRUE                        {yylval->build<bool>(true); return Token::TOKEN_BOOL
 FALSE                       {yylval->build<bool>(false); return Token::TOKEN_BOOL;}
 
 
-"<TYPE>"                      {std::cout << "TYPE" << std::endl; return Token::TOKEN_TYPE_OPEN;}
-"</TYPE>"                     {std::cout << "/TYPE" << std::endl;return Token::TOKEN_TYPE_CLOSE;}
+"<TYPE>"                      {return Token::TOKEN_TYPE_OPEN;}
+"</TYPE>"                     {return Token::TOKEN_TYPE_CLOSE;}
 
 INT                         {return Token::TOKEN_TYPE_INT;}
 BOOL                        {return Token::TOKEN_TYPE_BOOL;}
@@ -91,8 +95,8 @@ CELL                        {return Token::TOKEN_TYPE_CELL;}
 "<VALUES>"                    {return Token::TOKEN_VALUES_OPEN;}
 "</VALUES>"                   {return Token::TOKEN_VALUES_CLOSE;}
 
-"<VALUE>"                     {std::cout << "VALUE" << std::endl; return Token::TOKEN_VALUE_OPEN;}
-"</VALUE>"                    {std::cout << "/VALUE" << std::endl; return Token::TOKEN_VALUE_CLOSE;}
+"<VALUE>"                     {return Token::TOKEN_VALUE_OPEN;}
+"</VALUE>"                    {return Token::TOKEN_VALUE_CLOSE;}
 
 "<DIM>"                       {return Token::TOKEN_DIM_OPEN;}
 "</DIM>"                      {return Token::TOKEN_DIM_CLOSE;}
@@ -103,8 +107,8 @@ CELL                        {return Token::TOKEN_TYPE_CELL;}
 
 
 
-"<ASSIGN>"                    {std::cout << "ASSIGN" << std::endl; return Token::TOKEN_ASSIGN_OPEN;}
-"</ASSIGN>"                   {std::cout << "/ASSIGN" << std::endl; return Token::TOKEN_ASSIGN_CLOSE;}
+"<ASSIGN>"                    {return Token::TOKEN_ASSIGN_OPEN;}
+"</ASSIGN>"                   {return Token::TOKEN_ASSIGN_CLOSE;}
 
 "<TO>"                        {return Token::TOKEN_TO_OPEN;}
 "</TO>"                       {return Token::TOKEN_TO_CLOSE;}
@@ -113,7 +117,7 @@ CELL                        {return Token::TOKEN_TYPE_CELL;}
 
 
 
-"<WHILE>"                     {std::cout << "тутаwhiile" << std::endl; return Token::TOKEN_WHILE_OPEN;}
+"<WHILE>"                     {return Token::TOKEN_WHILE_OPEN;}
 "</WHILE>"                    {return Token::TOKEN_WHILE_CLOSE;}
 
 "<CHECK>"                     {return Token::TOKEN_CHECK_OPEN;}
@@ -158,8 +162,8 @@ CELL                        {return Token::TOKEN_TYPE_CELL;}
 "<ADD>"                       {return Token::TOKEN_ADD_OPEN;}
 "</ADD>"                      {return Token::TOKEN_ADD_CLOSE;}
 
-"<MUL>"                       {std::cout << "MUL" << std::endl; return Token::TOKEN_MUL_OPEN;}
-"</MUL>"                      {std::cout << "/MUL" << std::endl; return Token::TOKEN_MUL_CLOSE;}
+"<MUL>"                       {return Token::TOKEN_MUL_OPEN;}
+"</MUL>"                      {return Token::TOKEN_MUL_CLOSE;}
 
 "<SUB>"                       {return Token::TOKEN_SUB_OPEN;}
 "</SUB>"                      {return Token::TOKEN_SUB_CLOSE;}
@@ -201,7 +205,6 @@ false                       {yylval->build<bool>(false); return Token::TOKEN_BOO
 
 "-"?{DIGIT}+                {
                                 int val = std::atoi(yytext);
-                                std::cout << val << std::endl;
                                 yylval->build<int>(val);
                                 return Token::TOKEN_INT_LIT;
                             }
@@ -217,9 +220,8 @@ false                       {yylval->build<bool>(false); return Token::TOKEN_BOO
 
 
 
-">"                         {std::cout << ">" << std::endl; return '>';}
+">"                         {return '>';}
 "/>"                        {return Token::TOKEN_SELFCLOSE;}
-
 
 
 
