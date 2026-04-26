@@ -687,6 +687,8 @@ public:
         std::ifstream file(filename);
         file >> FIELD_HEIGHT;
         file >> FIELD_WIDTH;
+        file >> robot_x;
+        file >> robot_y;
         field.resize(FIELD_HEIGHT, std::vector<int>(FIELD_WIDTH));
         for (int y = 0; y < FIELD_HEIGHT; y++) {
             for (int x = 0; x < FIELD_WIDTH; x++) {

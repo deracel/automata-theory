@@ -35,16 +35,11 @@
     std::map<std::string, FuncDecl> functions;
     bool has_main = false;
 
-    void yyerror(const std::string& msg){
-        std::cerr << "SYNTAX ERROR: " << msg << std::endl;
-    }
+
     static int yylex(yy::RobotParser::semantic_type* yylval, yy::location* loc, yy::RobotLexer& lexer) {
         return lexer.yylex(yylval, loc);
     }
-    static void semantic_error(const std::string& msg){
-        std::cerr << "SEMANTIC ERROR: " << msg << std::endl;
-        //exit(1);
-    }
+
     static int product(const std::vector<int>& dims){ // для вычисления общего количества элементов в многомерном массиве
         int p = 1;
         for (int d : dims) p *= d;
@@ -60,7 +55,20 @@
     };
     std::vector<ErrorInfo> errors_;
     void add_syntax_error(int line, int col, const std::string& error_msg){
-        errors_.push_back()
+        errors_.push_back({line, col, error_msg, "syntax"});
+        syntax_errors_++;
+    }
+    void add_semantic_error(int line, int col, const std::string& error_msg){
+        errors_.push_back({line, col, error_msg, "semantic"});
+    }
+    void print_all_errors() {
+        if (!errors_.empty()) {
+            std::cerr << "\n=== ERRORS FOUND: " << errors_.size() << " ===\n";
+                for (const auto& e : errors_) {
+                    std::cerr << "  [" << e.type_ << "] line " << e.line_ << ":" << e.column_ << " - " << e.msg_ << std::endl;
+                }
+                std::cerr << "=== END OF ERRORS ===\n\n";
+        }
     }
 }
 
@@ -182,8 +190,13 @@
 program:
     TOKEN_PROGRAM_OPEN program_items TOKEN_PROGRAM_CLOSE
     {
+        print_all_errors();
+            if (!errors_.empty()) {
+                std::cerr << "Parsing failed with " << errors_.size() << " errors" << std::endl;
+                exit(1);
+            }
         if (!has_main){
-            fprintf(stderr, "SEMANTIC ERROR: function 'main' not found\n");
+            std::cerr << "SEMANTIC ERROR: function 'main' not found" << std::endl;
             exit(1);
         }
         std::cout << "=== PARSING COMPLETED SUCCESSFULLY ===" << std::endl;
@@ -199,19 +212,22 @@ program_items:
     {
         if (!$2.name_.empty()){
             if (functions.find($2.name_) != functions.end()){
-                std::cerr << "SEMANTIC ERROR: function '" << $2.name_ << "' already defined" << std::endl;
-                exit(1);
+                add_semantic_error(@2.begin.line, @2.begin.column, "SEMANTIC ERROR: function ' + $2.name_ ' + already defined");
             }
-            functions[$2.name_] = $2;
-            has_main = true;
-            std::cout << "Function defined: " << $2.name_ << std::endl;
+            else {
+                functions[$2.name_] = $2;
+                if ($2.name_ == "main"){
+                    has_main = true;
+                }
+                std::cout << "Function defined: " << $2.name_ << std::endl;
+            }
         }
     }
     | program_items error
     {
-        std::cerr << "Syntax error in global scope" << std::endl;
+        add_syntax_error(@2.begin.line, @2.begin.column, "syntax error in global scope");
         yyerrok;
-        exit(1);
+        yyclearin;
     }
 ;
 
@@ -220,7 +236,8 @@ vardecl_block:
     {
         for (const auto& decl : $2){
             if (global_symbols.find(decl.name_) != global_symbols.end()){
-                std::cerr << "SEMANTIC ERROR: variable '" << decl.name_ << "' already declared" << std::endl;
+               add_semantic_error(@1.begin.line, @1.begin.column, "variable '" + decl.name_ + "' already declared");
+               continue;
             }
             SymbolInfo info;
             info.decl_ = decl;
@@ -268,7 +285,7 @@ var_item:
         if (!$$.dimensions_.empty() && !$$.init_values_.empty()){ // если инициализированы не все переменные в массиве
             int expected = product($$.dimensions_);
             if ((int)$$.init_values_.size() != expected){
-                semantic_error("wrong number of initial values for '" + $$.name_ + "'");
+                add_semantic_error(@3.begin.line, @3.begin.column, "wrong number of initial values for '" + $$.name_ + "'");
             }
         }
     }
@@ -308,10 +325,11 @@ opt_dimensions:
     {
         int value = atoi($3.c_str());
         if (value != (int)$5.size()){ // несовпадение count и сколько объявлено измерений
-            std::cerr << "SEMANTIC ERROR: dimension count mismatch" << std::endl;
-            exit(1);
+            add_semantic_error(@2.begin.line, @2.begin.column, "dimension count mismatch: expected " + $3 + ", got " +  std::to_string($5.size()));
+        } else {
+            $$ = $5;
         }
-        $$ = $5;
+
     }
 ;
 
@@ -364,13 +382,14 @@ value_list:
 func_def:
     TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_MAIN '>' stmt_list TOKEN_FUNC_CLOSE
     {
-        if (has_main){
-            semantic_error("multiple definitions of 'main'");
-        }
-        $$.name_ = "main";
-        $$.body_ = $5;
-        $$.is_main_ = true;
-        has_main = true;
+            if (has_main){
+                add_semantic_error(@3.begin.line, @3.begin.column, "multiple definitions of 'main'");
+            } else{
+                $$.name_ = "main";
+                $$.body_ = $5;
+                $$.is_main_ = true;
+                has_main = true;
+            }
     }
     | TOKEN_FUNC_OPEN TOKEN_NAME_ATTR TOKEN_STRING '>' stmt_list TOKEN_FUNC_CLOSE
     {
@@ -389,9 +408,8 @@ stmt_list:
     }
     | stmt_list error
     {
-        std::cerr << "Syntax error in statement list. Skipping..." << std::endl;
+        add_syntax_error(@2.begin.line, @2.begin.column, "Syntax error in statement list");
         yyerrok;
-        exit(1);
         $$ = $1;
     }
 ;
@@ -427,10 +445,11 @@ assign_stmt:
         for (auto& var : $6){
             auto it = global_symbols.find(var->var_name_);
             if (it == global_symbols.end()){
-                semantic_error("assignment to undeclared variable '" + var->var_name_ + "'");
+                add_semantic_error(@6.begin.line, @6.begin.column, "assignment to undeclared variable '" + var->var_name_ + "'");
+                continue;
             }
             if (it->second.decl_.is_const_){
-                semantic_error("assignment to const variable '" + var->var_name_ + "'");
+                add_semantic_error(@6.begin.line, @6.begin.column, "assignment to const variable '" + var->var_name_ + "'");
             }
         }
 
@@ -467,13 +486,13 @@ while_stmt:
     TOKEN_WHILE_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_WHILE_CLOSE
     {
         if ($3->value_type_ != ExprNode::TYPE_BOOL){
-            semantic_error("while condition must be boolean");
+            add_semantic_error(@3.begin.line, @3.begin.column, "while condition must be boolean");
+        } else {
+            auto st = std::make_shared<StmtNode>(StmtNode::WHILE);
+            st->while_cond_ = $3;
+            st->while_body_ = $6;
+            $$ = st;
         }
-
-        auto st = std::make_shared<StmtNode>(StmtNode::WHILE);
-        st->while_cond_ = $3;
-        st->while_body_ = $6;
-        $$ = st;
     }
 ;
 
@@ -523,10 +542,11 @@ cond_branch:
     TOKEN_CONDITION_OPEN TOKEN_CHECK_OPEN expr TOKEN_CHECK_CLOSE TOKEN_DO_OPEN stmt_list TOKEN_DO_CLOSE TOKEN_CONDITION_CLOSE
     {
         if ($3->value_type_ != ExprNode::TYPE_BOOL){
-            semantic_error("condition must be boolean");
+            add_semantic_error(@3.begin.line, @3.begin.column, "condition must be boolean");
+        } else {
+            $$.condition_ = $3;
+            $$.body_ = $6;
         }
-        $$.condition_ = $3;
-        $$.body_ = $6;
     }
 ;
 
@@ -578,11 +598,12 @@ call_stmt:
     TOKEN_CALL_OPEN TOKEN_IDENTIFIER TOKEN_CALL_CLOSE
     {
         if (functions.find($2) == functions.end()){
-            semantic_error("function '" + $2 + "' not defined");
+            add_semantic_error(@2.begin.line, @2.begin.column, "function '" + $2 + "' not defined");
+        } else {
+            auto st = std::make_shared<StmtNode>(StmtNode::CALL);
+            st->call_name_ = $2;
+            $$ = st;
         }
-        auto st = std::make_shared<StmtNode>(StmtNode::CALL);
-        st->call_name_ = $2;
-        $$ = st;
     }
 ;
 
@@ -617,7 +638,7 @@ expr:
     {
         for (auto& arg : $2){
             if (arg->value_type_ != ExprNode::TYPE_INT){
-                semantic_error("ADD expects integer arguments");
+                add_semantic_error(@1.begin.line, @1.begin.column, "ADD expects integer arguments");
             }
         }
 
@@ -630,7 +651,7 @@ expr:
     {
         for (auto& arg : $2){
             if (arg->value_type_ != ExprNode::TYPE_INT){
-                semantic_error("MUL expects integer arguments");
+                add_semantic_error(@1.begin.line, @1.begin.column, "MUL expects integer arguments");
             }
         }
 
@@ -642,7 +663,7 @@ expr:
     | TOKEN_SUB_OPEN expr expr TOKEN_SUB_CLOSE
     {
         if ($2->value_type_ != ExprNode::TYPE_INT || $3->value_type_ != ExprNode::TYPE_INT){
-            semantic_error("SUB expects integers");
+            add_semantic_error(@1.begin.line, @1.begin.column, "SUB expects integers");
         }
 
         auto su = std::make_shared<ExprNode>(ExprNode::SUB);
@@ -654,10 +675,10 @@ expr:
     | TOKEN_DIV_OPEN expr expr TOKEN_DIV_CLOSE
     {
         if ($2->value_type_ != ExprNode::TYPE_INT || $3->value_type_ != ExprNode::TYPE_INT){
-            semantic_error("DIV expects integers");
+            add_semantic_error(@1.begin.line, @1.begin.column, "DIV expects integers");
         }
         if ($3->type_ == ExprNode::INT_LIT && $3->int_value_ == 0){
-            semantic_error("division by zero");
+            add_semantic_error(@1.begin.line, @1.begin.column, "division by zero");
         }
         auto di = std::make_shared<ExprNode>(ExprNode::DIV);
         di->args_.push_back($2);
@@ -669,7 +690,7 @@ expr:
     {
         for (auto& arg : $2){
             if (arg->value_type_ != ExprNode::TYPE_BOOL){
-                semantic_error("AND expects boolean arguments");
+                add_semantic_error(@1.begin.line, @1.begin.column, "AND expects boolean arguments");
             }
         }
 
@@ -682,7 +703,7 @@ expr:
     {
         for (auto& arg : $2){
             if (arg->value_type_ != ExprNode::TYPE_BOOL){
-                semantic_error("OR expects boolean arguments");
+                add_semantic_error(@1.begin.line, @1.begin.column, "OR expects boolean arguments");
             }
         }
 
@@ -694,7 +715,7 @@ expr:
     | TOKEN_NOT_OPEN expr TOKEN_NOT_CLOSE
     {
         if ($2->value_type_ != ExprNode::TYPE_BOOL){
-            semantic_error("NOT expects boolean");
+            add_semantic_error(@1.begin.line, @1.begin.column, "NOT expects boolean");
         }
 
         auto n = std::make_shared<ExprNode>(ExprNode::NOT);
@@ -706,7 +727,7 @@ expr:
     {
         for (size_t i = 1; i < $2.size(); i++){
             if ($2[i]->value_type_ != $2[0]->value_type_){
-                semantic_error("EQ arguments must have same type");
+                add_semantic_error(@1.begin.line, @1.begin.column, "EQ arguments must have same type");
             }
         }
 
@@ -719,7 +740,7 @@ expr:
     {
         for (auto& arg : $2){
             if (arg->value_type_ != ExprNode::TYPE_INT){
-                semantic_error("MAX expects integer arguments");
+                add_semantic_error(@1.begin.line, @1.begin.column, "MAX expects integer arguments");
             }
         }
 
@@ -732,7 +753,7 @@ expr:
     {
         for (auto& arg : $2){
             if (arg->value_type_ != ExprNode::TYPE_INT){
-                semantic_error("MIN expects integer arguments");
+                add_semantic_error(@1.begin.line, @1.begin.column, "MIN expects integer arguments");
             }
         }
 
@@ -803,7 +824,7 @@ var_ref:
     TOKEN_IDENTIFIER
     {
         if (global_symbols.find($1) == global_symbols.end()){
-            semantic_error("variable '" + $1 + "' not declared");
+            add_semantic_error(@1.begin.line, @1.begin.column, "variable '" + $1 + "' not declared");
         }
 
         auto iden = ExprNode::make_var_ref($1);
@@ -827,15 +848,15 @@ var_ref:
     | TOKEN_IDENTIFIER dim_ref_list
     {
         if (global_symbols.find($1) == global_symbols.end()){
-            semantic_error("variable '" + $1 + "' not declared");
+            add_semantic_error(@1.begin.line, @1.begin.column, "variable '" + $1 + "' not declared");
         }
         auto& decl = global_symbols[$1].decl_;
         if ($2.size() != decl.dimensions_.size()){
-            semantic_error("wrong number of indices for '" + $1 + "'");
+            add_semantic_error(@1.begin.line, @1.begin.column, "wrong number of indices for '" + $1 + "'");
         }
         for (auto& idx : $2) {
             if (idx->value_type_ != ExprNode::TYPE_INT){
-                semantic_error("array index must be integer");
+                add_semantic_error(@1.begin.line, @1.begin.column, "array index must be integer");
             }
         }
         auto iden = ExprNode::make_var_ref($1);
@@ -875,11 +896,7 @@ dim_ref_list:
 %%
 
 void yy::RobotParser::error(const location_type& loc, const std::string& msg) {
-    std::cerr << "Syntax error at line "
-              << loc.begin.line
-              << ", column "
-              << loc.begin.column
-              << ": " << msg << std::endl;
+    add_syntax_error(loc.begin.line, loc.begin.column, msg);
 }
 
 
