@@ -569,9 +569,6 @@ private:
 
     void execute_call(stmt_ptr stmt) {
         auto it = functions.find(stmt->call_name_);
-        if (it == functions.end()) {
-            throw std::runtime_error("Function not found: " + stmt->call_name_);
-        }
 
         std::cout << "Calling function: " << stmt->call_name_ << std::endl;
 
@@ -586,6 +583,7 @@ private:
 
         scopes_.pop_back();
     }
+
     void execute_getdronscount(stmt_ptr stmt) {
         Value v;
         v.type_ = Value::INT;
@@ -597,6 +595,7 @@ private:
             {"count", drone_count}
         });
     }
+
 public:
     Interpreter(FILE* go_stdin = nullptr)
         : go_stdin(go_stdin), rng(std::random_device{}()) {
@@ -708,8 +707,6 @@ public:
         if (found != global_symbols.end()) {
             return found->second;
         }
-
-        throw std::runtime_error("Undefined variable: " + name);
     }
 };
 
