@@ -13,6 +13,13 @@
                 <DIMENSION>10</DIMENSION>
             </DIMENSIONS>
         </VAR>
+        <VAR name="all_scanned_cells">
+            <TYPE>CELL</TYPE>
+            <DIMENSIONS count="2">
+                <DIMENSION>10</DIMENSION>
+                <DIMENSION>10</DIMENSION>
+            </DIMENSIONS>
+        </VAR>
         <VAR name="passed_cells">
             <TYPE>BOOL</TYPE>
             <DIMENSIONS count="2">
@@ -141,6 +148,34 @@
                                                 <ASSIGN>
                                                     <VALUE>i</VALUE>
                                                     <TO>exit_y</TO>
+                                                </ASSIGN>
+                                            </DO>
+                                        </CONDITION>
+                                        <CONDITION>
+                                            <CHECK>
+                                                <NOT>
+                                                    <EQ>
+                                                        <VALUE>
+                                                            scan_data
+                                                            <DIM><INDEX>i</INDEX></DIM>
+                                                            <DIM><INDEX>j</INDEX></DIM>
+                                                        </VALUE>
+                                                        <VALUE>UNDEF</VALUE>
+                                                    </EQ>
+                                                </NOT>
+                                            </CHECK>
+                                            <DO>
+                                                <ASSIGN>
+                                                    <VALUE>
+                                                        scan_data
+                                                        <DIM><INDEX>i</INDEX></DIM>
+                                                        <DIM><INDEX>j</INDEX></DIM>
+                                                    </VALUE>
+                                                    <TO>
+                                                        all_scanned_cells
+                                                        <DIM><INDEX>i</INDEX></DIM>
+                                                        <DIM><INDEX>j</INDEX></DIM>
+                                                    </TO>
                                                 </ASSIGN>
                                             </DO>
                                         </CONDITION>
@@ -324,7 +359,7 @@
                         </NOT>
                         <OR>
                             <EQ>
-                                scan_data
+                                all_scanned_cells
                                 <DIM><INDEX>
                                     <ADD>
                                         <VALUE>y</VALUE>
@@ -335,7 +370,7 @@
                                 EMPTY
                             </EQ>
                             <EQ>
-                                scan_data
+                                all_scanned_cells
                                 <DIM><INDEX>
                                     <ADD>
                                         <VALUE>y</VALUE>
@@ -374,7 +409,7 @@
                         </NOT>
                         <OR>
                             <EQ>
-                                scan_data
+                                all_scanned_cells
                                 <DIM><INDEX>
                                     <SUB>
                                         <VALUE>y</VALUE>
@@ -385,7 +420,7 @@
                                 EMPTY
                             </EQ>
                             <EQ>
-                                scan_data
+                                all_scanned_cells
                                 <DIM><INDEX>
                                     <SUB>
                                         <VALUE>y</VALUE>
@@ -424,7 +459,7 @@
                         </NOT>
                         <OR>
                             <EQ>
-                                scan_data
+                                all_scanned_cells
                                 <DIM><INDEX>y</INDEX></DIM>
                                 <DIM><INDEX>
                                     <ADD>
@@ -435,7 +470,7 @@
                                 EMPTY
                             </EQ>
                             <EQ>
-                                scan_data
+                                all_scanned_cells
                                 <DIM><INDEX>y</INDEX></DIM>
                                 <DIM><INDEX>
                                     <ADD>
@@ -474,7 +509,7 @@
                         </NOT>
                         <OR>
                             <EQ>
-                                scan_data
+                                all_scanned_cells
                                 <DIM><INDEX>y</INDEX></DIM>
                                 <DIM><INDEX>
                                     <SUB>
@@ -485,7 +520,7 @@
                                 EMPTY
                             </EQ>
                             <EQ>
-                                scan_data
+                                all_scanned_cells
                                 <DIM><INDEX>y</INDEX></DIM>
                                 <DIM><INDEX>
                                     <SUB>
