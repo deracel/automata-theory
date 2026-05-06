@@ -1,0 +1,419 @@
+<PROGRAM>
+    <VARDECLARATION>
+        <VAR name="min_x" CONST="false">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="max_x" CONST="false">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="middle_x" CONST="false">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="val10" CONST="false">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="empty_array" CONST="false">
+            <TYPE>INT</TYPE>
+            <DIMENSIONS count="2">
+                <DIMENSION>10</DIMENSION>
+                <DIMENSION>10</DIMENSION>
+            </DIMENSIONS>
+        </VAR>
+        <VAR name="i" CONST="false">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="j" CONST="false">
+            <TYPE>INT</TYPE>
+        </VAR>
+        <VAR name="are_equal" CONST="false">
+            <TYPE>BOOL</TYPE>
+        </VAR>
+    </VARDECLARATION>
+
+
+
+    <FUNC name="init_empty_array">
+        <ASSIGN>
+            <VALUE>0</VALUE>
+            <TO>
+                i
+                j
+            </TO>
+        </ASSIGN>
+        <WHILE>
+            <CHECK>
+                <NOT>
+                    <EQ>
+                        <VALUE>i</VALUE>
+                        <VALUE>10</VALUE>
+                    </EQ>
+                </NOT>
+            </CHECK>
+            <DO>
+                <ASSIGN>
+                    <VALUE>0</VALUE>
+                    <TO>j</TO>
+
+                </ASSIGN>
+
+                <WHILE>
+                    <CHECK>
+                        <NOT>
+                            <EQ>
+                                <VALUE>j</VALUE>
+                                <VALUE>10</VALUE>
+                            </EQ>
+                        </NOT>
+                    </CHECK>
+                    <DO>
+                        <ASSIGN>
+                            <VALUE>-1</VALUE>
+                            <TO>
+                                empty_array
+                                <DIM><INDEX>i</INDEX></DIM>
+                                <DIM><INDEX>j</INDEX></DIM>
+                            </TO>
+                        </ASSIGN>
+                        <ASSIGN>
+                            <VALUE>
+                                <ADD>
+                                    <VALUE>j</VALUE>
+                                    <VALUE>1</VALUE>
+                                </ADD>
+                            </VALUE>
+                            <TO>j</TO>
+                        </ASSIGN>
+                    </DO>
+                </WHILE>
+
+                <ASSIGN>
+                    <VALUE>
+                        <ADD>
+                            <VALUE>i</VALUE>
+                            <VALUE>1</VALUE>
+                        </ADD>
+                    </VALUE>
+                    <TO>i</TO>
+                </ASSIGN>
+            </DO>
+        </WHILE>
+        <ASSIGN>
+            <VALUE>0</VALUE>
+            <TO>
+                i
+                j
+            </TO>
+        </ASSIGN>
+    </FUNC>
+
+    <VARDECLARATION>
+        <VAR name="numbers_array" CONST="false">
+            <TYPE>INT</TYPE>
+            <DIMENSIONS count="2">
+                <DIMENSION>10</DIMENSION>
+                <DIMENSION>10</DIMENSION>
+            </DIMENSIONS>
+        </VAR>
+    </VARDECLARATION>
+
+    <FUNC name="init_array_w_numbers">
+        <ASSIGN>
+            <VALUE>0</VALUE>
+            <TO>
+                i
+                j
+            </TO>
+        </ASSIGN>
+        <WHILE>
+            <CHECK>
+                <NOT>
+                    <EQ>
+                        <VALUE>i</VALUE>
+                        <VALUE>10</VALUE>
+                    </EQ>
+                </NOT>
+            </CHECK>
+            <DO>
+                <ASSIGN>
+                    <VALUE>0</VALUE>
+                    <TO>j</TO>
+
+                </ASSIGN>
+
+                <WHILE>
+                    <CHECK>
+                        <NOT>
+                            <EQ>
+                                <VALUE>j</VALUE>
+                                <VALUE>10</VALUE>
+                            </EQ>
+                        </NOT>
+                    </CHECK>
+                    <DO>
+                        <ASSIGN>
+                            <VALUE>
+                                <ADD>
+                                    <VALUE>i</VALUE>
+                                    <VALUE>j</VALUE>
+                                </ADD>
+                            </VALUE>
+                            <TO>
+                                numbers_array
+                                <DIM><INDEX>i</INDEX></DIM>
+                                <DIM><INDEX>j</INDEX></DIM>
+                            </TO>
+                        </ASSIGN>
+                        <ASSIGN>
+                            <VALUE>
+                                <ADD>
+                                    <VALUE>j</VALUE>
+                                    <VALUE>1</VALUE>
+                                </ADD>
+                            </VALUE>
+                            <TO>j</TO>
+                        </ASSIGN>
+                    </DO>
+                </WHILE>
+
+                <ASSIGN>
+                    <VALUE>
+                        <ADD>
+                            <VALUE>i</VALUE>
+                            <VALUE>1</VALUE>
+                        </ADD>
+                    </VALUE>
+                    <TO>i</TO>
+                </ASSIGN>
+            </DO>
+        </WHILE>
+        <ASSIGN>
+            <VALUE>0</VALUE>
+            <TO>
+                i
+                j
+            </TO>
+        </ASSIGN>
+    </FUNC>
+
+
+    <FUNC name="check_equal">
+        <ASSIGN>
+            <VALUE>0</VALUE>
+            <TO>
+                i
+                j
+            </TO>
+        </ASSIGN>
+        <WHILE>
+            <CHECK>
+                <NOT>
+                    <EQ>
+                        <VALUE>i</VALUE>
+                        <VALUE>10</VALUE>
+                    </EQ>
+                </NOT>
+            </CHECK>
+            <DO>
+                <ASSIGN>
+                    <VALUE>0</VALUE>
+                    <TO>j</TO>
+
+                </ASSIGN>
+
+                <WHILE>
+                    <CHECK>
+                        <NOT>
+                            <EQ>
+                                <VALUE>j</VALUE>
+                                <VALUE>10</VALUE>
+                            </EQ>
+                        </NOT>
+                    </CHECK>
+                    <DO>
+                        <SWITCH>
+                            <CONDITION>
+                                <CHECK>
+                                    <NOT>
+                                        <EQ>
+                                            empty_array
+                                            <DIM><INDEX>i</INDEX></DIM>
+                                            <DIM><INDEX>j</INDEX></DIM>
+
+                                            numbers_array
+                                            <DIM><INDEX>i</INDEX></DIM>
+                                            <DIM><INDEX>j</INDEX></DIM>
+                                        </EQ>
+                                    </NOT>
+                                </CHECK>
+                                <DO>
+                                    <ASSIGN>
+                                        <VALUE>false</VALUE>
+                                        <TO>are_equal</TO>
+                                    </ASSIGN>
+                                </DO>
+                            </CONDITION>
+                        </SWITCH>
+                        <ASSIGN>
+                            <VALUE>
+                                <ADD>
+                                    <VALUE>j</VALUE>
+                                    <VALUE>1</VALUE>
+                                </ADD>
+                            </VALUE>
+                            <TO>j</TO>
+                        </ASSIGN>
+                    </DO>
+                </WHILE>
+
+                <ASSIGN>
+                    <VALUE>
+                        <ADD>
+                            <VALUE>i</VALUE>
+                            <VALUE>1</VALUE>
+                        </ADD>
+                    </VALUE>
+                    <TO>i</TO>
+                </ASSIGN>
+            </DO>
+        </WHILE>
+        <ASSIGN>
+            <VALUE>0</VALUE>
+            <TO>
+                i
+                j
+            </TO>
+        </ASSIGN>
+    </FUNC>
+
+    <FUNC name="main">
+        <ASSIGN>
+            <VALUE>0</VALUE>
+            <TO>min_x</TO>
+        </ASSIGN>
+        <ASSIGN>
+            <VALUE>100</VALUE>
+            <TO>max_x</TO>
+        </ASSIGN>
+        <ASSIGN>
+            <VALUE>50</VALUE>
+            <TO>middle_x</TO>
+        </ASSIGN>
+        <ASSIGN>
+            <VALUE>10</VALUE>
+            <TO>val10</TO>
+        </ASSIGN>
+        <SWITCH>
+            <CONDITION>
+                <CHECK>
+                    <EQ>
+                        <MIN>
+                            min_x
+                            middle_x
+                            max_x
+                        </MIN>
+                        <VALUE>min_x</VALUE>
+                    </EQ>
+                </CHECK>
+                <DO>
+                    <DOWN>1</DOWN>
+                </DO>
+            </CONDITION>
+        </SWITCH>
+
+        <SWITCH>
+            <CONDITION>
+                <CHECK>
+                    <EQ>
+                        <MAX>
+                            min_x
+                            middle_x
+                            max_x
+                        </MAX>
+                        <VALUE>max_x</VALUE>
+                    </EQ>
+                </CHECK>
+                <DO>
+                    <DOWN>1</DOWN>
+                </DO>
+            </CONDITION>
+        </SWITCH>
+
+        <SWITCH>
+            <CONDITION>
+                <CHECK>
+                    <EQ>
+                        <MUL>
+                            <VALUE>val10</VALUE>
+                            <VALUE>3</VALUE>
+                            <VALUE>2</VALUE>
+                        </MUL>
+                        <VALUE>60</VALUE>
+                    </EQ>
+                </CHECK>
+                <DO>
+                    <DOWN>1</DOWN>
+                </DO>
+            </CONDITION>
+        </SWITCH>
+
+        <SWITCH>
+            <CONDITION>
+                <CHECK>
+                    <EQ>
+                        <DIV>
+                            <VALUE>val10</VALUE>
+                            <VALUE>5</VALUE>
+                        </DIV>
+                        <VALUE>2</VALUE>
+                    </EQ>
+                </CHECK>
+                <DO>
+                    <DOWN>1</DOWN>
+                </DO>
+            </CONDITION>
+        </SWITCH>
+
+        <SWITCH>
+            <CONDITION>
+                <CHECK>
+                    <EQ>
+                        <DIV>
+                            <VALUE>val10</VALUE>
+                            <VALUE>3</VALUE>
+                        </DIV>
+                        <VALUE>3</VALUE>
+                    </EQ>
+                </CHECK>
+                <DO>
+                    <RIGHT>1</RIGHT>
+                </DO>
+            </CONDITION>
+        </SWITCH>
+
+        <CALL>init_empty_array</CALL>
+        <CALL>init_array_w_numbers</CALL>
+        <ASSIGN>
+            <VALUE>numbers_array</VALUE>
+            <TO>empty_array</TO>
+        </ASSIGN>
+        <ASSIGN>
+            <VALUE>true</VALUE>
+            <TO>are_equal</TO>
+        </ASSIGN>
+        <CALL>check_equal</CALL>
+        <SWITCH>
+            <CONDITION>
+                <CHECK>
+                    <EQ>
+                        <VALUE>are_equal</VALUE>
+                        <VALUE>true</VALUE>
+                    </EQ>
+                </CHECK>
+                <DO>
+                    <DOWN>1</DOWN>
+                </DO>
+            </CONDITION>
+        </SWITCH>
+
+    </FUNC>
+</PROGRAM>

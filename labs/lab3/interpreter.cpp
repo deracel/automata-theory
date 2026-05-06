@@ -216,6 +216,14 @@ private:
         }
 
         if (node->indices_.empty()) {
+            if (!sym.decl_.dimensions_.empty()) {
+                Value v;
+                v.type_ = Value::ARRAY;
+                v.array_val_ = sym.array_value_;
+                v.dims_ = sym.decl_.dimensions_;
+                return v;
+            }
+
             Value v;
             switch (sym.decl_.type_) {
             case VarDecl::INT:
